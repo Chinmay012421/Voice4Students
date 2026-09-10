@@ -1,0 +1,172 @@
+from flask import Flask, request, redirect, session, render_template
+from database import (
+    init_db, get_user, save_user, save_admin_application,
+    get_pending_applications, approve_admin, reject_admin,
+    save_report, get_all_reports, get_user_reports,
+    update_report_status, delete_report, get_unreasonable_reports
+)
+
+app = Flask(__name__)
+app.secret_key = "schoolfix-demo-secret-key"
+init_db()
+
+
+def logged_in():
+    return "username" in session
+
+
+def is_main_admin():
+    return session.get("role") == "main_admin"
+
+
+def is_admin():
+    return session.get("role") in ("admin", "main_admin")
+
+
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+        user = get_user(username, password)
+        if user:
+            session.clear()
+            session["username"] = user[1]
+            session["role"] = user[3]
+            return redirect("/dashboard")
+        return render_template("login.html", error="Invalid username or password.")
+    return render_template("login.html")
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/")
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+        if not username or not password:
+            return render_template("register.html", error="Please fill all fields.")
+        try:
+            save_user(username, password, "student")
+            return render_template("login.html", message="Registration successful. Please log in as a student.")
+        except Exception as e:
+            return render_template("register.html", error="Username already exists.")
+    return render_template("register.html")
+
+
+@app.route("/dashboard")
+def dashboard():
+    if not logged_in():
+        return redirect("/login")
+    return render_template("dashboard.html", username=session["username"], role=session["role"])
+
+
+@app.route("/apply-admin", methods=["GET", "POST"])
+def apply_admin():
+    if not logged_in() or session.get("role") != "student":
+        return redirect("/login")
+    if request.method == "POST":
+        reason = request.form.get("reason", "").strip()
+        if not reason:
+            return render_template("apply_admin.html", error="Please give a reason for your application.")
+        save_admin_application(session["username"], reason)
+        return render_template("apply_admin.html", message="Application sent to Main Admin.")
+    return render_template("apply_admin.html")
+
+
+@app.route("/admin-applications")
+def admin_applications():
+    if not is_main_admin():
+        return redirect("/dashboard")
+    return render_template("admin_applications.html", applications=get_pending_applications())
+
+
+@app.route("/approve-admin/<int:application_id>")
+def approve_admin_route(application_id):
+    if not is_main_admin():
+        return redirect("/dashboard")
+    approve_admin(application_id)
+    return redirect("/admin-applications")
+
+
+@app.route("/reject-admin/<int:application_id>")
+def reject_admin_route(application_id):
+    if not is_main_admin():
+        return redirect("/dashboard")
+    reject_admin(application_id)
+    return redirect("/admin-applications")
+
+
+@app.route("/submit-report", methods=["POST"])
+def submit_report():
+    if not logged_in() or session.get("role") != "student":
+        return redirect("/login")
+    category = request.form.get("category", "General")
+    location = request.form.get("location", "").strip()
+    message = request.form.get("message", "").strip()
+    if not message:
+        return redirect("/dashboard")
+    save_report(session["username"], category, location, message)
+    return redirect("/my-reports")
+
+
+@app.route("/my-reports")
+def my_reports():
+    if not logged_in():
+        return redirect("/login")
+    reports = get_user_reports(session["username"])
+    return render_template("my_reports.html", reports=reports, role=session["role"])
+
+
+@app.route("/reports")
+def reports():
+    if not is_admin():
+        return redirect("/dashboard")
+    return render_template("reports.html", reports=get_all_reports())
+
+
+@app.route("/update-report/<int:report_id>", methods=["POST"])
+def update_report(report_id):
+    if not is_admin():
+        return redirect("/dashboard")
+    status = request.form.get("status", "Pending")
+    note = request.form.get("admin_note", "").strip()
+    update_report_status(report_id, status, note)
+    return redirect("/reports")
+
+
+@app.route("/unreasonable/<int:report_id>")
+def unreasonable(report_id):
+    if not is_admin():
+        return redirect("/dashboard")
+    update_report_status(report_id, "Unreasonable", "Sent to Main Admin for review")
+    return redirect("/reports")
+
+
+@app.route("/unreasonable-reports")
+def unreasonable_reports():
+    if not is_main_admin():
+        return redirect("/dashboard")
+    return render_template("unreasonable_reports.html", reports=get_unreasonable_reports())
+
+
+@app.route("/delete-report/<int:report_id>")
+def delete_report_route(report_id):
+    if not is_main_admin():
+        return redirect("/dashboard")
+    delete_report(report_id)
+    return redirect("/unreasonable-reports")
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
