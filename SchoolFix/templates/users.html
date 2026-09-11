@@ -1,0 +1,16 @@
+{% extends "base.html" %}{% block title %}Manage Users — SchoolFix{% endblock %}
+{% block content %}
+<div class="auth-wrap"><div class="auth-card" style="max-width:900px">
+<p class="eyebrow">Main Admin</p><h1>Manage Users</h1>
+{% if error %}<div class="alert error">{{ error }}</div>{% endif %}
+<p class="muted">Passwords are never displayed. You can issue a temporary password when a student or admin forgets theirs.</p>
+<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">
+<tr><th style="text-align:left;padding:8px">ID</th><th style="text-align:left;padding:8px">Username</th><th style="text-align:left;padding:8px">Role</th><th style="text-align:left;padding:8px">Registered</th><th style="text-align:left;padding:8px">Action</th></tr>
+{% for u in users %}
+<tr>
+<td style="padding:8px">{{ u[0] }}</td><td style="padding:8px">{{ u[1] }}</td><td style="padding:8px">{{ u[2]|replace('_',' ')|title }}</td><td style="padding:8px">{{ u[5] }}</td>
+<td style="padding:8px">{% if u[2] != 'main_admin' %}<form method="post" action="/reset-password/{{ u[0] }}"><button class="btn secondary" type="submit">Generate Temporary Password</button></form>{% else %}<span class="muted">Protected</span>{% endif %}</td>
+</tr>
+{% endfor %}</table></div>
+<p><a href="/dashboard">← Back to Dashboard</a></p>
+</div></div>{% endblock %}

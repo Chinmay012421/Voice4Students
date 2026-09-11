@@ -1,0 +1,17 @@
+{% extends "base.html" %}{% block title %}SchoolFix — Home{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <p class="eyebrow">A better school starts with being heard.</p>
+    <h1>Report problems.<br><span>Improve your school.</span></h1>
+    <p class="hero-text">SchoolFix gives students a simple way to report school issues and helps admins review, manage and resolve them.</p>
+    <div class="actions"><a class="btn primary" href="/login">Get Started</a><a class="btn secondary" href="/register">Create Student Account</a></div>
+  </div>
+  <div class="hero-card"><div class="mini-icon">✓</div><h3>One place for school issues</h3><p>Submit a report, track its status and help make your school better.</p><div class="status-row"><span>Pending</span><b>→</b><span>Reviewed</span><b>→</b><span>Resolved</span></div></div>
+</section>
+<section class="features">
+  <div class="feature"><div class="icon">📝</div><h3>Easy Reporting</h3><p>Students can submit clear reports with a category, location and message.</p></div>
+  <div class="feature"><div class="icon">🔎</div><h3>Admin Review</h3><p>Admins can review reports and update their status with notes.</p></div>
+  <div class="feature"><div class="icon">🛡️</div><h3>Controlled Access</h3><p>Admin access is approved by Main Admin instead of being open to everyone.</p></div>
+</section>
+{% endblock %}
