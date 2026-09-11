@@ -66,7 +66,11 @@ def register():
             save_user(username, password, "student")
             return render_template("login.html", message="Registration successful. Please log in as a student.")
         except Exception as e:
-            return render_template("register.html", error="Username already exists.")
+            app.logger.exception("Registration error")
+            return render_template(
+                "register.html",
+                error=f"Registration failed: {e}"
+            )
     return render_template("register.html")
 
 
