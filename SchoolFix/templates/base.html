@@ -4,25 +4,169 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}SchoolFix{% endblock %}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+  <link rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}">
+
+  <style>
+    /* SchoolFix header */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .top-kv-logo {
+      width: 52px;
+      height: 52px;
+      object-fit: contain;
+    }
+
+    /* Bottom logos */
+    .school-footer {
+      position: relative;
+      min-height: 105px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 40px;
+      border-top: 1px solid #e8eaf0;
+      color: #89909e;
+      font-size: 12px;
+      background: #fff;
+    }
+
+    .bottom-kv-logo {
+      position: absolute;
+      left: 35px;
+      bottom: 15px;
+      width: 75px;
+      height: 75px;
+      object-fit: contain;
+    }
+
+    .pm-shri-logo {
+      position: absolute;
+      right: 35px;
+      bottom: 15px;
+      width: 125px;
+      height: auto;
+      object-fit: contain;
+    }
+
+    .footer-text {
+      text-align: center;
+      padding: 0 150px;
+    }
+
+    @media (max-width: 600px) {
+      .top-kv-logo {
+        width: 42px;
+        height: 42px;
+      }
+
+      .brand {
+        gap: 8px;
+        font-size: 23px;
+      }
+
+      .school-footer {
+        min-height: 150px;
+        padding: 85px 20px 20px;
+      }
+
+      .bottom-kv-logo {
+        width: 60px;
+        height: 60px;
+        left: 20px;
+        top: 15px;
+        bottom: auto;
+      }
+
+      .pm-shri-logo {
+        width: 105px;
+        right: 20px;
+        top: 20px;
+        bottom: auto;
+      }
+
+      .footer-text {
+        padding: 0;
+      }
+    }
+  </style>
 </head>
+
 <body>
+
 <header class="topbar">
-  <a class="brand" href="/">School<span>Fix</span></a>
+
+  <a class="brand" href="/">
+    <img
+      src="{{ url_for('static', filename='images/kv-logo.png') }}"
+      alt="Kendriya Vidyalaya Logo"
+      class="top-kv-logo"
+    >
+
+    <span>School<span>Fix</span></span>
+  </a>
+
   <nav>
     {% if session.get('username') %}
+
       <a href="/dashboard">Dashboard</a>
+
       <a href="/my-reports">My Reports</a>
-      {% if session.get('role') in ['admin','main_admin'] %}<a href="/reports">Reports</a>{% endif %}
-      {% if session.get('role') == 'main_admin' %}<a href="/admin-applications">Applications</a>{% endif %}
+
+      {% if session.get('role') in ['admin','main_admin'] %}
+        <a href="/reports">Reports</a>
+      {% endif %}
+
+      {% if session.get('role') == 'main_admin' %}
+        <a href="/admin-applications">Applications</a>
+      {% endif %}
+
       <a class="nav-button" href="/logout">Logout</a>
+
     {% else %}
+
       <a href="/login">Login</a>
+
       <a class="nav-button" href="/register">Register</a>
+
     {% endif %}
   </nav>
+
 </header>
-<main class="page">{% block content %}{% endblock %}</main>
-<footer>SchoolFix • Make your school better, one report at a time.</footer>
+
+
+<main class="page">
+  {% block content %}{% endblock %}
+</main>
+
+
+<footer class="school-footer">
+
+  <!-- KV logo - bottom left -->
+  <img
+    src="{{ url_for('static', filename='images/kv-logo.png') }}"
+    alt="Kendriya Vidyalaya Logo"
+    class="bottom-kv-logo"
+  >
+
+  <!-- Footer text -->
+  <div class="footer-text">
+    SchoolFix • Make your school better, one report at a time.
+  </div>
+
+  <!-- PM SHRI logo - bottom right -->
+  <img
+    src="{{ url_for('static', filename='images/pm-shri-logo.png') }}"
+    alt="PM SHRI Logo"
+    class="pm-shri-logo"
+  >
+
+</footer>
+
 </body>
 </html>
