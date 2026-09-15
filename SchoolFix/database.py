@@ -6,7 +6,9 @@ DB_NAME = "schoolfix.db"
 
 
 def connect():
-    return sqlite3.connect(DB_NAME)
+    conn = sqlite3.connect(DB_NAME, timeout=30)
+    conn.execute("PRAGMA busy_timeout = 30000")
+    return conn
 
 
 def init_db():
