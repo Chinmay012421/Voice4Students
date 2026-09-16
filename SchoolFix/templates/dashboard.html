@@ -1,5 +1,67 @@
-{% extends "base.html" %}{% block title %}Dashboard — SchoolFix{% endblock %}
-{% block content %}<section class="dashboard-head"><div><p class="eyebrow">Dashboard</p><h1>Hello, {{ username }}.</h1><p class="muted">You are logged in as <strong>{{ role|replace('_',' ')|title }}</strong>.</p></div></section>
-{% if role == 'student' %}<div class="grid two"><div class="panel"><h2>Submit a report</h2><form method="post" action="/submit-report"><label>Category<select name="category"><option>Cleanliness</option><option>Safety</option><option>Infrastructure</option><option>Bullying</option><option>Teaching</option><option>Other</option></select></label><label>Location<input name="location" placeholder="e.g. Block B, Room 12"></label><label>What happened?<textarea name="message" rows="5" required placeholder="Describe the issue clearly..."></textarea></label><button class="btn primary">Submit Report</button></form></div><div class="panel"><h2>Quick actions</h2><a class="quick" href="/my-reports">📋 <span><b>View my reports</b><small>Track submitted issues</small></span></a><a class="quick" href="/apply-admin">⭐ <span><b>Apply for Admin</b><small>Send an application to Main Admin</small></span></a></div></div>
-{% elif role == 'admin' %}<div class="grid two"><div class="panel"><h2>Admin workspace</h2><p>Review student reports, update their status and add notes.</p><a class="btn primary" href="/reports">Open Reports</a></div><div class="panel"><h2>Your access</h2><p class="muted">Admin accounts are limited. Only Main Admin can manage admin applications and unreasonable reports.</p></div></div>
-{% else %}<div class="grid two"><div class="panel"><h2>Main Admin</h2><p>You have full control over admin applications and reports that need final review.</p><div class="actions"><a class="btn primary" href="/reports">All Reports</a><a class="btn secondary" href="/admin-applications">Admin Applications</a><a class="btn secondary" href="/users">Manage Users</a></div></div><div class="panel"><h2>Final review</h2><p>Open reports marked unreasonable and decide what should happen.</p><a class="btn secondary" href="/unreasonable-reports">Unreasonable Reports</a></div></div>{% endif %}{% endblock %}
+{% else %}
+
+<div class="panel">
+  <h2>Main Admin</h2>
+
+  <p>
+    You have full control over admin applications and reports
+    that need final review.
+  </p>
+
+  <div class="actions">
+    <a class="btn primary" href="/reports">All Reports</a>
+    <a class="btn secondary" href="/admin-applications">Admin Applications</a>
+    <a class="btn secondary" href="/users">Manage Users</a>
+  </div>
+</div>
+
+
+<!-- REPORT STATISTICS -->
+
+<div class="panel">
+  <h2>SchoolVoice Statistics</h2>
+
+  <div class="stats-grid">
+
+    <div class="stat-card">
+      <strong>{{ stats.total }}</strong>
+      <span>Total Reports</span>
+    </div>
+
+    <div class="stat-card">
+      <strong>{{ stats.pending }}</strong>
+      <span>Pending</span>
+    </div>
+
+    <div class="stat-card">
+      <strong>{{ stats.reviewed }}</strong>
+      <span>Reviewed</span>
+    </div>
+
+    <div class="stat-card">
+      <strong>{{ stats.resolved }}</strong>
+      <span>Resolved</span>
+    </div>
+
+    <div class="stat-card">
+      <strong>{{ stats.unreasonable }}</strong>
+      <span>Unreasonable</span>
+    </div>
+
+  </div>
+</div>
+
+
+<div class="panel">
+  <h2>Final Review</h2>
+
+  <p>
+    Open reports marked unreasonable and decide what should happen.
+  </p>
+
+  <a class="btn secondary" href="/unreasonable-reports">
+    Unreasonable Reports
+  </a>
+</div>
+
+{% endif %}
