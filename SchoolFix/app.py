@@ -1,4 +1,5 @@
 from flask import Flask, request, redirect, session, render_template
+from werkzeug.security import generate_password_hash
 import secrets
 import string
 from database import (
