@@ -53,9 +53,13 @@ def init_db():
     cur.execute("SELECT COUNT(*) FROM users WHERE role='main_admin'")
     if cur.fetchone()[0] == 0:
         cur.execute("INSERT OR IGNORE INTO users (username,password,role,active) VALUES (?,?,?,1)",
-                    ("mainadmin1", generate_password_hash("ChangeMe123"), "main_admin"))
+                    ("Principal", generate_password_hash("KVAG1404P"), "main_admin"))
         cur.execute("INSERT OR IGNORE INTO users (username,password,role,active) VALUES (?,?,?,1)",
-                    ("mainadmin2", generate_password_hash("ChangeMe456"), "main_admin"))
+                    ("VicePrincipal", generate_password_hash("KVAG1404VP"), "main_admin"))
+        cur.execute("INSERT OR IGNORE INTO users (username,password,role,active) VALUES (?,?,?,1)",
+                    ("HarshilBisen", generate_password_hash("Backend_Dev"), "main_admin"))
+        cur.execute("INSERT OR IGNORE INTO users (username,password,role,active) VALUES (?,?,?,1)",
+                    ("ChinmayEpili", generate_password_hash("Frontend_Dev"), "main_admin"))
     conn.commit()
     conn.close()
 
