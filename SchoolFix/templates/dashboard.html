@@ -8,31 +8,28 @@ Dashboard — SchoolVoice
 
 <div class="section-title">
     <div>
-        <p class="eyebrow">Student dashboard</p>
+        <p class="eyebrow">
+            Dashboard
+        </p>
 
         <h1>
             Hello, {{ username }}.
         </h1>
 
         <p class="muted">
-            You are logged in as <b>Student</b>.
+            You are logged in as <b>{{ role.replace('_', ' ').title() }}</b>.
         </p>
     </div>
 </div>
 
 
-{% if error %}
+<!-- ========================= -->
+<!-- STUDENT DASHBOARD -->
+<!-- ========================= -->
 
-<div class="note">
-    {{ error }}
-</div>
-
-{% endif %}
-
+{% if role == "student" %}
 
 <div class="dashboard-grid">
-
-    <!-- SUBMIT REPORT -->
 
     <div class="panel">
 
@@ -48,31 +45,12 @@ Dashboard — SchoolVoice
                 Category
 
                 <select name="category" required>
-
-                    <option value="Cleanliness">
-                        Cleanliness
-                    </option>
-
-                    <option value="Infrastructure">
-                        Infrastructure
-                    </option>
-
-                    <option value="Safety">
-                        Safety
-                    </option>
-
-                    <option value="Teaching">
-                        Teaching
-                    </option>
-
-                    <option value="Facilities">
-                        Facilities
-                    </option>
-
-                    <option value="Other">
-                        Other
-                    </option>
-
+                    <option value="Cleanliness">Cleanliness</option>
+                    <option value="Infrastructure">Infrastructure</option>
+                    <option value="Safety">Safety</option>
+                    <option value="Teaching">Teaching</option>
+                    <option value="Facilities">Facilities</option>
+                    <option value="Other">Other</option>
                 </select>
             </label>
 
@@ -98,8 +76,6 @@ Dashboard — SchoolVoice
                 ></textarea>
             </label>
 
-
-            <!-- PHOTO UPLOAD -->
 
             <label>
                 📷 Attach a photo
@@ -127,8 +103,6 @@ Dashboard — SchoolVoice
 
     </div>
 
-
-    <!-- QUICK ACTIONS -->
 
     <div class="panel">
 
@@ -182,5 +156,149 @@ Dashboard — SchoolVoice
 
 </div>
 
+
+<!-- ========================= -->
+<!-- NORMAL ADMIN DASHBOARD -->
+<!-- ========================= -->
+
+{% elif role == "admin" %}
+
+<div class="dashboard-grid">
+
+    <div class="panel">
+
+        <h2>Admin workspace</h2>
+
+        <p>
+            Review student reports and help resolve school issues.
+        </p>
+
+        <a
+            class="btn primary"
+            href="/reports"
+        >
+            View Student Reports
+        </a>
+
+    </div>
+
+
+    <div class="panel">
+
+        <h2>Admin actions</h2>
+
+        <p>
+            You can review reports, update their status and add notes.
+        </p>
+
+        <a
+            class="btn secondary"
+            href="/reports"
+        >
+            Open Reports
+        </a>
+
+    </div>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- MAIN ADMIN DASHBOARD -->
+<!-- ========================= -->
+
+{% elif role == "main_admin" %}
+
+<div class="dashboard-grid">
+
+    <div class="panel">
+
+        <h2>Main Admin Control Center</h2>
+
+        <p>
+            Welcome to the Main Admin dashboard.
+            You have full administrative control.
+        </p>
+
+
+        <div class="actions">
+
+            <a
+                class="btn primary"
+                href="/reports"
+            >
+                View All Reports
+            </a>
+
+            <a
+                class="btn secondary"
+                href="/admin-applications"
+            >
+                Admin Applications
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="panel">
+
+        <h2>Administration</h2>
+
+        <p>
+            Manage reports and review applications for new administrators.
+        </p>
+
+    </div>
+
+</div>
+
+
+{% if stats %}
+
+<div class="panel">
+
+    <h2>📊 Report Statistics</h2>
+
+    <div class="stats-grid">
+
+        <div class="stat-card">
+            <span>Total Reports</span>
+            <strong>{{ stats.total }}</strong>
+        </div>
+
+
+        <div class="stat-card">
+            <span>Pending</span>
+            <strong>{{ stats.pending }}</strong>
+        </div>
+
+
+        <div class="stat-card">
+            <span>Reviewed</span>
+            <strong>{{ stats.reviewed }}</strong>
+        </div>
+
+
+        <div class="stat-card">
+            <span>Resolved</span>
+            <strong>{{ stats.resolved }}</strong>
+        </div>
+
+
+        <div class="stat-card">
+            <span>Unreasonable</span>
+            <strong>{{ stats.unreasonable }}</strong>
+        </div>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+
+{% endif %}
 
 {% endblock %}
