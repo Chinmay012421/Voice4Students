@@ -2,6 +2,8 @@ from flask import Flask, request, redirect, session, render_template
 from werkzeug.security import generate_password_hash
 import secrets
 import string
+import os
+from werkzeug.utils import secure_filename
 from database import (
     init_db, get_user, must_change_password, save_user, save_admin_application,
     get_pending_applications, approve_admin, reject_admin,
