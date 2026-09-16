@@ -1,7 +1,7 @@
 import os
 from flask import Flask, request, redirect, session, render_template
-from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash
+from werkzeug.utils import secure_filename
 import secrets
 import string
 
