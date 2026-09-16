@@ -57,9 +57,9 @@ def init_db():
         cur.execute("INSERT OR IGNORE INTO users (username,password,role,active) VALUES (?,?,?,1)",
                     ("Vice Principal", generate_password_hash("KVAG1404VP"), "main_admin"))
         cur.execute("INSERT OR IGNORE INTO users (username,password,role,active) VALUES (?,?,?,1)",
-                    ("HarshilBisen", generate_password_hash("Backend_Dev"), "main_admin"))
+                    ("Harshil Bisen", generate_password_hash("Backend_Dev"), "main_admin"))
         cur.execute("INSERT OR IGNORE INTO users (username,password,role,active) VALUES (?,?,?,1)",
-                    ("ChinmayEpili", generate_password_hash("Frontend_Dev"), "main_admin"))
+                    ("Chinmay Epili", generate_password_hash("Frontend_Dev"), "main_admin"))
     conn.commit()
     conn.close()
 
