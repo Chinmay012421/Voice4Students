@@ -52,3 +52,44 @@ body {
 .features p {
     font-weight: 600;
 }
+
+
+/* =========================
+   MAIN ADMIN STATISTICS
+   ========================= */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.stat-card {
+    background: #f8f9fc;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 18px 12px;
+    text-align: center;
+}
+
+.stat-card strong {
+    display: block;
+    font-size: 30px;
+    font-weight: 800;
+    color: #111827;
+}
+
+.stat-card span {
+    display: block;
+    margin-top: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #64748b;
+}
+
+@media (max-width: 800px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
