@@ -49,7 +49,7 @@ def init_db():
     date TEXT NOT NULL,
     admin_note TEXT DEFAULT '',
     photo TEXT DEFAULT ''
-)""")
+    )""")
 
 report_columns = [row[1] for row in cur.execute("PRAGMA table_info(reports)").fetchall()]
 if "photo" not in report_columns:
