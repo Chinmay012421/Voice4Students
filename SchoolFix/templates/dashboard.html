@@ -17,23 +17,29 @@ Dashboard — SchoolVoice
         </h1>
 
         <p class="muted">
-            You are logged in as <b>{{ role.replace('_', ' ').title() }}</b>.
+            You are logged in as
+            <b>{{ role.replace('_', ' ').title() }}</b>.
         </p>
     </div>
 </div>
 
 
-<!-- ========================= -->
+<!-- ===================================================== -->
 <!-- STUDENT DASHBOARD -->
-<!-- ========================= -->
+<!-- ===================================================== -->
 
 {% if role == "student" %}
 
 <div class="dashboard-grid">
 
+    <!-- Submit Report -->
     <div class="panel">
 
         <h2>Submit a report</h2>
+
+        <p class="muted">
+            Tell us about a problem in your school.
+        </p>
 
         <form
             method="post"
@@ -45,12 +51,29 @@ Dashboard — SchoolVoice
                 Category
 
                 <select name="category" required>
-                    <option value="Cleanliness">Cleanliness</option>
-                    <option value="Infrastructure">Infrastructure</option>
-                    <option value="Safety">Safety</option>
-                    <option value="Teaching">Teaching</option>
-                    <option value="Facilities">Facilities</option>
-                    <option value="Other">Other</option>
+                    <option value="Cleanliness">
+                        Cleanliness
+                    </option>
+
+                    <option value="Infrastructure">
+                        Infrastructure
+                    </option>
+
+                    <option value="Safety">
+                        Safety
+                    </option>
+
+                    <option value="Teaching">
+                        Teaching
+                    </option>
+
+                    <option value="Facilities">
+                        Facilities
+                    </option>
+
+                    <option value="Other">
+                        Other
+                    </option>
                 </select>
             </label>
 
@@ -104,6 +127,7 @@ Dashboard — SchoolVoice
     </div>
 
 
+    <!-- Quick Actions -->
     <div class="panel">
 
         <h2>Quick actions</h2>
@@ -157,20 +181,22 @@ Dashboard — SchoolVoice
 </div>
 
 
-<!-- ========================= -->
+<!-- ===================================================== -->
 <!-- NORMAL ADMIN DASHBOARD -->
-<!-- ========================= -->
+<!-- ===================================================== -->
 
 {% elif role == "admin" %}
 
 <div class="dashboard-grid">
 
+    <!-- Admin Workspace -->
     <div class="panel">
 
         <h2>Admin workspace</h2>
 
         <p>
-            Review student reports and help resolve school issues.
+            Review student reports and help resolve
+            school issues.
         </p>
 
         <a
@@ -183,12 +209,14 @@ Dashboard — SchoolVoice
     </div>
 
 
+    <!-- Admin Actions -->
     <div class="panel">
 
         <h2>Admin actions</h2>
 
         <p>
-            You can review reports, update their status and add notes.
+            Review reports, update their status and
+            add administrative notes.
         </p>
 
         <a
@@ -203,14 +231,15 @@ Dashboard — SchoolVoice
 </div>
 
 
-<!-- ========================= -->
+<!-- ===================================================== -->
 <!-- MAIN ADMIN DASHBOARD -->
-<!-- ========================= -->
+<!-- ===================================================== -->
 
 {% elif role == "main_admin" %}
 
 <div class="dashboard-grid">
 
+    <!-- Main Admin Control Center -->
     <div class="panel">
 
         <h2>Main Admin Control Center</h2>
@@ -230,6 +259,7 @@ Dashboard — SchoolVoice
                 View All Reports
             </a>
 
+
             <a
                 class="btn secondary"
                 href="/admin-applications"
@@ -237,23 +267,57 @@ Dashboard — SchoolVoice
                 Admin Applications
             </a>
 
+
+            <a
+                class="btn secondary"
+                href="/users"
+            >
+                👥 View Users
+            </a>
+
         </div>
 
     </div>
 
 
+    <!-- Administration -->
     <div class="panel">
 
         <h2>Administration</h2>
 
         <p>
-            Manage reports and review applications for new administrators.
+            Manage reports, review applications for
+            new administrators, and view registered users.
         </p>
+
+
+        <div class="actions">
+
+            <a
+                class="btn secondary"
+                href="/users"
+            >
+                👥 Manage Users
+            </a>
+
+
+            <a
+                class="btn secondary"
+                href="/admin-applications"
+            >
+                Review Applications
+            </a>
+
+        </div>
 
     </div>
 
 </div>
 
+
+<!-- ===================================================== -->
+<!-- MAIN ADMIN STATISTICS -->
+<!-- ===================================================== -->
 
 {% if stats %}
 
@@ -263,33 +327,73 @@ Dashboard — SchoolVoice
 
     <div class="stats-grid">
 
+        <!-- Total -->
         <div class="stat-card">
-            <span>Total Reports</span>
-            <strong>{{ stats.total }}</strong>
+
+            <span>
+                Total Reports
+            </span>
+
+            <strong>
+                {{ stats.total }}
+            </strong>
+
         </div>
 
 
+        <!-- Pending -->
         <div class="stat-card">
-            <span>Pending</span>
-            <strong>{{ stats.pending }}</strong>
+
+            <span>
+                Pending
+            </span>
+
+            <strong>
+                {{ stats.pending }}
+            </strong>
+
         </div>
 
 
+        <!-- Reviewed -->
         <div class="stat-card">
-            <span>Reviewed</span>
-            <strong>{{ stats.reviewed }}</strong>
+
+            <span>
+                Reviewed
+            </span>
+
+            <strong>
+                {{ stats.reviewed }}
+            </strong>
+
         </div>
 
 
+        <!-- Resolved -->
         <div class="stat-card">
-            <span>Resolved</span>
-            <strong>{{ stats.resolved }}</strong>
+
+            <span>
+                Resolved
+            </span>
+
+            <strong>
+                {{ stats.resolved }}
+            </strong>
+
         </div>
 
 
+        <!-- Unreasonable -->
         <div class="stat-card">
-            <span>Unreasonable</span>
-            <strong>{{ stats.unreasonable }}</strong>
+
+            <span>
+                Unreasonable
+            </span>
+
+            <strong>
+                {{ stats.unreasonable }}
+            </strong>
+
         </div>
 
     </div>
@@ -297,7 +401,6 @@ Dashboard — SchoolVoice
 </div>
 
 {% endif %}
-
 
 {% endif %}
 
