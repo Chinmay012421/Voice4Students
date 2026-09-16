@@ -11,23 +11,44 @@ body {
 
 
 
-/* Stronger hero text for readability */
+/* Strong and readable homepage text */
 .hero-content h1 {
     font-weight: 800;
     line-height: 1.1;
     letter-spacing: -1px;
-    text-shadow: 0 2px 4px rgba(255, 255, 255, 0.7);
-}
-
-.hero-content p {
-    font-weight: 600;
-    color: #24324a;
-    line-height: 1.6;
-    text-shadow: 0 1px 3px rgba(255, 255, 255, 0.8);
+    text-shadow: 0 2px 4px rgba(255, 255, 255, 0.75);
 }
 
 .hero-content .eyebrow {
     font-weight: 800;
-    letter-spacing: 2px;
+    letter-spacing: 1.5px;
     text-shadow: 0 1px 3px rgba(255, 255, 255, 0.8);
+}
+
+.hero-content .hero-text {
+    font-weight: 700;
+    color: #17243a;
+    line-height: 1.6;
+    text-shadow: 0 1px 3px rgba(255, 255, 255, 0.8);
+}
+
+.hero-card h3 {
+    font-weight: 800;
+}
+
+.hero-card p {
+    font-weight: 600;
+}
+
+.hero-card span,
+.hero-card b {
+    font-weight: 800;
+}
+
+.features h3 {
+    font-weight: 800;
+}
+
+.features p {
+    font-weight: 600;
 }
