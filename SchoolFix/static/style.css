@@ -104,3 +104,25 @@ body {
 .panel:has(.stats-grid) {
     margin-top: 28px;
 }
+
+
+
+
+
+.report-photo {
+    margin-top: 18px;
+}
+
+.report-photo p {
+    margin-bottom: 8px;
+}
+
+.report-photo img {
+    display: block;
+    width: 420px;
+    max-width: 100%;
+    max-height: 320px;
+    object-fit: contain;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+}
