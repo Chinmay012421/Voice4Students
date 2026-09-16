@@ -93,3 +93,14 @@ body {
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+
+
+/* Space before Main Admin statistics */
+.stats-grid {
+    margin-top: 20px;
+}
+
+.panel:has(.stats-grid) {
+    margin-top: 28px;
+}
