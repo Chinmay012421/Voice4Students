@@ -194,3 +194,38 @@ def must_change_password(username):
                        (username,)).fetchone()
     conn.close()
     return bool(row and row[0])
+
+
+
+def get_report_stats():
+    conn = connect()
+
+    total = conn.execute(
+        "SELECT COUNT(*) FROM reports"
+    ).fetchone()[0]
+
+    pending = conn.execute(
+        "SELECT COUNT(*) FROM reports WHERE status='Pending'"
+    ).fetchone()[0]
+
+    reviewed = conn.execute(
+        "SELECT COUNT(*) FROM reports WHERE status='Reviewed'"
+    ).fetchone()[0]
+
+    resolved = conn.execute(
+        "SELECT COUNT(*) FROM reports WHERE status='Resolved'"
+    ).fetchone()[0]
+
+    unreasonable = conn.execute(
+        "SELECT COUNT(*) FROM reports WHERE status='Unreasonable'"
+    ).fetchone()[0]
+
+    conn.close()
+
+    return {
+        "total": total,
+        "pending": pending,
+        "reviewed": reviewed,
+        "resolved": resolved,
+        "unreasonable": unreasonable
+    }
