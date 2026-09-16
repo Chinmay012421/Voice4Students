@@ -1,2 +1,168 @@
-{% extends "base.html" %}{% block title %}Reports — SchoolFix{% endblock %}
-{% block content %}<div class="section-title"><div><p class="eyebrow">Admin workspace</p><h1>Student reports</h1></div></div>{% if reports %}<div class="report-list">{% for r in reports %}<div class="report-card"><div class="report-top"><div><span class="tag">{{ r[2] }}</span><h2>{{ r[4] }}</h2></div><span class="status {{ r[5]|lower|replace(' ','-') }}">{{ r[5] }}</span></div><p class="muted">Submitted by <b>{{ r[1] }}</b> • {{ r[6] }}{% if r[3] %} • {{ r[3] }}{% endif %}</p>{% if r[7] %}<div class="note">Admin note: {{ r[7] }}</div>{% endif %}<form class="inline-form" method="post" action="/update-report/{{ r[0] }}"><select name="status"><option {% if r[5]=='Pending' %}selected{% endif %}>Pending</option><option {% if r[5]=='In Progress' %}selected{% endif %}>In Progress</option><option {% if r[5]=='Resolved' %}selected{% endif %}>Resolved</option></select><input name="admin_note" placeholder="Add a note"><button class="small-btn">Update</button><a class="small-btn bad" href="/unreasonable/{{ r[0] }}">Unreasonable</a></form></div>{% endfor %}</div>{% else %}<div class="empty"><h2>No reports yet</h2></div>{% endif %}{% endblock %}
+{% extends "base.html" %}
+
+{% block title %}
+Reports — SchoolVoice
+{% endblock %}
+
+{% block content %}
+
+<div class="section-title">
+    <div>
+        <p class="eyebrow">
+            Admin workspace
+        </p>
+
+        <h1>
+            Student reports
+        </h1>
+    </div>
+</div>
+
+
+{% if reports %}
+
+<div class="report-list">
+
+    {% for r in reports %}
+
+    <div class="report-card">
+
+        <div class="report-top">
+
+            <div>
+                <span class="tag">
+                    {{ r[2] }}
+                </span>
+
+                <h2>
+                    {{ r[4] }}
+                </h2>
+            </div>
+
+            <span class="status {{ r[5]|lower|replace(' ','-') }}">
+                {{ r[5] }}
+            </span>
+
+        </div>
+
+
+        <p class="muted">
+            Submitted by <b>{{ r[1] }}</b>
+            • {{ r[6] }}
+
+            {% if r[3] %}
+                • {{ r[3] }}
+            {% endif %}
+        </p>
+
+
+        {% if r[7] %}
+
+        <div class="note">
+            Admin note: {{ r[7] }}
+        </div>
+
+        {% endif %}
+
+
+        <!-- ATTACHED PHOTO -->
+
+        {% if r[8] %}
+
+        <div class="report-photo">
+
+            <p>
+                <b>📷 Attached photo</b>
+            </p>
+
+            <img
+                src="{{ url_for('static', filename='uploads/' + r[8]) }}"
+                alt="Photo attached to report"
+                loading="lazy"
+            >
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- UPDATE REPORT -->
+
+        <form
+            class="inline-form"
+            method="post"
+            action="/update-report/{{ r[0] }}"
+        >
+
+            <select name="status">
+
+                <option
+                    {% if r[5] == 'Pending' %}
+                        selected
+                    {% endif %}
+                >
+                    Pending
+                </option>
+
+                <option
+                    {% if r[5] == 'In Progress' %}
+                        selected
+                    {% endif %}
+                >
+                    In Progress
+                </option>
+
+                <option
+                    {% if r[5] == 'Resolved' %}
+                        selected
+                    {% endif %}
+                >
+                    Resolved
+                </option>
+
+            </select>
+
+
+            <input
+                name="admin_note"
+                placeholder="Add a note"
+            >
+
+
+            <button
+                type="submit"
+                class="small-btn"
+            >
+                Update
+            </button>
+
+
+            <a
+                class="small-btn bad"
+                href="/unreasonable/{{ r[0] }}"
+            >
+                Unreasonable
+            </a>
+
+        </form>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+
+{% else %}
+
+<div class="empty">
+
+    <h2>
+        No reports yet
+    </h2>
+
+</div>
+
+{% endif %}
+
+{% endblock %}
