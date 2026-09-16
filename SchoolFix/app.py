@@ -709,12 +709,3 @@ if __name__ == "__main__":
 
 
 
-@app.route("/users")
-def users():
-    if not is_main_admin():
-        return redirect("/dashboard")
-
-    return render_template(
-        "users.html",
-        users=get_all_users()
-    )
