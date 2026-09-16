@@ -118,7 +118,18 @@ def reset_password(user_id):
 def dashboard():
     if not logged_in():
         return redirect("/login")
-    return render_template("dashboard.html", username=session["username"], role=session["role"])
+
+    stats = None
+
+    if session.get("role") == "main_admin":
+        stats = get_report_stats()
+
+    return render_template(
+        "dashboard.html",
+        username=session["username"],
+        role=session["role"],
+        stats=stats
+    )
 
 
 @app.route("/apply-admin", methods=["GET", "POST"])
