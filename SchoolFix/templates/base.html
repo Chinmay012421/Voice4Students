@@ -161,7 +161,9 @@
 
         <a href="/dashboard">Dashboard</a>
 
-        <a href="/my-reports">My Reports</a>
+        {% if session.get('role') == 'student' %}
+          <a href="/my-reports">My Reports</a>
+        {% endif %}
 
         {% if session.get('role') in ['admin', 'main_admin'] %}
           <a href="/reports">Reports</a>
