@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash
 import secrets
 import string
 from database import (
-    init_db, get_user, save_user, save_admin_application,
+    init_db, get_user, must_change_password, save_user, save_admin_application,
     get_pending_applications, approve_admin, reject_admin,
     save_report, get_all_reports, get_user_reports,
     update_report_status, delete_report, get_unreasonable_reports,
