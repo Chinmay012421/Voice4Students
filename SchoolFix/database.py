@@ -229,3 +229,18 @@ def get_report_stats():
         "resolved": resolved,
         "unreasonable": unreasonable
     }
+
+
+
+def must_change_password(username):
+    conn = connect()
+    row = conn.execute(
+        "SELECT must_change_password FROM users WHERE username=?",
+        (username,)
+    ).fetchone()
+    conn.close()
+
+    if row:
+        return bool(row[0])
+
+    return False
