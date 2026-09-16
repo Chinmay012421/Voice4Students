@@ -7,7 +7,8 @@ from database import (
     get_pending_applications, approve_admin, reject_admin,
     save_report, get_all_reports, get_user_reports,
     update_report_status, delete_report, get_unreasonable_reports,
-    get_report_stats
+    get_report_stats, change_password, set_temporary_password,
+    get_all_users
 )
 
 app = Flask(__name__)
