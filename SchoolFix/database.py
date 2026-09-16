@@ -119,10 +119,21 @@ def reject_admin(application_id):
     conn.close()
 
 
-def save_report(username, category, location, message):
+def save_report(username, category, location, message, photo=""):
     conn = connect()
-    conn.execute("INSERT INTO reports (username,category,location,message,date) VALUES (?,?,?,?,?)",
-                 (username, category, location, message, datetime.now().strftime("%Y-%m-%d %H:%M")))
+    conn.execute(
+        """INSERT INTO reports
+        (username, category, location, message, date, photo)
+        VALUES (?, ?, ?, ?, ?, ?)""",
+        (
+            username,
+            category,
+            location,
+            message,
+            datetime.now().strftime("%Y-%m-%d %H:%M"),
+            photo
+        )
+    )
     conn.commit()
     conn.close()
 
