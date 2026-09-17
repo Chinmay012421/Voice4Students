@@ -19,7 +19,7 @@ User Management — SchoolVoice
         </h1>
 
         <p class="muted">
-            View registered users and manage account passwords.
+            View registered users and permanently change passwords.
         </p>
 
     </div>
@@ -40,43 +40,6 @@ User Management — SchoolVoice
 
 <div class="note">
     {{ success }}
-</div>
-
-{% endif %}
-
-
-{% if temporary_password %}
-
-<div class="panel">
-
-    <h2>🔑 Temporary Password</h2>
-
-    <p>
-        A new temporary password has been created for
-        <b>{{ reset_username }}</b>.
-    </p>
-
-    <p>
-        Give this temporary password to the user securely.
-    </p>
-
-    <div class="note">
-
-        <b>
-            Temporary Password:
-        </b>
-
-        <span style="font-family: monospace; font-size: 18px;">
-            {{ temporary_password }}
-        </span>
-
-        <p class="muted">
-            The user will be required to change this password
-            after logging in.
-        </p>
-
-    </div>
-
 </div>
 
 {% endif %}
@@ -104,11 +67,8 @@ User Management — SchoolVoice
 
             </div>
 
-
             <span class="status">
-
                 {{ user[2].replace('_', ' ').title() }}
-
             </span>
 
         </div>
@@ -168,23 +128,59 @@ User Management — SchoolVoice
         {% endif %}
 
 
-        <!-- PASSWORD RESET -->
+        <!-- PERMANENT PASSWORD CHANGE -->
 
         {% if user[2] != "main_admin" %}
 
-        <form
-            method="post"
-            action="/reset-password/{{ user[0] }}"
-        >
+        <div style="margin-top:20px;">
 
-            <button
-                type="submit"
-                class="small-btn"
+            <h3 style="margin-bottom:10px;">
+                🔐 Change Password
+            </h3>
+
+            <form
+                method="post"
+                action="/change-user-password/{{ user[0] }}"
             >
-                🔑 Reset Password
-            </button>
 
-        </form>
+                <label>
+                    New Password
+
+                    <input
+                        type="password"
+                        name="new_password"
+                        minlength="8"
+                        required
+                        placeholder="Enter new password"
+                    >
+
+                </label>
+
+
+                <label>
+                    Confirm New Password
+
+                    <input
+                        type="password"
+                        name="confirm_password"
+                        minlength="8"
+                        required
+                        placeholder="Confirm new password"
+                    >
+
+                </label>
+
+
+                <button
+                    type="submit"
+                    class="small-btn"
+                >
+                    🔑 Set Permanent Password
+                </button>
+
+            </form>
+
+        </div>
 
         {% else %}
 
