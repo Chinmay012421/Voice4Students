@@ -40,6 +40,10 @@ from database import (
 )
 
 
+# =========================================================
+# APP
+# =========================================================
+
 app = Flask(__name__)
 
 app.secret_key = os.environ.get(
@@ -63,7 +67,6 @@ os.makedirs(
     exist_ok=True
 )
 
-
 ALLOWED_EXTENSIONS = {
     "png",
     "jpg",
@@ -71,25 +74,15 @@ ALLOWED_EXTENSIONS = {
     "webp"
 }
 
-
 MAX_PHOTOS_PER_REPORT = 5
-
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024
 
 
-def allowed_file(filename):
-
-    return (
-        "." in filename
-        and filename.rsplit(
-            ".",
-            1
-        )[1].lower()
-        in ALLOWED_EXTENSIONS
-    )
-
+# =========================================================
+# DATABASE
+# =========================================================
 
 init_db()
 
@@ -120,6 +113,26 @@ def is_admin():
 
 
 # =========================================================
+# FILE HELPERS
+# =========================================================
+
+def allowed_file(filename):
+
+    if not filename:
+        return False
+
+    if "." not in filename:
+        return False
+
+    extension = filename.rsplit(
+        ".",
+        1
+    )[1].lower()
+
+    return extension in ALLOWED_EXTENSIONS
+
+
+# =========================================================
 # HOME
 # =========================================================
 
@@ -141,6 +154,9 @@ def home():
 )
 def login():
 
+    if logged_in():
+        return redirect("/dashboard")
+
     if request.method == "POST":
 
         username = request.form.get(
@@ -153,6 +169,13 @@ def login():
             ""
         )
 
+        if not username or not password:
+
+            return render_template(
+                "login.html",
+                error="Please enter both username and password."
+            )
+
         user = get_user(
             username,
             password
@@ -161,6 +184,16 @@ def login():
         if user:
 
             session.clear()
+
+            # Database layout:
+            #
+            # 0 = id
+            # 1 = username
+            # 2 = password hash
+            # 3 = role
+            # 4 = active
+            # 5 = must_change_password
+            # 6 = registered_at
 
             session["username"] = user[1]
             session["role"] = user[3]
@@ -179,9 +212,7 @@ def login():
 
         return render_template(
             "login.html",
-            error=(
-                "Invalid username or password."
-            )
+            error="Invalid username or password."
         )
 
     return render_template(
@@ -227,9 +258,7 @@ def register():
 
             return render_template(
                 "register.html",
-                error=(
-                    "Please fill all fields."
-                )
+                error="Please fill all fields."
             )
 
         if len(password) < 8:
@@ -244,11 +273,20 @@ def register():
 
         try:
 
-            save_user(
+            success = save_user(
                 username,
                 password,
                 "student"
             )
+
+            if not success:
+
+                return render_template(
+                    "register.html",
+                    error=(
+                        "Username already exists."
+                    )
+                )
 
             return render_template(
                 "login.html",
@@ -258,7 +296,7 @@ def register():
                 )
             )
 
-        except Exception as e:
+        except Exception:
 
             app.logger.exception(
                 "Registration error"
@@ -317,15 +355,20 @@ def change_password_route():
 
             return render_template(
                 "change_password.html",
-                error=(
-                    "Passwords do not match."
-                )
+                error="Passwords do not match."
             )
 
-        change_password(
+        success = change_password(
             session["username"],
             new_password
         )
+
+        if not success:
+
+            return render_template(
+                "change_password.html",
+                error="Unable to change password."
+            )
 
         return redirect(
             "/dashboard"
@@ -363,23 +406,31 @@ def users():
 
     for user in users:
 
+        # Correct database layout:
+        #
+        # user[0] = id
+        # user[1] = username
+        # user[2] = password hash
+        # user[3] = role
+        # user[4] = active
+        # user[5] = must_change_password
+        # user[6] = registered_at
+
         username = str(
             user[1] or ""
         ).lower()
 
         user_role = str(
-            user[2] or ""
+            user[3] or ""
         )
 
         if search and search not in username:
-
             continue
 
         if (
             role == "student"
             and user_role != "student"
         ):
-
             continue
 
         if (
@@ -389,7 +440,12 @@ def users():
                 "main_admin"
             )
         ):
+            continue
 
+        if (
+            role == "main_admin"
+            and user_role != "main_admin"
+        ):
             continue
 
         filtered_users.append(
@@ -534,7 +590,7 @@ def change_user_password(user_id):
     return render_template(
         "users.html",
         users=get_all_users(),
-        message=(
+        success=(
             f"Password permanently changed "
             f"for {result}."
         )
@@ -578,8 +634,7 @@ def apply_admin():
 
     if (
         not logged_in()
-        or session.get("role")
-        != "student"
+        or session.get("role") != "student"
     ):
 
         return redirect("/login")
@@ -687,8 +742,7 @@ def submit_report():
 
     if (
         not logged_in()
-        or session.get("role")
-        != "student"
+        or session.get("role") != "student"
     ):
 
         return redirect("/login")
@@ -723,7 +777,6 @@ def submit_report():
     for photo in photos:
 
         if not photo or not photo.filename:
-
             continue
 
         if not allowed_file(
@@ -745,9 +798,7 @@ def submit_report():
                 )
             )
 
-        valid_photos.append(
-            photo
-        )
+        valid_photos.append(photo)
 
     if len(valid_photos) > MAX_PHOTOS_PER_REPORT:
 
@@ -772,6 +823,16 @@ def submit_report():
         location,
         message
     )
+
+    if not report_id:
+
+        return render_template(
+            "dashboard.html",
+            username=session["username"],
+            role=session["role"],
+            stats=None,
+            error="Unable to create the report."
+        )
 
     for photo in valid_photos:
 
@@ -849,7 +910,7 @@ def reports():
 
 
 # =========================================================
-# REPORT DETAIL / CONVERSATION
+# REPORT DETAIL
 # =========================================================
 
 @app.route(
@@ -869,12 +930,10 @@ def report_detail(report_id):
 
         return redirect("/dashboard")
 
-    # Students can only view their own report.
+    # Students can only see their own reports.
     if (
-        session.get("role")
-        == "student"
-        and report[1]
-        != session["username"]
+        session.get("role") == "student"
+        and report[1] != session["username"]
     ):
 
         return redirect("/dashboard")
@@ -898,7 +957,7 @@ def report_detail(report_id):
 
 
 # =========================================================
-# SEND CONVERSATION MESSAGE
+# REPORT CONVERSATION
 # =========================================================
 
 @app.route(
@@ -921,10 +980,8 @@ def report_message(report_id):
 
     # Students can only reply to their own reports.
     if (
-        session.get("role")
-        == "student"
-        and report[1]
-        != session["username"]
+        session.get("role") == "student"
+        and report[1] != session["username"]
     ):
 
         return redirect("/dashboard")
@@ -1055,6 +1112,56 @@ def delete_report_route(report_id):
     return redirect(
         "/unreasonable-reports"
     )
+
+
+# =========================================================
+# MAIN ADMIN CHECK
+# =========================================================
+#
+# This does NOT show passwords.
+# It only lets you confirm that Main Admin
+# accounts actually exist in the database.
+#
+# Remove this route after testing if you want.
+# =========================================================
+
+@app.route("/check-main-admins")
+def check_main_admins():
+
+    from database import connect
+
+    conn = connect()
+
+    rows = conn.execute("""
+        SELECT
+            id,
+            username,
+            role,
+            active,
+            must_change_password
+        FROM users
+        WHERE role='main_admin'
+        ORDER BY id ASC
+    """).fetchall()
+
+    conn.close()
+
+    accounts = []
+
+    for row in rows:
+
+        accounts.append({
+            "id": row[0],
+            "username": row[1],
+            "role": row[2],
+            "active": bool(row[3]),
+            "must_change_password": bool(row[4])
+        })
+
+    return {
+        "main_admin_count": len(accounts),
+        "accounts": accounts
+    }
 
 
 # =========================================================
