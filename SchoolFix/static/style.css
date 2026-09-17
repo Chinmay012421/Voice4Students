@@ -1980,3 +1980,14 @@ footer {
     }
 
 }
+
+
+
+@media (max-width: 768px) {
+    body {
+        background-size: auto 100vh;
+        background-position: center top;
+        background-repeat: no-repeat;
+        background-attachment: scroll;
+    }
+}
