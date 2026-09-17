@@ -8,13 +8,9 @@ Dashboard — SchoolVoice
 
 <div class="section-title">
     <div>
-        <p class="eyebrow">
-            Dashboard
-        </p>
+        <p class="eyebrow">Dashboard</p>
 
-        <h1>
-            Hello, {{ username }}.
-        </h1>
+        <h1>Hello, {{ username }}.</h1>
 
         <p class="muted">
             You are logged in as
@@ -32,9 +28,7 @@ Dashboard — SchoolVoice
 
 <div class="dashboard-grid">
 
-    <!-- Submit Report -->
     <div class="panel">
-
         <h2>Submit a report</h2>
 
         <p class="muted">
@@ -51,34 +45,14 @@ Dashboard — SchoolVoice
                 Category
 
                 <select name="category" required>
-
-                    <option value="Cleanliness">
-                        Cleanliness
-                    </option>
-
-                    <option value="Infrastructure">
-                        Infrastructure
-                    </option>
-
-                    <option value="Safety">
-                        Safety
-                    </option>
-
-                    <option value="Teaching">
-                        Teaching
-                    </option>
-
-                    <option value="Facilities">
-                        Facilities
-                    </option>
-
-                    <option value="Other">
-                        Other
-                    </option>
-
+                    <option value="Cleanliness">Cleanliness</option>
+                    <option value="Infrastructure">Infrastructure</option>
+                    <option value="Safety">Safety</option>
+                    <option value="Teaching">Teaching</option>
+                    <option value="Facilities">Facilities</option>
+                    <option value="Other">Other</option>
                 </select>
             </label>
-
 
             <label>
                 Location
@@ -90,7 +64,6 @@ Dashboard — SchoolVoice
                 >
             </label>
 
-
             <label>
                 What happened?
 
@@ -100,7 +73,6 @@ Dashboard — SchoolVoice
                     required
                 ></textarea>
             </label>
-
 
             <label>
                 📷 Attach a photo
@@ -116,70 +88,34 @@ Dashboard — SchoolVoice
                 </small>
             </label>
 
-
-            <button
-                type="submit"
-                class="btn primary"
-            >
+            <button type="submit" class="btn primary">
                 Submit Report
             </button>
 
         </form>
-
     </div>
 
 
-    <!-- Student Quick Actions -->
     <div class="panel">
 
         <h2>Quick actions</h2>
 
-
-        <a
-            class="quick-card"
-            href="/my-reports"
-        >
-
-            <div class="icon">
-                📋
-            </div>
+        <a class="quick-card" href="/my-reports">
+            <div class="icon">📋</div>
 
             <div>
-
-                <h3>
-                    View my reports
-                </h3>
-
-                <p>
-                    Track submitted issues
-                </p>
-
+                <h3>View my reports</h3>
+                <p>Track submitted issues</p>
             </div>
-
         </a>
 
-
-        <a
-            class="quick-card"
-            href="/apply-admin"
-        >
-
-            <div class="icon">
-                ⭐
-            </div>
+        <a class="quick-card" href="/apply-admin">
+            <div class="icon">⭐</div>
 
             <div>
-
-                <h3>
-                    Apply for Admin
-                </h3>
-
-                <p>
-                    Send an application to Main Admin
-                </p>
-
+                <h3>Apply for Admin</h3>
+                <p>Send an application to Main Admin</p>
             </div>
-
         </a>
 
     </div>
@@ -195,44 +131,32 @@ Dashboard — SchoolVoice
 
 <div class="dashboard-grid">
 
-    <!-- Admin Workspace -->
     <div class="panel">
 
-        <h2>
-            Admin workspace
-        </h2>
+        <h2>Admin workspace</h2>
 
         <p>
             Review student reports and help resolve
             school issues.
         </p>
 
-        <a
-            class="btn primary"
-            href="/reports"
-        >
+        <a class="btn primary" href="/reports">
             View Student Reports
         </a>
 
     </div>
 
 
-    <!-- Admin Actions -->
     <div class="panel">
 
-        <h2>
-            Admin actions
-        </h2>
+        <h2>Admin actions</h2>
 
         <p>
             You can review reports, update their status
             and add notes.
         </p>
 
-        <a
-            class="btn secondary"
-            href="/reports"
-        >
+        <a class="btn secondary" href="/reports">
             Open Reports
         </a>
 
@@ -247,63 +171,85 @@ Dashboard — SchoolVoice
 
 {% elif role == "main_admin" %}
 
-<div class="dashboard-grid">
+<!-- Control Center -->
 
-    <!-- Main Admin Control Center -->
-    <div class="panel">
+<div class="panel main-admin-panel">
 
-        <h2>
-            Main Admin Control Center
-        </h2>
+    <div class="admin-heading">
 
-        <p>
-            Welcome to the Main Admin dashboard.
-            You have full administrative control.
-        </p>
+        <div>
+            <p class="eyebrow">Administration</p>
 
+            <h2>
+                Main Admin Control Center
+            </h2>
 
-        <div class="actions">
+            <p class="muted">
+                Manage reports, administrators and registered
+                users from one place.
+            </p>
+        </div>
 
-            <a
-                class="btn primary"
-                href="/reports"
-            >
-                View All Reports
-            </a>
-
-
-            <a
-                class="btn secondary"
-                href="/admin-applications"
-            >
-                Admin Applications
-            </a>
-
-
-            <a
-                class="btn secondary"
-                href="/users"
-            >
-                👥 View Users
-            </a>
-
+        <div class="admin-badge">
+            🛡️ Main Admin
         </div>
 
     </div>
 
 
-    <!-- Administration Information -->
-    <div class="panel">
+    <!-- Main Admin Actions -->
 
-        <h2>
-            Administration
-        </h2>
+    <div class="admin-actions-grid">
 
-        <p>
-            Manage school reports, review applications
-            for new administrators, and manage registered
-            users from the User Management page.
-        </p>
+        <a class="admin-action-card" href="/reports">
+
+            <div class="admin-action-icon">
+                📋
+            </div>
+
+            <div>
+                <h3>All Reports</h3>
+
+                <p>
+                    Review and manage student reports.
+                </p>
+            </div>
+
+        </a>
+
+
+        <a class="admin-action-card" href="/admin-applications">
+
+            <div class="admin-action-icon">
+                ⭐
+            </div>
+
+            <div>
+                <h3>Admin Applications</h3>
+
+                <p>
+                    Review requests to become an admin.
+                </p>
+            </div>
+
+        </a>
+
+
+        <a class="admin-action-card" href="/users">
+
+            <div class="admin-action-icon">
+                👥
+            </div>
+
+            <div>
+                <h3>User Management</h3>
+
+                <p>
+                    Manage student and admin accounts.
+                </p>
+            </div>
+
+        </a>
 
     </div>
 
@@ -318,80 +264,50 @@ Dashboard — SchoolVoice
 
 <div class="panel">
 
-    <h2>
-        📊 Report Statistics
-    </h2>
+    <div class="stats-heading">
+
+        <div>
+            <p class="eyebrow">Overview</p>
+
+            <h2>📊 Report Statistics</h2>
+
+            <p class="muted">
+                Current report status across SchoolVoice.
+            </p>
+        </div>
+
+    </div>
 
 
     <div class="stats-grid">
 
-        <!-- Total Reports -->
         <div class="stat-card">
-
-            <span>
-                Total Reports
-            </span>
-
-            <strong>
-                {{ stats.total }}
-            </strong>
-
+            <strong>{{ stats.total }}</strong>
+            <span>Total Reports</span>
         </div>
 
 
-        <!-- Pending -->
         <div class="stat-card">
-
-            <span>
-                Pending
-            </span>
-
-            <strong>
-                {{ stats.pending }}
-            </strong>
-
+            <strong>{{ stats.pending }}</strong>
+            <span>Pending</span>
         </div>
 
 
-        <!-- Reviewed -->
         <div class="stat-card">
-
-            <span>
-                Reviewed
-            </span>
-
-            <strong>
-                {{ stats.reviewed }}
-            </strong>
-
+            <strong>{{ stats.reviewed }}</strong>
+            <span>Reviewed</span>
         </div>
 
 
-        <!-- Resolved -->
         <div class="stat-card">
-
-            <span>
-                Resolved
-            </span>
-
-            <strong>
-                {{ stats.resolved }}
-            </strong>
-
+            <strong>{{ stats.resolved }}</strong>
+            <span>Resolved</span>
         </div>
 
 
-        <!-- Unreasonable -->
         <div class="stat-card">
-
-            <span>
-                Unreasonable
-            </span>
-
-            <strong>
-                {{ stats.unreasonable }}
-            </strong>
-
+            <strong>{{ stats.unreasonable }}</strong>
+            <span>Unreasonable</span>
         </div>
 
     </div>
@@ -399,6 +315,39 @@ Dashboard — SchoolVoice
 </div>
 
 {% endif %}
+
+
+<!-- ===================================================== -->
+<!-- ADMIN INFORMATION -->
+<!-- ===================================================== -->
+
+<div class="panel">
+
+    <h2>Administration</h2>
+
+    <p class="muted">
+        From here you can review school reports, process
+        administrator applications and manage registered
+        users.
+    </p>
+
+    <div class="actions">
+
+        <a class="btn primary" href="/reports">
+            Open Reports
+        </a>
+
+        <a class="btn secondary" href="/admin-applications">
+            Applications
+        </a>
+
+        <a class="btn secondary" href="/users">
+            👥 Users
+        </a>
+
+    </div>
+
+</div>
 
 
 {% endif %}
