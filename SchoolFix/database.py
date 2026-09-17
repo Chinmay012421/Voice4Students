@@ -279,23 +279,23 @@ def init_db():
     main_admins = [
         (
             "Principal",
-            os.environ.get("KVAG1404P")
+            os.environ.get("Principal")
         ),
         (
             "Vice Principal",
-            os.environ.get("KVAG1404VP")
+            os.environ.get("Vice Principal")
         ),
         (
             "Harshil Bisen",
-            os.environ.get("Backend_Dev")
+            os.environ.get("Harshil Bisen")
         ),
         (
             "Chinmay Epili",
-            os.environ.get("Frontend_Dev")
+            os.environ.get("Chinmay Epili")
         ),
         (
             "Arshad Khan",
-            os.environ.get("Arshad151")
+            os.environ.get("Arshad Khan")
         )
     ]
 
