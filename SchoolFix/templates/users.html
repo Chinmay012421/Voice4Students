@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}
+User Management — SchoolVoice
+{% endblock %}
+
+{% block content %}
+
+<div class="section-title">
+    <div>
+        <p class="eyebrow">Main Admin</p>
+        <h1>User Management</h1>
+        <p class="muted">
+            Manage student and normal-admin accounts.
+            Main Admin accounts are protected.
+        </p>
+    </div>
+</div>
+
+{% if error %}
+<div class="note">
+    {{ error }}
+</div>
+{% endif %}
+
+{% if message %}
+<div class="note">
+    {{ message }}
+</div>
+{% endif %}
+
+{% if success %}
+<div class="note">
+    {{ success }}
+</div>
+{% endif %}
+
+{% if users %}
+
+<div class="report-list">
+
+    {% for user in users %}
+
+    <div class="report-card">
+
+        <div class="report-top">
+            <div>
+                <span class="tag">User #{{ user[0] }}</span>
+                <h2>{{ user[1] }}</h2>
+            </div>
+
+            <span class="status">
+                {{ user[2].replace('_', ' ').title() }}
+            </span>
+        </div>
+
+        <p class="muted">
+            <b>Username:</b> {{ user[1] }}
+        </p>
+
+        <p class="muted">
+            <b>Role:</b> {{ user[2].replace('_', ' ').title() }}
+        </p>
+
+        <p class="muted">
+            <b>Registered:</b>
+            {% if user[5] %}
+                {{ user[5] }}
+            {% else %}
+                Not available
+            {% endif %}
+        </p>
+
+        <p class="muted">
+            <b>Account status:</b>
+            {% if user[3] %}
+                <span class="good" style="padding:4px 8px;border-radius:6px;">
+                    Active
+                </span>
+            {% else %}
+                <span class="bad" style="padding:4px 8px;border-radius:6px;">
+                    Inactive
+                </span>
+            {% endif %}
+        </p>
+
+        {% if user[4] %}
+        <div class="note">
+            This user must change their password at their next login.
+        </div>
+        {% endif %}
+
+        {% if user[2] != "main_admin" %}
+
+        <div style="margin-top:22px;border-top:1px solid #eef0f4;padding-top:20px;">
+
+            <h3 style="margin:0 0 12px;">
+                🔐 Change Password
+            </h3>
+
+            <form method="post"
+                  action="/change-user-password/{{ user[0] }}">
+
+                <label>
+                    New Password
+                    <input
+                        type="password"
+                        name="new_password"
+                        minlength="8"
+                        required
+                        autocomplete="new-password"
+                        placeholder="At least 8 characters"
+                    >
+                </label>
+
+                <label>
+                    Confirm New Password
+                    <input
+                        type="password"
+                        name="confirm_password"
+                        minlength="8"
+                        required
+                        autocomplete="new-password"
+                        placeholder="Enter the same password again"
+                    >
+                </label>
+
+                <button type="submit" class="small-btn">
+                    🔑 Set Permanent Password
+                </button>
+
+            </form>
+
+        </div>
+
+        {% else %}
+
+        <div class="note" style="margin-top:20px;">
+            🛡️ Main Admin account — protected from password changes here.
+        </div>
+
+        {% endif %}
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+{% else %}
+
+<div class="empty">
+    <h2>No users found</h2>
+</div>
+
+{% endif %}
+
+{% endblock %}
