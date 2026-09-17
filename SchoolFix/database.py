@@ -1,7 +1,16 @@
+import os
 import sqlite3
 from datetime import datetime
-from werkzeug.security import generate_password_hash, check_password_hash
 
+from werkzeug.security import (
+    generate_password_hash,
+    check_password_hash
+)
+
+
+# =========================================================
+# DATABASE
+# =========================================================
 
 DB_NAME = "schoolfix.db"
 
@@ -16,12 +25,18 @@ def connect():
         "PRAGMA busy_timeout = 30000"
     )
 
-    conn.execute(
-        "PRAGMA foreign_keys = ON"
-    )
-
     return conn
 
+
+def now():
+    return datetime.now().strftime(
+        "%Y-%m-%d %H:%M"
+    )
+
+
+# =========================================================
+# DATABASE INITIALIZATION
+# =========================================================
 
 def init_db():
 
@@ -67,15 +82,14 @@ def init_db():
             TEXT NOT NULL DEFAULT ''
         """)
 
-        cur.execute("""
+        cur.execute(
+            """
             UPDATE users
             SET registered_at=?
             WHERE registered_at=''
-        """, (
-            datetime.now().strftime(
-                "%Y-%m-%d %H:%M"
-            ),
-        ))
+            """,
+            (now(),)
+        )
 
     # =====================================================
     # ADMIN APPLICATIONS
@@ -93,9 +107,6 @@ def init_db():
 
     # =====================================================
     # REPORTS
-    #
-    # OLD PHOTO COLUMN IS KEPT FOR COMPATIBILITY.
-    # NEW PHOTOS GO INTO report_photos.
     # =====================================================
 
     cur.execute("""
@@ -160,90 +171,92 @@ def init_db():
         )
     """)
 
-    cur.execute("""
-        CREATE INDEX IF NOT EXISTS
-        idx_report_photos_report
-        ON report_photos(report_id)
-    """)
-
-    cur.execute("""
-        CREATE INDEX IF NOT EXISTS
-        idx_report_messages_report
-        ON report_messages(report_id)
-    """)
-
     # =====================================================
-    # EXISTING OLD PHOTOS
-    #
-    # Copy old photo references into the new photo table.
-    # INSERT OR IGNORE prevents duplicates.
+    # MIGRATE OLD SINGLE PHOTOS
     # =====================================================
 
-    old_reports = cur.execute("""
+    old_photos = cur.execute("""
         SELECT id, photo
         FROM reports
         WHERE photo IS NOT NULL
         AND photo != ''
     """).fetchall()
 
-    for report_id, photo in old_reports:
+    for report_id, filename in old_photos:
 
-        exists = cur.execute("""
+        exists = cur.execute(
+            """
             SELECT id
             FROM report_photos
-            WHERE report_id=? AND filename=?
-        """, (
-            report_id,
-            photo
-        )).fetchone()
+            WHERE report_id=?
+            AND filename=?
+            """,
+            (
+                report_id,
+                filename
+            )
+        ).fetchone()
 
         if not exists:
 
-            cur.execute("""
+            cur.execute(
+                """
                 INSERT INTO report_photos
-                (report_id, filename, uploaded_at)
-                VALUES (?, ?, ?)
-            """, (
-                report_id,
-                photo,
-                datetime.now().strftime(
-                    "%Y-%m-%d %H:%M"
+                (
+                    report_id,
+                    filename,
+                    uploaded_at
                 )
-            ))
+                VALUES (?, ?, ?)
+                """,
+                (
+                    report_id,
+                    filename,
+                    now()
+                )
+            )
 
     # =====================================================
-    # EXISTING REPORTS
-    #
-    # Add the original report message to the conversation
-    # if it has not already been added.
+    # MIGRATE ORIGINAL REPORT MESSAGE
     # =====================================================
 
-    existing_reports = cur.execute("""
-        SELECT id, username, message, date
+    old_reports = cur.execute("""
+        SELECT
+            id,
+            username,
+            message,
+            date
         FROM reports
     """).fetchall()
 
-    for report_id, username, message, report_date in existing_reports:
+    for report_id, username, message, report_date in old_reports:
 
-        exists = cur.execute("""
+        exists = cur.execute(
+            """
             SELECT id
             FROM report_messages
             WHERE report_id=?
-        """, (
-            report_id,
-        )).fetchone()
+            AND username=?
+            AND message=?
+            """,
+            (
+                report_id,
+                username,
+                message
+            )
+        ).fetchone()
 
         if not exists:
 
-            cur.execute("""
+            # Determine role of original reporter
+            role_row = cur.execute(
+                """
                 SELECT role
                 FROM users
                 WHERE username=?
-            """, (
-                username,
-            ))
-
-            role_row = cur.fetchone()
+                """,
+                (username,)
+            ).fetchone()
 
             role = (
                 role_row[0]
@@ -251,27 +264,120 @@ def init_db():
                 else "student"
             )
 
-            cur.execute("""
+            cur.execute(
+                """
                 INSERT INTO report_messages
-                (report_id, username, role, message, date)
+                (
+                    report_id,
+                    username,
+                    role,
+                    message,
+                    date
+                )
                 VALUES (?, ?, ?, ?, ?)
-            """, (
-                report_id,
-                username,
-                role,
-                message,
-                report_date
-            ))
+                """,
+                (
+                    report_id,
+                    username,
+                    role,
+                    message,
+                    report_date
+                )
+            )
 
     # =====================================================
-    # DO NOT HARD-CODE PASSWORDS HERE.
+    # MAIN ADMIN ACCOUNTS
+    # =====================================================
     #
-    # Existing schoolfix.db accounts remain untouched.
-    # For a completely new database, create Main Admin
-    # accounts through your deployment/bootstrap process.
+    # Existing Main Admin accounts are NEVER replaced.
+    #
+    # If the database already contains Main Admins,
+    # nothing happens here.
+    #
+    # If this is a completely new database, passwords
+    # must come from environment variables.
+    # =====================================================
+
+    cur.execute("""
+        SELECT COUNT(*)
+        FROM users
+        WHERE role='main_admin'
+    """)
+
+    main_admin_count = cur.fetchone()[0]
+
+    if main_admin_count == 0:
+
+        main_admins = [
+            (
+                "Principal",
+                os.environ.get(
+                    "KVAG1404P"
+                )
+            ),
+            (
+                "Vice Principal",
+                os.environ.get(
+                    "KVAG1404VP"
+                )
+            ),
+            (
+                "Harshil Bisen",
+                os.environ.get(
+                    "Backend_Dev"
+                )
+            ),
+            (
+                "Chinmay Epili",
+                os.environ.get(
+                    "Frontend_Dev"
+                )
+            ),
+            (
+                "Arshad Khan",
+                os.environ.get(
+                    "Arshad151"
+                )
+            )
+        ]
+
+        for username, password in main_admins:
+
+            # Only create an account if its password
+            # has been configured securely.
+            if password:
+
+                cur.execute(
+                    """
+                    INSERT OR IGNORE INTO users
+                    (
+                        username,
+                        password,
+                        role,
+                        active,
+                        must_change_password,
+                        registered_at
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        username,
+                        generate_password_hash(
+                            password
+                        ),
+                        "main_admin",
+                        1,
+                        0,
+                        now()
+                    )
+                )
+
+    # =====================================================
+    # ENABLE FOREIGN KEYS
     # =====================================================
 
     conn.commit()
+
     conn.close()
 
 
@@ -279,11 +385,16 @@ def init_db():
 # USERS
 # =========================================================
 
-def save_user(username, password, role="student"):
+def save_user(
+    username,
+    password,
+    role="student"
+):
 
     conn = connect()
 
-    conn.execute("""
+    conn.execute(
+        """
         INSERT INTO users
         (
             username,
@@ -293,32 +404,36 @@ def save_user(username, password, role="student"):
             registered_at
         )
         VALUES (?, ?, ?, ?, ?)
-    """, (
-        username,
-        generate_password_hash(password),
-        role,
-        0,
-        datetime.now().strftime(
-            "%Y-%m-%d %H:%M"
+        """,
+        (
+            username,
+            generate_password_hash(password),
+            role,
+            0,
+            now()
         )
-    ))
+    )
 
     conn.commit()
     conn.close()
 
 
-def get_user(username, password):
+def get_user(
+    username,
+    password
+):
 
     conn = connect()
 
-    row = conn.execute("""
+    row = conn.execute(
+        """
         SELECT *
         FROM users
         WHERE username=?
         AND active=1
-    """, (
-        username,
-    )).fetchone()
+        """,
+        (username,)
+    ).fetchone()
 
     conn.close()
 
@@ -335,17 +450,29 @@ def get_all_users():
 
     conn = connect()
 
-    rows = conn.execute("""
+    # Keep the tuple layout compatible with the
+    # current users.html:
+    #
+    # user[0] = id
+    # user[1] = username
+    # user[2] = password hash
+    # user[3] = role
+    # user[4] = active
+    # user[5] = must_change_password
+
+    rows = conn.execute(
+        """
         SELECT
             id,
             username,
+            password,
             role,
             active,
-            must_change_password,
-            registered_at
+            must_change_password
         FROM users
         ORDER BY id ASC
-    """).fetchall()
+        """
+    ).fetchall()
 
     conn.close()
 
@@ -363,17 +490,24 @@ def save_admin_application(
 
     conn = connect()
 
-    conn.execute("""
+    conn.execute(
+        """
         INSERT INTO admin_applications
-        (username, reason, date)
-        VALUES (?, ?, ?)
-    """, (
-        username,
-        reason,
-        datetime.now().strftime(
-            "%Y-%m-%d %H:%M"
+        (
+            username,
+            reason,
+            status,
+            date
         )
-    ))
+        VALUES (?, ?, ?, ?)
+        """,
+        (
+            username,
+            reason,
+            "Pending",
+            now()
+        )
+    )
 
     conn.commit()
     conn.close()
@@ -383,63 +517,74 @@ def get_pending_applications():
 
     conn = connect()
 
-    rows = conn.execute("""
+    rows = conn.execute(
+        """
         SELECT *
         FROM admin_applications
         WHERE status='Pending'
         ORDER BY id DESC
-    """).fetchall()
+        """
+    ).fetchall()
 
     conn.close()
 
     return rows
 
 
-def approve_admin(application_id):
+def approve_admin(
+    application_id
+):
 
     conn = connect()
 
-    row = conn.execute("""
+    row = conn.execute(
+        """
         SELECT username
         FROM admin_applications
         WHERE id=?
-    """, (
-        application_id,
-    )).fetchone()
+        """,
+        (application_id,)
+    ).fetchone()
 
     if row:
 
-        conn.execute("""
+        conn.execute(
+            """
             UPDATE users
             SET role='admin'
             WHERE username=?
-        """, (
-            row[0],
-        ))
+            AND role='student'
+            """,
+            (row[0],)
+        )
 
-        conn.execute("""
+        conn.execute(
+            """
             UPDATE admin_applications
             SET status='Approved'
             WHERE id=?
-        """, (
-            application_id,
-        ))
+            """,
+            (application_id,)
+        )
 
     conn.commit()
     conn.close()
 
 
-def reject_admin(application_id):
+def reject_admin(
+    application_id
+):
 
     conn = connect()
 
-    conn.execute("""
+    conn.execute(
+        """
         UPDATE admin_applications
         SET status='Rejected'
         WHERE id=?
-    """, (
-        application_id,
-    ))
+        """,
+        (application_id,)
+    )
 
     conn.commit()
     conn.close()
@@ -453,38 +598,61 @@ def save_report(
     username,
     category,
     location,
-    message
+    message,
+    photo=""
 ):
 
     conn = connect()
 
     cur = conn.cursor()
 
-    cur.execute("""
+    cur.execute(
+        """
         INSERT INTO reports
         (
             username,
             category,
             location,
             message,
+            status,
             date,
+            admin_note,
             photo
         )
-        VALUES (?, ?, ?, ?, ?, ?)
-    """, (
-        username,
-        category,
-        location,
-        message,
-        datetime.now().strftime(
-            "%Y-%m-%d %H:%M"
-        ),
-        ""
-    ))
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            username,
+            category,
+            location,
+            message,
+            "Pending",
+            now(),
+            "",
+            photo
+        )
+    )
 
     report_id = cur.lastrowid
 
-    cur.execute("""
+    # Add original report message to conversation
+    role_row = cur.execute(
+        """
+        SELECT role
+        FROM users
+        WHERE username=?
+        """,
+        (username,)
+    ).fetchone()
+
+    role = (
+        role_row[0]
+        if role_row
+        else "student"
+    )
+
+    cur.execute(
+        """
         INSERT INTO report_messages
         (
             report_id,
@@ -494,15 +662,35 @@ def save_report(
             date
         )
         VALUES (?, ?, ?, ?, ?)
-    """, (
-        report_id,
-        username,
-        "student",
-        message,
-        datetime.now().strftime(
-            "%Y-%m-%d %H:%M"
+        """,
+        (
+            report_id,
+            username,
+            role,
+            message,
+            now()
         )
-    ))
+    )
+
+    # Save original photo into the new photo table
+    if photo:
+
+        cur.execute(
+            """
+            INSERT INTO report_photos
+            (
+                report_id,
+                filename,
+                uploaded_at
+            )
+            VALUES (?, ?, ?)
+            """,
+            (
+                report_id,
+                photo,
+                now()
+            )
+        )
 
     conn.commit()
     conn.close()
@@ -510,54 +698,62 @@ def save_report(
     return report_id
 
 
-def get_all_reports():
+def get_report(
+    report_id
+):
 
     conn = connect()
 
-    rows = conn.execute("""
-        SELECT *
-        FROM reports
-        ORDER BY id DESC
-    """).fetchall()
-
-    conn.close()
-
-    return rows
-
-
-def get_user_reports(username):
-
-    conn = connect()
-
-    rows = conn.execute("""
-        SELECT *
-        FROM reports
-        WHERE username=?
-        ORDER BY id DESC
-    """, (
-        username,
-    )).fetchall()
-
-    conn.close()
-
-    return rows
-
-
-def get_report(report_id):
-
-    conn = connect()
-
-    row = conn.execute("""
+    row = conn.execute(
+        """
         SELECT *
         FROM reports
         WHERE id=?
-    """, (
-        report_id,
-    )).fetchone()
+        """,
+        (report_id,)
+    ).fetchone()
 
     conn.close()
 
     return row
+
+
+def get_all_reports():
+
+    conn = connect()
+
+    rows = conn.execute(
+        """
+        SELECT *
+        FROM reports
+        ORDER BY id DESC
+        """
+    ).fetchall()
+
+    conn.close()
+
+    return rows
+
+
+def get_user_reports(
+    username
+):
+
+    conn = connect()
+
+    rows = conn.execute(
+        """
+        SELECT *
+        FROM reports
+        WHERE username=?
+        ORDER BY id DESC
+        """,
+        (username,)
+    ).fetchall()
+
+    conn.close()
+
+    return rows
 
 
 def update_report_status(
@@ -568,16 +764,20 @@ def update_report_status(
 
     conn = connect()
 
-    conn.execute("""
+    conn.execute(
+        """
         UPDATE reports
-        SET status=?,
+        SET
+            status=?,
             admin_note=?
         WHERE id=?
-    """, (
-        status,
-        admin_note,
-        report_id
-    ))
+        """,
+        (
+            status,
+            admin_note,
+            report_id
+        )
+    )
 
     conn.commit()
     conn.close()
@@ -587,35 +787,59 @@ def get_unreasonable_reports():
 
     conn = connect()
 
-    rows = conn.execute("""
+    rows = conn.execute(
+        """
         SELECT *
         FROM reports
         WHERE status='Unreasonable'
         ORDER BY id DESC
-    """).fetchall()
+        """
+    ).fetchall()
 
     conn.close()
 
     return rows
 
 
-def delete_report(report_id):
+def delete_report(
+    report_id
+):
 
     conn = connect()
 
-    conn.execute("""
+    # Delete conversation messages
+    conn.execute(
+        """
+        DELETE FROM report_messages
+        WHERE report_id=?
+        """,
+        (report_id,)
+    )
+
+    # Delete attached photos from database
+    conn.execute(
+        """
+        DELETE FROM report_photos
+        WHERE report_id=?
+        """,
+        (report_id,)
+    )
+
+    # Delete report itself
+    conn.execute(
+        """
         DELETE FROM reports
         WHERE id=?
-    """, (
-        report_id,
-    ))
+        """,
+        (report_id,)
+    )
 
     conn.commit()
     conn.close()
 
 
 # =========================================================
-# PHOTOS
+# REPORT PHOTOS
 # =========================================================
 
 def add_report_photo(
@@ -625,7 +849,8 @@ def add_report_photo(
 
     conn = connect()
 
-    conn.execute("""
+    conn.execute(
+        """
         INSERT INTO report_photos
         (
             report_id,
@@ -633,23 +858,26 @@ def add_report_photo(
             uploaded_at
         )
         VALUES (?, ?, ?)
-    """, (
-        report_id,
-        filename,
-        datetime.now().strftime(
-            "%Y-%m-%d %H:%M"
+        """,
+        (
+            report_id,
+            filename,
+            now()
         )
-    ))
+    )
 
     conn.commit()
     conn.close()
 
 
-def get_report_photos(report_id):
+def get_report_photos(
+    report_id
+):
 
     conn = connect()
 
-    rows = conn.execute("""
+    rows = conn.execute(
+        """
         SELECT
             id,
             report_id,
@@ -658,9 +886,9 @@ def get_report_photos(report_id):
         FROM report_photos
         WHERE report_id=?
         ORDER BY id ASC
-    """, (
-        report_id,
-    )).fetchall()
+        """,
+        (report_id,)
+    ).fetchall()
 
     conn.close()
 
@@ -668,7 +896,7 @@ def get_report_photos(report_id):
 
 
 # =========================================================
-# CONVERSATION
+# REPORT CONVERSATION
 # =========================================================
 
 def add_report_message(
@@ -678,9 +906,15 @@ def add_report_message(
     message
 ):
 
+    message = message.strip()
+
+    if not message:
+        return
+
     conn = connect()
 
-    conn.execute("""
+    conn.execute(
+        """
         INSERT INTO report_messages
         (
             report_id,
@@ -690,25 +924,28 @@ def add_report_message(
             date
         )
         VALUES (?, ?, ?, ?, ?)
-    """, (
-        report_id,
-        username,
-        role,
-        message,
-        datetime.now().strftime(
-            "%Y-%m-%d %H:%M"
+        """,
+        (
+            report_id,
+            username,
+            role,
+            message,
+            now()
         )
-    ))
+    )
 
     conn.commit()
     conn.close()
 
 
-def get_report_messages(report_id):
+def get_report_messages(
+    report_id
+):
 
     conn = connect()
 
-    rows = conn.execute("""
+    rows = conn.execute(
+        """
         SELECT
             id,
             report_id,
@@ -719,9 +956,9 @@ def get_report_messages(report_id):
         FROM report_messages
         WHERE report_id=?
         ORDER BY id ASC
-    """, (
-        report_id,
-    )).fetchall()
+        """,
+        (report_id,)
+    ).fetchall()
 
     conn.close()
 
@@ -741,38 +978,46 @@ def set_temporary_password(
 
     cur = conn.cursor()
 
-    row = cur.execute("""
+    row = cur.execute(
+        """
         SELECT
             id,
             username,
             role
         FROM users
         WHERE id=?
-    """, (
-        user_id,
-    )).fetchone()
+        """,
+        (user_id,)
+    ).fetchone()
 
     if not row:
 
         conn.close()
+
         return None
 
+    # Main Admin passwords are protected.
     if row[2] == "main_admin":
 
         conn.close()
+
         return "protected"
 
-    cur.execute("""
+    cur.execute(
+        """
         UPDATE users
-        SET password=?,
+        SET
+            password=?,
             must_change_password=1
         WHERE id=?
-    """, (
-        generate_password_hash(
-            temporary_password
-        ),
-        user_id
-    ))
+        """,
+        (
+            generate_password_hash(
+                temporary_password
+            ),
+            user_id
+        )
+    )
 
     conn.commit()
     conn.close()
@@ -789,7 +1034,8 @@ def set_permanent_password(
 
     cur = conn.cursor()
 
-    row = cur.execute("""
+    row = cur.execute(
+        """
         SELECT
             id,
             username,
@@ -797,31 +1043,39 @@ def set_permanent_password(
         FROM users
         WHERE id=?
         AND active=1
-    """, (
-        user_id,
-    )).fetchone()
+        """,
+        (user_id,)
+    ).fetchone()
 
     if not row:
 
         conn.close()
+
         return None
 
+    # Main Admin accounts cannot be changed
+    # through normal user management.
     if row[2] == "main_admin":
 
         conn.close()
+
         return "protected"
 
-    cur.execute("""
+    cur.execute(
+        """
         UPDATE users
-        SET password=?,
+        SET
+            password=?,
             must_change_password=0
         WHERE id=?
-    """, (
-        generate_password_hash(
-            new_password
-        ),
-        user_id
-    ))
+        """,
+        (
+            generate_password_hash(
+                new_password
+            ),
+            user_id
+        )
+    )
 
     conn.commit()
     conn.close()
@@ -836,34 +1090,41 @@ def change_password(
 
     conn = connect()
 
-    conn.execute("""
+    conn.execute(
+        """
         UPDATE users
-        SET password=?,
+        SET
+            password=?,
             must_change_password=0
         WHERE username=?
-    """, (
-        generate_password_hash(
-            new_password
-        ),
-        username
-    ))
+        """,
+        (
+            generate_password_hash(
+                new_password
+            ),
+            username
+        )
+    )
 
     conn.commit()
     conn.close()
 
 
-def must_change_password(username):
+def must_change_password(
+    username
+):
 
     conn = connect()
 
-    row = conn.execute("""
+    row = conn.execute(
+        """
         SELECT must_change_password
         FROM users
         WHERE username=?
         AND active=1
-    """, (
-        username,
-    )).fetchone()
+        """,
+        (username,)
+    ).fetchone()
 
     conn.close()
 
@@ -873,41 +1134,51 @@ def must_change_password(username):
 
 
 # =========================================================
-# STATISTICS
+# REPORT STATISTICS
 # =========================================================
 
 def get_report_stats():
 
     conn = connect()
 
-    total = conn.execute("""
+    total = conn.execute(
+        """
         SELECT COUNT(*)
         FROM reports
-    """).fetchone()[0]
+        """
+    ).fetchone()[0]
 
-    pending = conn.execute("""
+    pending = conn.execute(
+        """
         SELECT COUNT(*)
         FROM reports
         WHERE status='Pending'
-    """).fetchone()[0]
+        """
+    ).fetchone()[0]
 
-    reviewed = conn.execute("""
+    reviewed = conn.execute(
+        """
         SELECT COUNT(*)
         FROM reports
         WHERE status='Reviewed'
-    """).fetchone()[0]
+        """
+    ).fetchone()[0]
 
-    resolved = conn.execute("""
+    resolved = conn.execute(
+        """
         SELECT COUNT(*)
         FROM reports
         WHERE status='Resolved'
-    """).fetchone()[0]
+        """
+    ).fetchone()[0]
 
-    unreasonable = conn.execute("""
+    unreasonable = conn.execute(
+        """
         SELECT COUNT(*)
         FROM reports
         WHERE status='Unreasonable'
-    """).fetchone()[0]
+        """
+    ).fetchone()[0]
 
     conn.close()
 
