@@ -7,20 +7,78 @@ User Management — SchoolVoice
 {% block content %}
 
 <div class="section-title">
+
     <div>
-        <p class="eyebrow">Main Admin</p>
-        <h1>User Management</h1>
-        <p class="muted">
-            View registered students and administrators.
+
+        <p class="eyebrow">
+            Main Admin
         </p>
+
+        <h1>
+            User Management
+        </h1>
+
+        <p class="muted">
+            View registered users and manage account passwords.
+        </p>
+
     </div>
+
 </div>
 
 
 {% if error %}
+
 <div class="note">
     {{ error }}
 </div>
+
+{% endif %}
+
+
+{% if success %}
+
+<div class="note">
+    {{ success }}
+</div>
+
+{% endif %}
+
+
+{% if temporary_password %}
+
+<div class="panel">
+
+    <h2>🔑 Temporary Password</h2>
+
+    <p>
+        A new temporary password has been created for
+        <b>{{ reset_username }}</b>.
+    </p>
+
+    <p>
+        Give this temporary password to the user securely.
+    </p>
+
+    <div class="note">
+
+        <b>
+            Temporary Password:
+        </b>
+
+        <span style="font-family: monospace; font-size: 18px;">
+            {{ temporary_password }}
+        </span>
+
+        <p class="muted">
+            The user will be required to change this password
+            after logging in.
+        </p>
+
+    </div>
+
+</div>
+
 {% endif %}
 
 
@@ -35,6 +93,7 @@ User Management — SchoolVoice
         <div class="report-top">
 
             <div>
+
                 <span class="tag">
                     User #{{ user[0] }}
                 </span>
@@ -42,30 +101,50 @@ User Management — SchoolVoice
                 <h2>
                     {{ user[1] }}
                 </h2>
+
             </div>
 
+
             <span class="status">
+
                 {{ user[2].replace('_', ' ').title() }}
+
             </span>
 
         </div>
 
 
         <p class="muted">
-            <b>Username:</b> {{ user[1] }}
+
+            <b>Username:</b>
+            {{ user[1] }}
+
         </p>
 
+
         <p class="muted">
+
             <b>Role:</b>
             {{ user[2].replace('_', ' ').title() }}
+
         </p>
 
+
         <p class="muted">
+
             <b>Registered:</b>
-            {{ user[5] if user[5] else 'Not available' }}
+
+            {% if user[5] %}
+                {{ user[5] }}
+            {% else %}
+                Not available
+            {% endif %}
+
         </p>
 
+
         <p class="muted">
+
             <b>Account status:</b>
 
             {% if user[3] %}
@@ -73,19 +152,25 @@ User Management — SchoolVoice
             {% else %}
                 Inactive
             {% endif %}
+
         </p>
 
 
         {% if user[4] %}
 
         <div class="note">
-            This user must change their password at next login.
+
+            This user must change their password
+            at their next login.
+
         </div>
 
         {% endif %}
 
 
-        {% if user[2] != 'main_admin' %}
+        <!-- PASSWORD RESET -->
+
+        {% if user[2] != "main_admin" %}
 
         <form
             method="post"
@@ -96,7 +181,7 @@ User Management — SchoolVoice
                 type="submit"
                 class="small-btn"
             >
-                Reset Password
+                🔑 Reset Password
             </button>
 
         </form>
@@ -104,10 +189,13 @@ User Management — SchoolVoice
         {% else %}
 
         <p class="muted">
-            Main Admin account — protected
+
+            🛡️ Main Admin account — protected
+
         </p>
 
         {% endif %}
+
 
     </div>
 
@@ -119,9 +207,14 @@ User Management — SchoolVoice
 {% else %}
 
 <div class="empty">
-    <h2>No users found</h2>
+
+    <h2>
+        No users found
+    </h2>
+
 </div>
 
 {% endif %}
+
 
 {% endblock %}
