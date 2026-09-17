@@ -3,7 +3,6 @@ import secrets
 import string
 
 from flask import Flask, request, redirect, session, render_template
-from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 
 from database import (
@@ -34,10 +33,6 @@ app = Flask(__name__)
 app.secret_key = "schoolfix-demo-secret-key"
 
 
-# =====================================================
-# PHOTO UPLOAD SETTINGS
-# =====================================================
-
 UPLOAD_FOLDER = os.path.join(
     app.root_path,
     "static",
@@ -48,6 +43,7 @@ os.makedirs(
     UPLOAD_FOLDER,
     exist_ok=True
 )
+
 
 ALLOWED_EXTENSIONS = {
     "png",
@@ -60,44 +56,37 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 
 def allowed_file(filename):
+
     return (
         "." in filename
         and filename.rsplit(
             ".",
             1
-        )[1].lower() in ALLOWED_EXTENSIONS
+        )[1].lower()
+        in ALLOWED_EXTENSIONS
     )
 
-
-# =====================================================
-# DATABASE
-# =====================================================
 
 init_db()
 
 
-# =====================================================
-# LOGIN HELPERS
-# =====================================================
-
 def logged_in():
+
     return "username" in session
 
 
 def is_main_admin():
+
     return session.get("role") == "main_admin"
 
 
 def is_admin():
+
     return session.get("role") in (
         "admin",
         "main_admin"
     )
 
-
-# =====================================================
-# HOME
-# =====================================================
 
 @app.route("/")
 def home():
@@ -106,10 +95,6 @@ def home():
         "index.html"
     )
 
-
-# =====================================================
-# LOGIN
-# =====================================================
 
 @app.route(
     "/login",
@@ -139,6 +124,7 @@ def login():
             session.clear()
 
             session["username"] = user[1]
+
             session["role"] = user[3]
 
             if must_change_password(
@@ -162,10 +148,6 @@ def login():
     )
 
 
-# =====================================================
-# LOGOUT
-# =====================================================
-
 @app.route("/logout")
 def logout():
 
@@ -173,10 +155,6 @@ def logout():
 
     return redirect("/")
 
-
-# =====================================================
-# STUDENT REGISTRATION
-# =====================================================
 
 @app.route(
     "/register",
@@ -235,10 +213,6 @@ def register():
     )
 
 
-# =====================================================
-# CHANGE OWN PASSWORD
-# =====================================================
-
 @app.route(
     "/change-password",
     methods=["GET", "POST"]
@@ -247,9 +221,7 @@ def change_password_route():
 
     if not logged_in():
 
-        return redirect(
-            "/login"
-        )
+        return redirect("/login")
 
     if request.method == "POST":
 
@@ -294,28 +266,76 @@ def change_password_route():
     )
 
 
-# =====================================================
-# MAIN ADMIN - USERS
-# =====================================================
+# =========================================================
+# MAIN ADMIN USER MANAGEMENT
+# =========================================================
 
 @app.route("/users")
 def users():
 
     if not is_main_admin():
 
-        return redirect(
-            "/dashboard"
+        return redirect("/dashboard")
+
+    users = get_all_users()
+
+    search = request.args.get(
+        "search",
+        ""
+    ).strip().lower()
+
+    role = request.args.get(
+        "role",
+        ""
+    ).strip()
+
+    filtered_users = []
+
+    for user in users:
+
+        username = str(
+            user[1] or ""
+        ).lower()
+
+        user_role = str(
+            user[3] or ""
+        )
+
+        if search and search not in username:
+
+            continue
+
+        if (
+            role == "student"
+            and user_role != "student"
+        ):
+
+            continue
+
+        if (
+            role == "admin"
+            and user_role not in (
+                "admin",
+                "main_admin"
+            )
+        ):
+
+            continue
+
+        filtered_users.append(
+            user
         )
 
     return render_template(
         "users.html",
-        users=get_all_users()
+        users=filtered_users,
+        search=request.args.get(
+            "search",
+            ""
+        ),
+        selected_role=role
     )
 
-
-# =====================================================
-# MAIN ADMIN - TEMPORARY PASSWORD RESET
-# =====================================================
 
 @app.route(
     "/reset-password/<int:user_id>",
@@ -325,9 +345,7 @@ def reset_password(user_id):
 
     if not is_main_admin():
 
-        return redirect(
-            "/dashboard"
-        )
+        return redirect("/dashboard")
 
     alphabet = (
         string.ascii_letters
@@ -349,6 +367,8 @@ def reset_password(user_id):
         return render_template(
             "users.html",
             users=get_all_users(),
+            search="",
+            selected_role="",
             error=(
                 "Main Admin passwords cannot "
                 "be reset from this screen."
@@ -360,6 +380,8 @@ def reset_password(user_id):
         return render_template(
             "users.html",
             users=get_all_users(),
+            search="",
+            selected_role="",
             error="User not found."
         )
 
@@ -370,10 +392,6 @@ def reset_password(user_id):
     )
 
 
-# =====================================================
-# MAIN ADMIN - PERMANENT PASSWORD CHANGE
-# =====================================================
-
 @app.route(
     "/change-user-password/<int:user_id>",
     methods=["POST"]
@@ -382,9 +400,7 @@ def change_user_password(user_id):
 
     if not is_main_admin():
 
-        return redirect(
-            "/dashboard"
-        )
+        return redirect("/dashboard")
 
     new_password = request.form.get(
         "new_password",
@@ -401,6 +417,8 @@ def change_user_password(user_id):
         return render_template(
             "users.html",
             users=get_all_users(),
+            search="",
+            selected_role="",
             error=(
                 "Password must be at least "
                 "8 characters."
@@ -412,6 +430,8 @@ def change_user_password(user_id):
         return render_template(
             "users.html",
             users=get_all_users(),
+            search="",
+            selected_role="",
             error="Passwords do not match."
         )
 
@@ -425,6 +445,8 @@ def change_user_password(user_id):
         return render_template(
             "users.html",
             users=get_all_users(),
+            search="",
+            selected_role="",
             error=(
                 "Main Admin passwords cannot "
                 "be changed from this screen."
@@ -436,6 +458,8 @@ def change_user_password(user_id):
         return render_template(
             "users.html",
             users=get_all_users(),
+            search="",
+            selected_role="",
             error=(
                 "User not found or inactive."
             )
@@ -444,6 +468,8 @@ def change_user_password(user_id):
     return render_template(
         "users.html",
         users=get_all_users(),
+        search="",
+        selected_role="",
         message=(
             f"Password permanently changed "
             f"for {result}."
@@ -451,18 +477,16 @@ def change_user_password(user_id):
     )
 
 
-# =====================================================
+# =========================================================
 # DASHBOARD
-# =====================================================
+# =========================================================
 
 @app.route("/dashboard")
 def dashboard():
 
     if not logged_in():
 
-        return redirect(
-            "/login"
-        )
+        return redirect("/login")
 
     stats = None
 
@@ -478,9 +502,9 @@ def dashboard():
     )
 
 
-# =====================================================
-# STUDENT - APPLY FOR ADMIN
-# =====================================================
+# =========================================================
+# ADMIN APPLICATIONS
+# =========================================================
 
 @app.route(
     "/apply-admin",
@@ -493,9 +517,7 @@ def apply_admin():
         or session.get("role") != "student"
     ):
 
-        return redirect(
-            "/login"
-        )
+        return redirect("/login")
 
     if request.method == "POST":
 
@@ -531,28 +553,18 @@ def apply_admin():
     )
 
 
-# =====================================================
-# MAIN ADMIN - ADMIN APPLICATIONS
-# =====================================================
-
 @app.route("/admin-applications")
 def admin_applications():
 
     if not is_main_admin():
 
-        return redirect(
-            "/dashboard"
-        )
+        return redirect("/dashboard")
 
     return render_template(
         "admin_applications.html",
         applications=get_pending_applications()
     )
 
-
-# =====================================================
-# APPROVE ADMIN
-# =====================================================
 
 @app.route(
     "/approve-admin/<int:application_id>"
@@ -563,9 +575,7 @@ def approve_admin_route(
 
     if not is_main_admin():
 
-        return redirect(
-            "/dashboard"
-        )
+        return redirect("/dashboard")
 
     approve_admin(
         application_id
@@ -576,10 +586,6 @@ def approve_admin_route(
     )
 
 
-# =====================================================
-# REJECT ADMIN
-# =====================================================
-
 @app.route(
     "/reject-admin/<int:application_id>"
 )
@@ -589,9 +595,7 @@ def reject_admin_route(
 
     if not is_main_admin():
 
-        return redirect(
-            "/dashboard"
-        )
+        return redirect("/dashboard")
 
     reject_admin(
         application_id
@@ -602,9 +606,9 @@ def reject_admin_route(
     )
 
 
-# =====================================================
-# STUDENT - SUBMIT REPORT
-# =====================================================
+# =========================================================
+# REPORT SUBMISSION
+# =========================================================
 
 @app.route(
     "/submit-report",
@@ -617,9 +621,7 @@ def submit_report():
         or session.get("role") != "student"
     ):
 
-        return redirect(
-            "/login"
-        )
+        return redirect("/login")
 
     category = request.form.get(
         "category",
@@ -641,10 +643,6 @@ def submit_report():
         return redirect(
             "/dashboard"
         )
-
-    # =================================================
-    # PHOTO
-    # =================================================
 
     photo_name = ""
 
@@ -691,10 +689,6 @@ def submit_report():
             photo_path
         )
 
-    # =================================================
-    # SAVE REPORT
-    # =================================================
-
     save_report(
         session["username"],
         category,
@@ -708,18 +702,16 @@ def submit_report():
     )
 
 
-# =====================================================
-# STUDENT - MY REPORTS
-# =====================================================
+# =========================================================
+# STUDENT REPORTS
+# =========================================================
 
 @app.route("/my-reports")
 def my_reports():
 
     if not logged_in():
 
-        return redirect(
-            "/login"
-        )
+        return redirect("/login")
 
     reports = get_user_reports(
         session["username"]
@@ -732,109 +724,22 @@ def my_reports():
     )
 
 
-# =====================================================
-# ADMIN - ALL REPORTS + SEARCH/FILTER
-# =====================================================
+# =========================================================
+# ADMIN REPORTS
+# =========================================================
 
 @app.route("/reports")
 def reports():
 
     if not is_admin():
 
-        return redirect(
-            "/dashboard"
-        )
-
-    # Get every report from database
-    all_reports = get_all_reports()
-
-    # Read filters from URL
-    search = request.args.get(
-        "search",
-        ""
-    ).strip().lower()
-
-    category = request.args.get(
-        "category",
-        ""
-    ).strip()
-
-    status = request.args.get(
-        "status",
-        ""
-    ).strip()
-
-    filtered_reports = []
-
-    # =================================================
-    # FILTER REPORTS
-    # =================================================
-
-    for r in all_reports:
-
-        # ---------------------------------------------
-        # Database report structure:
-        #
-        # r[0] = ID
-        # r[1] = username
-        # r[2] = category
-        # r[3] = location
-        # r[4] = message
-        # r[5] = status
-        # r[6] = date
-        # r[7] = admin note
-        # r[8] = photo
-        # ---------------------------------------------
-
-        # Category filter
-        if category:
-
-            if r[2] != category:
-
-                continue
-
-        # Status filter
-        if status:
-
-            if r[5] != status:
-
-                continue
-
-        # Search filter
-        if search:
-
-            searchable_text = " ".join([
-                str(r[1] or ""),
-                str(r[2] or ""),
-                str(r[3] or ""),
-                str(r[4] or ""),
-                str(r[5] or ""),
-                str(r[7] or "")
-            ]).lower()
-
-            if search not in searchable_text:
-
-                continue
-
-        filtered_reports.append(
-            r
-        )
+        return redirect("/dashboard")
 
     return render_template(
         "reports.html",
-        reports=filtered_reports,
-        search=request.args.get(
-            "search",
-            ""
-        ),
-        selected_category=category,
-        selected_status=status
+        reports=get_all_reports()
     )
 
-
-# =====================================================
-# ADMIN - UPDATE REPORT
-# =====================================================
 
 @app.route(
     "/update-report/<int:report_id>",
@@ -844,9 +749,7 @@ def update_report(report_id):
 
     if not is_admin():
 
-        return redirect(
-            "/dashboard"
-        )
+        return redirect("/dashboard")
 
     status = request.form.get(
         "status",
@@ -869,10 +772,6 @@ def update_report(report_id):
     )
 
 
-# =====================================================
-# ADMIN - MARK UNREASONABLE
-# =====================================================
-
 @app.route(
     "/unreasonable/<int:report_id>"
 )
@@ -880,9 +779,7 @@ def unreasonable(report_id):
 
     if not is_admin():
 
-        return redirect(
-            "/dashboard"
-        )
+        return redirect("/dashboard")
 
     update_report_status(
         report_id,
@@ -895,18 +792,18 @@ def unreasonable(report_id):
     )
 
 
-# =====================================================
-# MAIN ADMIN - UNREASONABLE REPORTS
-# =====================================================
+# =========================================================
+# MAIN ADMIN UNREASONABLE REPORTS
+# =========================================================
 
-@app.route("/unreasonable-reports")
+@app.route(
+    "/unreasonable-reports"
+)
 def unreasonable_reports():
 
     if not is_main_admin():
 
-        return redirect(
-            "/dashboard"
-        )
+        return redirect("/dashboard")
 
     return render_template(
         "unreasonable_reports.html",
@@ -914,20 +811,16 @@ def unreasonable_reports():
     )
 
 
-# =====================================================
-# MAIN ADMIN - DELETE REPORT
-# =====================================================
-
 @app.route(
     "/delete-report/<int:report_id>"
 )
-def delete_report_route(report_id):
+def delete_report_route(
+    report_id
+):
 
     if not is_main_admin():
 
-        return redirect(
-            "/dashboard"
-        )
+        return redirect("/dashboard")
 
     delete_report(
         report_id
@@ -938,9 +831,9 @@ def delete_report_route(report_id):
     )
 
 
-# =====================================================
+# =========================================================
 # RUN
-# =====================================================
+# =========================================================
 
 if __name__ == "__main__":
 
