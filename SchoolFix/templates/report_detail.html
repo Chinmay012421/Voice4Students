@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+
+{% block title %}
+Report #{{ report[0] }} — SchoolVoice
+{% endblock %}
+
+{% block content %}
+
+<div class="report-detail">
+
+    <a
+        href="{% if role in ['admin', 'main_admin'] %}/reports{% else %}/my-reports{% endif %}"
+        class="back-link"
+    >
+        ← Back to reports
+    </a>
+
+
+    <div class="report-detail-header">
+
+        <div>
+
+            <span class="tag">
+                {{ report[2] }}
+            </span>
+
+            <h1>
+                {{ report[4] }}
+            </h1>
+
+            <p class="muted">
+
+                Report #{{ report[0] }}
+
+                • {{ report[6] }}
+
+                {% if report[3] %}
+                    • {{ report[3] }}
+                {% endif %}
+
+            </p>
+
+        </div>
+
+
+        <span class="status {{ report[5]|lower|replace(' ','-') }}">
+            {{ report[5] }}
+        </span>
+
+    </div>
+
+
+    {% if photos %}
+
+    <div class="panel">
+
+        <div class="panel-heading">
+
+            <div>
+
+                <p class="eyebrow">
+                    Evidence
+                </p>
+
+                <h2>
+                    Attached Photos
+                </h2>
+
+            </div>
+
+            <span class="photo-count-badge">
+                {{ photos|length }} / 5
+            </span>
+
+        </div>
+
+
+        <div class="photo-gallery">
+
+            {% for photo in photos %}
+
+            <a
+                href="{{ url_for('static', filename='uploads/' + photo[2]) }}"
+                target="_blank"
+                class="gallery-photo"
+            >
+
+                <img
+                    src="{{ url_for('static', filename='uploads/' + photo[2]) }}"
+                    alt="Photo attached to report"
+                    loading="lazy"
+                >
+
+            </a>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+
+    <div class="conversation-panel">
+
+        <div class="panel-heading">
+
+            <div>
+
+                <p class="eyebrow">
+                    Communication
+                </p>
+
+                <h2>
+                    Report Conversation
+                </h2>
+
+            </div>
+
+            <span class="conversation-count">
+                {{ messages|length }}
+                message{% if messages|length != 1 %}s{% endif %}
+            </span>
+
+        </div>
+
+
+        <div class="messages">
+
+            {% for msg in messages %}
+
+            <div class="
+                message
+                {% if msg[3] in ['admin', 'main_admin'] %}
+                    message-admin
+                {% else %}
+                    message-student
+                {% endif %}
+            ">
+
+                <div class="message-meta">
+
+                    <strong>
+                        {{ msg[2] }}
+                    </strong>
+
+                    <span>
+
+                        {% if msg[3] == "main_admin" %}
+                            Main Admin
+                        {% elif msg[3] == "admin" %}
+                            Admin
+                        {% else %}
+                            Student
+                        {% endif %}
+
+                        • {{ msg[5] }}
+
+                    </span>
+
+                </div>
+
+
+                <div class="message-body">
+                    {{ msg[4] }}
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <form
+            method="post"
+            action="/report/{{ report[0] }}/message"
+            class="conversation-form"
+        >
+
+            <label>
+                Reply
+
+                <textarea
+                    name="message"
+                    rows="4"
+                    maxlength="2000"
+                    placeholder="Write a message..."
+                    required
+                ></textarea>
+
+            </label>
+
+
+            <button
+                type="submit"
+                class="btn primary"
+            >
+                Send Message
+            </button>
+
+        </form>
+
+    </div>
+
+
+    {% if role in ['admin', 'main_admin'] %}
+
+    <div class="panel admin-report-controls">
+
+        <div class="panel-heading">
+
+            <div>
+
+                <p class="eyebrow">
+                    Admin controls
+                </p>
+
+                <h2>
+                    Update Report
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <form
+            method="post"
+            action="/update-report/{{ report[0] }}"
+        >
+
+            <label>
+
+                Status
+
+                <select name="status">
+
+                    <option
+                        value="Pending"
+                        {% if report[5] == "Pending" %}
+                            selected
+                        {% endif %}
+                    >
+                        Pending
+                    </option>
+
+                    <option
+                        value="In Progress"
+                        {% if report[5] == "In Progress" %}
+                            selected
+                        {% endif %}
+                    >
+                        In Progress
+                    </option>
+
+                    <option
+                        value="Reviewed"
+                        {% if report[5] == "Reviewed" %}
+                            selected
+                        {% endif %}
+                    >
+                        Reviewed
+                    </option>
+
+                    <option
+                        value="Resolved"
+                        {% if report[5] == "Resolved" %}
+                            selected
+                        {% endif %}
+                    >
+                        Resolved
+                    </option>
+
+                </select>
+
+            </label>
+
+
+            <label>
+
+                Admin Note
+
+                <textarea
+                    name="admin_note"
+                    rows="3"
+                    placeholder="Optional note..."
+                >{{ report[7] }}</textarea>
+
+            </label>
+
+
+            <button
+                type="submit"
+                class="btn primary"
+            >
+                Save Changes
+            </button>
+
+        </form>
+
+
+        <div class="danger-zone">
+
+            <div>
+
+                <strong>
+                    Unreasonable report
+                </strong>
+
+                <p>
+                    Send this report to Main Admin for review.
+                </p>
+
+            </div>
+
+
+            <a
+                href="/unreasonable/{{ report[0] }}"
+                class="small-btn bad"
+                onclick="return confirm('Mark this report as unreasonable?')"
+            >
+                Mark Unreasonable
+            </a>
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
