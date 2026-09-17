@@ -126,3 +126,21 @@ body {
     border-radius: 12px;
     border: 1px solid #e5e7eb;
 }
+
+
+
+/* =========================
+   KVS LOGO SIZE
+   ========================= */
+
+.top-kv-logo {
+    width: 170px;
+    height: auto;
+    object-fit: contain;
+}
+
+.bottom-kv-logo {
+    width: 170px;
+    height: auto;
+    object-fit: contain;
+}
