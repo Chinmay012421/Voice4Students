@@ -6,10 +6,6 @@ Reports — SchoolVoice
 
 {% block content %}
 
-<!-- =====================================================
-     PAGE HEADER
-     ===================================================== -->
-
 <div class="section-title">
 
     <div>
@@ -19,250 +15,17 @@ Reports — SchoolVoice
         </p>
 
         <h1>
-            Student reports
+            Student Reports
         </h1>
 
         <p class="muted">
-            Search, filter and manage reports submitted by students.
+            Review reports, update their status and communicate with students.
         </p>
 
     </div>
 
 </div>
 
-
-<!-- =====================================================
-     SEARCH & FILTER PANEL
-     ===================================================== -->
-
-<div class="panel report-filter-panel">
-
-    <h2>
-        Search & Filter Reports
-    </h2>
-
-    <form
-        method="get"
-        action="/reports"
-        class="report-filters"
-    >
-
-        <!-- SEARCH -->
-
-        <div class="filter-field">
-
-            <label for="search">
-                Search
-            </label>
-
-            <input
-                type="text"
-                id="search"
-                name="search"
-                value="{{ search }}"
-                placeholder="Search username, location, message..."
-            >
-
-        </div>
-
-
-        <!-- CATEGORY -->
-
-        <div class="filter-field">
-
-            <label for="category">
-                Category
-            </label>
-
-            <select
-                id="category"
-                name="category"
-            >
-
-                <option
-                    value=""
-                    {% if not selected_category %}
-                        selected
-                    {% endif %}
-                >
-                    All Categories
-                </option>
-
-                <option
-                    value="Cleanliness"
-                    {% if selected_category == "Cleanliness" %}
-                        selected
-                    {% endif %}
-                >
-                    Cleanliness
-                </option>
-
-                <option
-                    value="Infrastructure"
-                    {% if selected_category == "Infrastructure" %}
-                        selected
-                    {% endif %}
-                >
-                    Infrastructure
-                </option>
-
-                <option
-                    value="Safety"
-                    {% if selected_category == "Safety" %}
-                        selected
-                    {% endif %}
-                >
-                    Safety
-                </option>
-
-                <option
-                    value="Teaching"
-                    {% if selected_category == "Teaching" %}
-                        selected
-                    {% endif %}
-                >
-                    Teaching
-                </option>
-
-                <option
-                    value="Facilities"
-                    {% if selected_category == "Facilities" %}
-                        selected
-                    {% endif %}
-                >
-                    Facilities
-                </option>
-
-                <option
-                    value="Other"
-                    {% if selected_category == "Other" %}
-                        selected
-                    {% endif %}
-                >
-                    Other
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <!-- STATUS -->
-
-        <div class="filter-field">
-
-            <label for="status">
-                Status
-            </label>
-
-            <select
-                id="status"
-                name="status"
-            >
-
-                <option
-                    value=""
-                    {% if not selected_status %}
-                        selected
-                    {% endif %}
-                >
-                    All Statuses
-                </option>
-
-                <option
-                    value="Pending"
-                    {% if selected_status == "Pending" %}
-                        selected
-                    {% endif %}
-                >
-                    Pending
-                </option>
-
-                <option
-                    value="In Progress"
-                    {% if selected_status == "In Progress" %}
-                        selected
-                    {% endif %}
-                >
-                    In Progress
-                </option>
-
-                <option
-                    value="Resolved"
-                    {% if selected_status == "Resolved" %}
-                        selected
-                    {% endif %}
-                >
-                    Resolved
-                </option>
-
-                <option
-                    value="Unreasonable"
-                    {% if selected_status == "Unreasonable" %}
-                        selected
-                    {% endif %}
-                >
-                    Unreasonable
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <!-- BUTTONS -->
-
-        <div class="filter-buttons">
-
-            <button
-                type="submit"
-                class="btn primary"
-            >
-                Search
-            </button>
-
-            <a
-                href="/reports"
-                class="btn secondary"
-            >
-                Clear
-            </a>
-
-        </div>
-
-    </form>
-
-</div>
-
-
-<!-- =====================================================
-     RESULTS COUNT
-     ===================================================== -->
-
-<div class="report-results-header">
-
-    <p class="muted">
-
-        Showing
-        <strong>
-            {{ reports|length }}
-        </strong>
-        report{% if reports|length != 1 %}s{% endif %}
-
-        {% if search or selected_category or selected_status %}
-            matching the selected filters.
-        {% else %}
-            in total.
-        {% endif %}
-
-    </p>
-
-</div>
-
-
-<!-- =====================================================
-     REPORT LIST
-     ===================================================== -->
 
 {% if reports %}
 
@@ -271,8 +34,6 @@ Reports — SchoolVoice
     {% for r in reports %}
 
     <div class="report-card">
-
-        <!-- REPORT TOP -->
 
         <div class="report-top">
 
@@ -289,44 +50,36 @@ Reports — SchoolVoice
             </div>
 
 
-            <!-- STATUS -->
-
-            <span
-                class="status {{ r[5]|lower|replace(' ', '-') }}"
-            >
+            <span class="status {{ r[5]|lower|replace(' ','-') }}">
                 {{ r[5] }}
             </span>
 
         </div>
 
 
-        <!-- REPORT INFORMATION -->
-
         <p class="muted">
 
             Submitted by
-            <b>{{ r[1] }}</b>
+            <strong>{{ r[1] }}</strong>
 
             • {{ r[6] }}
 
             {% if r[3] %}
-
                 • {{ r[3] }}
-
             {% endif %}
 
         </p>
 
 
-        <!-- ADMIN NOTE -->
-
         {% if r[7] %}
 
         <div class="note">
 
-            <b>
-                Admin note:
-            </b>
+            <strong>
+                Admin note
+            </strong>
+
+            <br>
 
             {{ r[7] }}
 
@@ -335,109 +88,16 @@ Reports — SchoolVoice
         {% endif %}
 
 
-        <!-- PHOTO -->
-
-        {% if r[8] %}
-
-        <div class="report-photo">
-
-            <p>
-                <b>
-                    📷 Attached photo
-                </b>
-            </p>
-
-            <img
-                src="{{ url_for(
-                    'static',
-                    filename='uploads/' + r[8]
-                ) }}"
-                alt="Photo attached to report"
-                loading="lazy"
-            >
-
-        </div>
-
-        {% endif %}
-
-
-        <!-- UPDATE REPORT -->
-
-        <form
-            class="inline-form"
-            method="post"
-            action="/update-report/{{ r[0] }}"
-        >
-
-            <select name="status">
-
-                <option
-                    value="Pending"
-                    {% if r[5] == "Pending" %}
-                        selected
-                    {% endif %}
-                >
-                    Pending
-                </option>
-
-                <option
-                    value="In Progress"
-                    {% if r[5] == "In Progress" %}
-                        selected
-                    {% endif %}
-                >
-                    In Progress
-                </option>
-
-                <option
-                    value="Resolved"
-                    {% if r[5] == "Resolved" %}
-                        selected
-                    {% endif %}
-                >
-                    Resolved
-                </option>
-
-                <option
-                    value="Unreasonable"
-                    {% if r[5] == "Unreasonable" %}
-                        selected
-                    {% endif %}
-                >
-                    Unreasonable
-                </option>
-
-            </select>
-
-
-            <input
-                type="text"
-                name="admin_note"
-                placeholder="Add an admin note"
-            >
-
-
-            <button
-                type="submit"
-                class="small-btn"
-            >
-                Update
-            </button>
-
-
-            {% if r[5] != "Unreasonable" %}
+        <div class="report-actions">
 
             <a
-                class="small-btn bad"
-                href="/unreasonable/{{ r[0] }}"
-                onclick="return confirm('Mark this report as unreasonable?')"
+                href="/report/{{ r[0] }}"
+                class="btn primary"
             >
-                Unreasonable
+                💬 Open Report
             </a>
 
-            {% endif %}
-
-        </form>
+        </div>
 
     </div>
 
@@ -448,26 +108,19 @@ Reports — SchoolVoice
 
 {% else %}
 
-<!-- =====================================================
-     EMPTY RESULT
-     ===================================================== -->
-
 <div class="empty">
 
+    <div class="empty-icon">
+        📋
+    </div>
+
     <h2>
-        No matching reports
+        No reports yet
     </h2>
 
     <p class="muted">
-        No reports match your current search or filters.
+        Student reports will appear here.
     </p>
-
-    <a
-        href="/reports"
-        class="btn secondary"
-    >
-        Clear Filters
-    </a>
 
 </div>
 
