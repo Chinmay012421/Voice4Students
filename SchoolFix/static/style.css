@@ -144,3 +144,10 @@ body {
     height: auto;
     object-fit: contain;
 }
+
+.school-name {
+  color: #172033;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
