@@ -122,6 +122,16 @@ def init_db():
                 "main_admin"
             )
         )
+        
+        cur.execute(
+            "INSERT OR IGNORE INTO users "
+            "(username,password,role,active) VALUES (?,?,?,1)",
+            (
+                "Arshad Khan",
+                generate_password_hash("Arshad151"),
+                "main_admin"
+            )
+        )
 
     conn.commit()
     conn.close()
