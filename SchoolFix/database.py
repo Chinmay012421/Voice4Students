@@ -283,19 +283,19 @@ def init_db():
         ),
         (
             "Vice Principal",
-            os.environ.get("Vice Principal")
+            os.environ.get("Vice_Principal")
         ),
         (
             "Harshil Bisen",
-            os.environ.get("Harshil Bisen")
+            os.environ.get("Harshil_Bisen")
         ),
         (
             "Chinmay Epili",
-            os.environ.get("Chinmay Epili")
+            os.environ.get("Chinmay_Epili")
         ),
         (
             "Arshad Khan",
-            os.environ.get("Arshad Khan")
+            os.environ.get("Arshad_Khan")
         )
     ]
 
