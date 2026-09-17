@@ -1,31 +1,105 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>{% block title %}SchoolVoice{% endblock %}</title>
 
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/kv-logo.png') }}">
+  <!-- Browser tab favicon -->
+  <link
+    rel="icon"
+    type="image/png"
+    href="{{ url_for('static', filename='images/kv-logo.png') }}"
+  >
 
-  <link rel="stylesheet"
-        href="{{ url_for('static', filename='style.css') }}">
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}"
+  >
 
   <style>
     /* =========================
-       TOP HEADER
+       HEADER
        ========================= */
+
+    .topbar {
+      min-height: 76px;
+      background: #ffffff;
+      border-bottom: 1px solid #e8eaf0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 6%;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
 
     .brand {
       display: flex;
       align-items: center;
       gap: 12px;
+      font: 700 28px 'Space Grotesk', sans-serif;
+      letter-spacing: -1px;
+      white-space: nowrap;
     }
 
+    /*
+      KVS logo:
+      Using a fixed box + object-fit keeps the logo
+      proportional instead of making it look thin/stretched.
+    */
     .top-kv-logo {
-      width: 170px;
-      height: auto;
+      width: 150px;
+      height: 70px;
       object-fit: contain;
+      object-position: center;
+      display: block;
+      flex-shrink: 0;
+    }
+
+    .brand > span {
+      color: #172033;
+    }
+
+    .brand > span > span {
+      color: #5b5ce2;
+    }
+
+
+    /* =========================
+       NAVIGATION
+       ========================= */
+
+    .topbar nav {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .topbar nav a {
+      color: #172033;
+      text-decoration: none;
+    }
+
+    .topbar nav a:hover {
+      color: #5b5ce2;
+    }
+
+    .nav-button {
+      padding: 10px 17px;
+      background: #172033;
+      color: #ffffff !important;
+      border-radius: 10px;
+    }
+
+    .nav-button:hover {
+      background: #5b5ce2;
+      color: #ffffff !important;
     }
 
 
@@ -35,8 +109,7 @@
 
     .school-footer {
       position: relative;
-      min-height: 115px;
-
+      min-height: 130px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -48,40 +121,49 @@
       color: #89909e;
       font-size: 12px;
 
-      background: #fff;
+      background: #ffffff;
     }
 
-    /* Bottom-left KV logo */
+    .footer-text {
+      text-align: center;
+      padding: 0 190px;
+      line-height: 1.6;
+    }
 
+    /*
+      Bottom KVS logo
+    */
     .bottom-kv-logo {
       position: absolute;
 
       left: 35px;
       bottom: 15px;
 
-      width: 125px;
-      height: auto;
+      width: 150px;
+      height: 70px;
 
       object-fit: contain;
+      object-position: center;
+
+      display: block;
     }
 
-    /* Bottom-right PM SHRI logo */
-
+    /*
+      PM SHRI logo
+    */
     .pm-shri-logo {
       position: absolute;
 
       right: 35px;
       bottom: 15px;
 
-      width: 125px;
-      height: auto;
+      width: 150px;
+      height: 70px;
 
       object-fit: contain;
-    }
+      object-position: center;
 
-    .footer-text {
-      text-align: center;
-      padding: 0 160px;
+      display: block;
     }
 
 
@@ -89,11 +171,11 @@
        MOBILE
        ========================= */
 
-    @media (max-width: 600px) {
+    @media (max-width: 800px) {
 
-      .top-kv-logo {
-        width: 58px;
-        height: 58px;
+      .topbar {
+        padding: 8px 20px;
+        min-height: 70px;
       }
 
       .brand {
@@ -101,15 +183,53 @@
         font-size: 23px;
       }
 
-      .school-footer {
-        min-height: 150px;
+      .top-kv-logo {
+        width: 75px;
+        height: 55px;
+      }
 
-        padding: 85px 20px 20px;
+      .topbar nav {
+        gap: 10px;
+      }
+
+      .topbar nav a:not(.nav-button) {
+        display: none;
+      }
+    }
+
+
+    @media (max-width: 600px) {
+
+      .topbar {
+        padding: 7px 15px;
+      }
+
+      .brand {
+        gap: 7px;
+        font-size: 21px;
+      }
+
+      .top-kv-logo {
+        width: 70px;
+        height: 52px;
+      }
+
+
+      /* Footer */
+
+      .school-footer {
+        min-height: 165px;
+
+        padding: 90px 20px 20px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
       .bottom-kv-logo {
-        width: 65px;
-        height: 65px;
+        width: 80px;
+        height: 55px;
 
         left: 20px;
         top: 15px;
@@ -118,14 +238,39 @@
 
       .pm-shri-logo {
         width: 105px;
+        height: 55px;
 
         right: 20px;
-        top: 20px;
+        top: 15px;
         bottom: auto;
       }
 
       .footer-text {
         padding: 0;
+        max-width: 300px;
+      }
+    }
+
+
+    @media (max-width: 380px) {
+
+      .brand {
+        font-size: 19px;
+      }
+
+      .top-kv-logo {
+        width: 62px;
+        height: 48px;
+      }
+
+      .bottom-kv-logo {
+        width: 70px;
+        height: 50px;
+      }
+
+      .pm-shri-logo {
+        width: 90px;
+        height: 50px;
       }
     }
   </style>
@@ -142,46 +287,83 @@
 
     <a class="brand" href="/">
 
-      <!-- KV LOGO -->
       <img
         src="{{ url_for('static', filename='images/kv-logo.png') }}"
         alt="Kendriya Vidyalaya Logo"
         class="top-kv-logo"
       >
 
-      <!-- SCHOOLFIX -->
-      <span>School<span>Voice</span></span>
+      <span>
+        School<span>Voice</span>
+      </span>
 
     </a>
 
 
-    <!-- NAVIGATION -->
+    <!-- Navigation -->
 
     <nav>
 
       {% if session.get('username') %}
 
-        <a href="/dashboard">Dashboard</a>
+        <!-- Dashboard -->
+        <a href="/dashboard">
+          Dashboard
+        </a>
 
+
+        <!-- Students only -->
         {% if session.get('role') == 'student' %}
-          <a href="/my-reports">My Reports</a>
+
+          <a href="/my-reports">
+            My Reports
+          </a>
+
         {% endif %}
 
+
+        <!-- Admin + Main Admin -->
         {% if session.get('role') in ['admin', 'main_admin'] %}
-          <a href="/reports">Reports</a>
+
+          <a href="/reports">
+            Reports
+          </a>
+
         {% endif %}
 
+
+        <!-- Main Admin only -->
         {% if session.get('role') == 'main_admin' %}
-          <a href="/admin-applications">Applications</a>
+
+          <a href="/admin-applications">
+            Applications
+          </a>
+
         {% endif %}
 
-        <a class="nav-button" href="/logout">Logout</a>
+
+        <!-- Logout -->
+        <a
+          class="nav-button"
+          href="/logout"
+        >
+          Logout
+        </a>
 
       {% else %}
 
-        <a href="/login">Login</a>
+        <!-- Logged out -->
 
-        <a class="nav-button" href="/register">Register</a>
+        <a href="/login">
+          Login
+        </a>
+
+        <a
+          class="nav-button"
+          href="/register"
+        >
+          Register
+        </a>
 
       {% endif %}
 
@@ -191,7 +373,7 @@
 
 
   <!-- =========================
-       MAIN PAGE CONTENT
+       MAIN CONTENT
        ========================= -->
 
   <main class="page">
@@ -207,7 +389,7 @@
 
   <footer class="school-footer">
 
-    <!-- KV LOGO - BOTTOM LEFT -->
+    <!-- KVS Logo -->
 
     <img
       src="{{ url_for('static', filename='images/kv-logo.png') }}"
@@ -216,14 +398,17 @@
     >
 
 
-    <!-- FOOTER TEXT -->
+    <!-- Footer text -->
 
     <div class="footer-text">
-      SchoolVoice • Make your school better, one report at a time.
+
+      SchoolVoice • Make your school better,
+      one report at a time.
+
     </div>
 
 
-    <!-- PM SHRI LOGO - BOTTOM RIGHT -->
+    <!-- PM SHRI Logo -->
 
     <img
       src="{{ url_for('static', filename='images/pm-shri-logo.png') }}"
@@ -233,6 +418,6 @@
 
   </footer>
 
-
 </body>
+
 </html>
