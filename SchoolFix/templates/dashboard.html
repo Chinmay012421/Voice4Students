@@ -6,42 +6,111 @@ Dashboard — SchoolVoice
 
 {% block content %}
 
-<div class="section-title">
-    <div>
-        <p class="eyebrow">
-            Dashboard
-        </p>
+<div class="dashboard-head">
 
-        <h1>
-            Hello, {{ username }}.
-        </h1>
+    <p class="eyebrow">
+        SchoolVoice
+    </p>
 
-        <p class="muted">
-            You are logged in as
-            <b>{{ role.replace('_', ' ').title() }}</b>.
-        </p>
-    </div>
+    <h1>
+        Welcome, {{ username }}
+    </h1>
+
+    <p class="muted">
+        Submit a school issue and follow its progress.
+    </p>
+
 </div>
 
 
-<!-- ===================================================== -->
-<!-- STUDENT DASHBOARD -->
-<!-- ===================================================== -->
+{% if error %}
+
+<div class="alert error">
+    {{ error }}
+</div>
+
+{% endif %}
+
+
+{% if stats %}
+
+<div class="panel main-admin-panel">
+
+    <div class="admin-heading">
+
+        <div>
+            <p class="eyebrow">
+                Main Admin
+            </p>
+
+            <h2>
+                Report overview
+            </h2>
+
+            <p class="muted">
+                Current SchoolVoice report statistics.
+            </p>
+        </div>
+
+        <span class="admin-badge">
+            MAIN ADMIN
+        </span>
+
+    </div>
+
+
+    <div class="stats-grid">
+
+        <div class="stat-card">
+            <strong>{{ stats.total }}</strong>
+            <span>Total</span>
+        </div>
+
+        <div class="stat-card">
+            <strong>{{ stats.pending }}</strong>
+            <span>Pending</span>
+        </div>
+
+        <div class="stat-card">
+            <strong>{{ stats.reviewed }}</strong>
+            <span>Reviewed</span>
+        </div>
+
+        <div class="stat-card">
+            <strong>{{ stats.resolved }}</strong>
+            <span>Resolved</span>
+        </div>
+
+        <div class="stat-card">
+            <strong>{{ stats.unreasonable }}</strong>
+            <span>Unreasonable</span>
+        </div>
+
+    </div>
+
+</div>
+
+{% endif %}
+
 
 {% if role == "student" %}
 
-<div class="dashboard-grid">
+<div class="two">
 
-    <!-- Submit Report -->
     <div class="panel">
 
+        <p class="eyebrow">
+            New report
+        </p>
+
         <h2>
-            Submit a report
+            Report a school issue
         </h2>
 
         <p class="muted">
-            Tell us about a problem in your school.
+            Give enough information so the issue can be understood clearly.
         </p>
+
 
         <form
             method="post"
@@ -52,26 +121,30 @@ Dashboard — SchoolVoice
             <label>
                 Category
 
-                <select name="category" required>
+                <select name="category">
 
                     <option value="Cleanliness">
                         Cleanliness
                     </option>
 
-                    <option value="Infrastructure">
-                        Infrastructure
+                    <option value="Classroom">
+                        Classroom
+                    </option>
+
+                    <option value="Electricity">
+                        Electricity
+                    </option>
+
+                    <option value="Water">
+                        Water
                     </option>
 
                     <option value="Safety">
                         Safety
                     </option>
 
-                    <option value="Teaching">
-                        Teaching
-                    </option>
-
-                    <option value="Facilities">
-                        Facilities
+                    <option value="Washroom">
+                        Washroom
                     </option>
 
                     <option value="Other">
@@ -79,6 +152,7 @@ Dashboard — SchoolVoice
                     </option>
 
                 </select>
+
             </label>
 
 
@@ -88,40 +162,61 @@ Dashboard — SchoolVoice
                 <input
                     type="text"
                     name="location"
-                    placeholder="e.g. Block B, Room 12"
+                    placeholder="Example: Room 12"
                 >
+
             </label>
 
 
             <label>
-                What happened?
+                Description
 
                 <textarea
                     name="message"
-                    placeholder="Describe the issue clearly..."
+                    rows="6"
+                    placeholder="Describe the issue..."
                     required
                 ></textarea>
+
             </label>
 
 
-            <label>
-                📷 Attach a photo
+            <div class="photo-upload-box">
+
+                <div>
+
+                    <strong>
+                        📷 Add photos
+                    </strong>
+
+                    <p class="muted">
+                        Up to 5 PNG, JPG, JPEG or WEBP images.
+                    </p>
+
+                </div>
 
                 <input
+                    id="report-photos"
                     type="file"
-                    name="photo"
-                    accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp"
+                    name="photos"
+                    accept="image/png,image/jpeg,image/webp"
+                    multiple
+                    onchange="showPhotoCount(this)"
                 >
 
-                <small class="muted">
-                    Optional • PNG, JPG, JPEG or WEBP
-                </small>
-            </label>
+                <div
+                    id="photo-count"
+                    class="photo-count"
+                >
+                    No photos selected
+                </div>
+
+            </div>
 
 
             <button
                 type="submit"
-                class="btn primary"
+                class="btn primary full"
             >
                 Submit Report
             </button>
@@ -131,345 +226,53 @@ Dashboard — SchoolVoice
     </div>
 
 
-    <!-- Student Quick Actions -->
     <div class="panel">
 
+        <p class="eyebrow">
+            Quick links
+        </p>
+
         <h2>
-            Quick actions
+            Your SchoolVoice
         </h2>
 
 
         <a
-            class="quick-card"
             href="/my-reports"
+            class="quick-link"
         >
 
-            <div class="icon">
+            <span class="quick-icon">
                 📋
-            </div>
+            </span>
 
-            <div>
-
-                <h3>
-                    View my reports
-                </h3>
-
-                <p>
-                    Track submitted issues
-                </p>
-
-            </div>
+            <span>
+                <b>My Reports</b>
+                <small>
+                    Track your submitted reports
+                </small>
+            </span>
 
         </a>
 
 
         <a
-            class="quick-card"
             href="/apply-admin"
+            class="quick-link"
         >
 
-            <div class="icon">
-                ⭐
-            </div>
+            <span class="quick-icon">
+                🛡️
+            </span>
 
-            <div>
-
-                <h3>
-                    Apply for Admin
-                </h3>
-
-                <p>
+            <span>
+                <b>Apply for Admin</b>
+                <small>
                     Send an application to Main Admin
-                </p>
-
-            </div>
-
-        </a>
-
-    </div>
-
-</div>
-
-
-<!-- ===================================================== -->
-<!-- NORMAL ADMIN DASHBOARD -->
-<!-- ===================================================== -->
-
-{% elif role == "admin" %}
-
-<div class="dashboard-grid">
-
-    <!-- Admin Workspace -->
-    <div class="panel">
-
-        <h2>
-            Admin workspace
-        </h2>
-
-        <p>
-            Review student reports and help resolve
-            school issues.
-        </p>
-
-        <a
-            class="btn primary"
-            href="/reports"
-        >
-            View Student Reports
-        </a>
-
-    </div>
-
-
-    <!-- Admin Actions -->
-    <div class="panel">
-
-        <h2>
-            Admin actions
-        </h2>
-
-        <p>
-            You can review reports, update their status
-            and add notes.
-        </p>
-
-        <a
-            class="btn secondary"
-            href="/reports"
-        >
-            Open Reports
-        </a>
-
-    </div>
-
-</div>
-
-
-<!-- ===================================================== -->
-<!-- MAIN ADMIN DASHBOARD -->
-<!-- ===================================================== -->
-
-{% elif role == "main_admin" %}
-
-<div class="panel main-admin-panel">
-
-    <div class="admin-heading">
-
-        <div>
-
-            <p class="eyebrow">
-                Administration
-            </p>
-
-            <h2>
-                Main Admin Control Center
-            </h2>
-
-            <p class="muted">
-                Manage reports, administrators and registered
-                users from one place.
-            </p>
-
-        </div>
-
-
-        <div class="admin-badge">
-            🛡️ Main Admin
-        </div>
-
-    </div>
-
-
-    <!-- Main Admin Actions -->
-
-    <div class="admin-actions-grid">
-
-        <!-- Reports -->
-
-        <a
-            class="admin-action-card"
-            href="/reports"
-        >
-
-            <div class="admin-action-icon">
-                📋
-            </div>
-
-            <div>
-
-                <h3>
-                    All Reports
-                </h3>
-
-                <p>
-                    Review and manage student reports.
-                </p>
-
-            </div>
-
-        </a>
-
-
-        <!-- Applications -->
-
-        <a
-            class="admin-action-card"
-            href="/admin-applications"
-        >
-
-            <div class="admin-action-icon">
-                ⭐
-            </div>
-
-            <div>
-
-                <h3>
-                    Admin Applications
-                </h3>
-
-                <p>
-                    Review requests to become an admin.
-                </p>
-
-            </div>
-
-        </a>
-
-
-        <!-- Users -->
-
-        <a
-            class="admin-action-card"
-            href="/users"
-        >
-
-            <div class="admin-action-icon">
-                👥
-            </div>
-
-            <div>
-
-                <h3>
-                    User Management
-                </h3>
-
-                <p>
-                    Manage student and admin accounts.
-                </p>
-
-            </div>
-
-        </a>
-
-    </div>
-
-</div>
-
-
-<!-- ===================================================== -->
-<!-- MAIN ADMIN STATISTICS -->
-<!-- ===================================================== -->
-
-{% if stats %}
-
-<div class="panel">
-
-    <div class="stats-heading">
-
-        <div>
-
-            <p class="eyebrow">
-                Overview
-            </p>
-
-            <h2>
-                📊 Report Statistics
-            </h2>
-
-            <p class="muted">
-                Current report status across SchoolVoice.
-            </p>
-
-        </div>
-
-    </div>
-
-
-    <div class="stats-grid">
-
-        <!-- Total Reports -->
-
-        <div class="stat-card">
-
-            <strong>
-                {{ stats.total }}
-            </strong>
-
-            <span>
-                Total Reports
+                </small>
             </span>
 
-        </div>
-
-
-        <!-- Pending -->
-
-        <div class="stat-card">
-
-            <strong>
-                {{ stats.pending }}
-            </strong>
-
-            <span>
-                Pending
-            </span>
-
-        </div>
-
-
-        <!-- Reviewed -->
-
-        <div class="stat-card">
-
-            <strong>
-                {{ stats.reviewed }}
-            </strong>
-
-            <span>
-                Reviewed
-            </span>
-
-        </div>
-
-
-        <!-- Resolved -->
-
-        <div class="stat-card">
-
-            <strong>
-                {{ stats.resolved }}
-            </strong>
-
-            <span>
-                Resolved
-            </span>
-
-        </div>
-
-
-        <!-- Unreasonable -->
-
-        <div class="stat-card">
-
-            <strong>
-                {{ stats.unreasonable }}
-            </strong>
-
-            <span>
-                Unreasonable
-            </span>
-
-        </div>
+        </a>
 
     </div>
 
@@ -478,6 +281,112 @@ Dashboard — SchoolVoice
 {% endif %}
 
 
+{% if role in ["admin", "main_admin"] %}
+
+<div class="admin-actions-grid">
+
+    <a
+        href="/reports"
+        class="admin-action-card"
+    >
+
+        <span class="admin-action-icon">
+            📋
+        </span>
+
+        <span>
+            <strong>All Reports</strong>
+
+            <small>
+                Review and manage reports
+            </small>
+        </span>
+
+    </a>
+
+
+    {% if role == "main_admin" %}
+
+    <a
+        href="/users"
+        class="admin-action-card"
+    >
+
+        <span class="admin-action-icon">
+            👥
+        </span>
+
+        <span>
+            <strong>User Management</strong>
+
+            <small>
+                Manage student and admin accounts
+            </small>
+        </span>
+
+    </a>
+
+
+    <a
+        href="/admin-applications"
+        class="admin-action-card"
+    >
+
+        <span class="admin-action-icon">
+            🛡️
+        </span>
+
+        <span>
+            <strong>Admin Applications</strong>
+
+            <small>
+                Review student applications
+            </small>
+        </span>
+
+    </a>
+
+    {% endif %}
+
+</div>
+
 {% endif %}
+
+
+<script>
+
+function showPhotoCount(input) {
+
+    const countBox =
+        document.getElementById("photo-count");
+
+    const count =
+        input.files.length;
+
+    if (count === 0) {
+
+        countBox.textContent =
+            "No photos selected";
+
+        return;
+    }
+
+    if (count > 5) {
+
+        countBox.textContent =
+            "Too many photos — maximum is 5.";
+
+        return;
+    }
+
+    countBox.textContent =
+        count +
+        (count === 1
+            ? " photo selected"
+            : " photos selected"
+        );
+}
+
+</script>
 
 {% endblock %}
