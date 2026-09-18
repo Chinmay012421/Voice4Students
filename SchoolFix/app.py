@@ -12,6 +12,8 @@ from flask import (
 
 from werkzeug.utils import secure_filename
 
+from supabase import create_client
+
 from database import (
     init_db,
     get_user,
@@ -53,19 +55,33 @@ app.secret_key = os.environ.get(
 
 
 # =========================================================
-# UPLOAD SETTINGS
+# SUPABASE STORAGE
 # =========================================================
 
-UPLOAD_FOLDER = os.path.join(
-    app.root_path,
-    "static",
-    "uploads"
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_SERVICE_KEY = os.environ.get("SUPABASE_SERVICE_KEY")
+
+if not SUPABASE_URL:
+    raise RuntimeError(
+        "SUPABASE_URL environment variable is missing."
+    )
+
+if not SUPABASE_SERVICE_KEY:
+    raise RuntimeError(
+        "SUPABASE_SERVICE_KEY environment variable is missing."
+    )
+
+supabase = create_client(
+    SUPABASE_URL,
+    SUPABASE_SERVICE_KEY
 )
 
-os.makedirs(
-    UPLOAD_FOLDER,
-    exist_ok=True
-)
+PHOTO_BUCKET = "report-photos"
+
+
+# =========================================================
+# UPLOAD SETTINGS
+# =========================================================
 
 ALLOWED_EXTENSIONS = {
     "png",
@@ -76,7 +92,7 @@ ALLOWED_EXTENSIONS = {
 
 MAX_PHOTOS_PER_REPORT = 5
 
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+# Flask request size limit.
 app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024
 
 
@@ -130,6 +146,84 @@ def allowed_file(filename):
     )[1].lower()
 
     return extension in ALLOWED_EXTENSIONS
+
+
+def upload_photo_to_supabase(
+    photo,
+    report_id
+):
+    """
+    Upload a report photo to Supabase Storage.
+
+    Returns the public URL if successful.
+    Returns None if upload fails.
+    """
+
+    if not photo or not photo.filename:
+        return None
+
+    original_name = secure_filename(
+        photo.filename
+    )
+
+    if not original_name:
+        return None
+
+    _, extension = os.path.splitext(
+        original_name
+    )
+
+    extension = extension.lower()
+
+    photo_name = (
+        secrets.token_hex(16)
+        + extension
+    )
+
+    # Keep photos organized by report.
+    storage_path = (
+        f"reports/{report_id}/{photo_name}"
+    )
+
+    try:
+
+        photo_bytes = photo.read()
+
+        if not photo_bytes:
+            return None
+
+        content_type = (
+            photo.mimetype
+            or "application/octet-stream"
+        )
+
+        supabase.storage.from_(
+            PHOTO_BUCKET
+        ).upload(
+            storage_path,
+            photo_bytes,
+            {
+                "content-type": content_type,
+                "upsert": False
+            }
+        )
+
+        public_url = (
+            supabase
+            .storage
+            .from_(PHOTO_BUCKET)
+            .get_public_url(storage_path)
+        )
+
+        return public_url
+
+    except Exception as e:
+
+        app.logger.exception(
+            "Supabase photo upload failed"
+        )
+
+        return None
 
 
 # =========================================================
@@ -406,15 +500,13 @@ def users():
 
     for user in users:
 
-        # Correct database layout:
-        #
-        # user[0] = id
-        # user[1] = username
-        # user[2] = password hash
-        # user[3] = role
-        # user[4] = active
-        # user[5] = must_change_password
-        # user[6] = registered_at
+        # 0 = id
+        # 1 = username
+        # 2 = password hash
+        # 3 = role
+        # 4 = active
+        # 5 = must_change_password
+        # 6 = registered_at
 
         username = str(
             user[1] or ""
@@ -817,6 +909,10 @@ def submit_report():
             )
         )
 
+    # -----------------------------------------------------
+    # Create report first.
+    # -----------------------------------------------------
+
     report_id = save_report(
         session["username"],
         category,
@@ -834,33 +930,30 @@ def submit_report():
             error="Unable to create the report."
         )
 
+    # -----------------------------------------------------
+    # Upload each photo to Supabase Storage.
+    # -----------------------------------------------------
+
     for photo in valid_photos:
 
-        original_name = secure_filename(
-            photo.filename
+        public_url = upload_photo_to_supabase(
+            photo,
+            report_id
         )
 
-        _, extension = os.path.splitext(
-            original_name
-        )
+        if not public_url:
 
-        photo_name = (
-            secrets.token_hex(16)
-            + extension.lower()
-        )
+            app.logger.error(
+                "Photo upload failed for report %s",
+                report_id
+            )
 
-        photo_path = os.path.join(
-            app.config["UPLOAD_FOLDER"],
-            photo_name
-        )
+            continue
 
-        photo.save(
-            photo_path
-        )
-
+        # Store the Supabase public URL in the database.
         add_report_photo(
             report_id,
-            photo_name
+            public_url
         )
 
     return redirect(
@@ -1117,46 +1210,29 @@ def delete_report_route(report_id):
 # =========================================================
 # MAIN ADMIN CHECK
 # =========================================================
-#
-# This does NOT show passwords.
-# It only lets you confirm that Main Admin
-# accounts actually exist in the database.
-#
-# Remove this route after testing if you want.
-# =========================================================
 
 @app.route("/check-main-admins")
 def check_main_admins():
 
-    from database import connect
+    if not is_main_admin():
 
-    conn = connect()
+        return redirect("/login")
 
-    rows = conn.execute("""
-        SELECT
-            id,
-            username,
-            role,
-            active,
-            must_change_password
-        FROM users
-        WHERE role='main_admin'
-        ORDER BY id ASC
-    """).fetchall()
-
-    conn.close()
+    users = get_all_users()
 
     accounts = []
 
-    for row in rows:
+    for user in users:
 
-        accounts.append({
-            "id": row[0],
-            "username": row[1],
-            "role": row[2],
-            "active": bool(row[3]),
-            "must_change_password": bool(row[4])
-        })
+        if user[3] == "main_admin":
+
+            accounts.append({
+                "id": user[0],
+                "username": user[1],
+                "role": user[3],
+                "active": bool(user[4]),
+                "must_change_password": bool(user[5])
+            })
 
     return {
         "main_admin_count": len(accounts),
