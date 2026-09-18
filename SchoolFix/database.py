@@ -152,12 +152,6 @@ def init_db():
             os.environ.get("Chinmay_Epili")
         )
     ]
-    admins = [
-        (
-            "Arshad Khan",
-            os.environ.get("Arshad_Khan")
-        )
-    ]
 
     for username, password in main_admins:
 
