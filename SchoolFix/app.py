@@ -998,18 +998,14 @@ def my_reports():
 def reports():
 
     if not logged_in():
+        return redirect("/login")
 
-        return redirect(
-            "/login"
-        )
-
-    all_reports = get_all_reports()
+    reports = get_all_reports()
 
     return render_template(
         "reports.html",
-        reports=all_reports,
-        role=session["role"],
-        username=session["username"]
+        reports=reports,
+        role=session["role"]
     )
 
 
