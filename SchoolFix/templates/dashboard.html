@@ -8,35 +8,63 @@ Dashboard — SchoolVoice
 
 <div class="dashboard-page">
 
-    <!-- HEADER -->
+    <!-- =========================
+         DASHBOARD HEADER
+    ========================== -->
+
     <div class="dashboard-header">
 
         <div>
-            <p class="eyebrow">SchoolVoice</p>
+
+            <p class="eyebrow">
+                SchoolVoice
+            </p>
 
             <h1>
                 Welcome, {{ username }}
             </h1>
 
             <p class="muted">
+
                 {% if role == "student" %}
-                    Report school issues and follow their progress.
+
+                    Report school issues and track your reports.
+
                 {% elif role == "admin" %}
-                    Manage and respond to school reports.
+
+                    Manage school reports and communicate with students.
+
                 {% elif role == "main_admin" %}
-                    Manage the SchoolVoice system.
+
+                    Manage SchoolVoice and monitor school reports.
+
                 {% endif %}
+
             </p>
+
         </div>
+
 
         <div class="dashboard-role">
 
             {% if role == "main_admin" %}
-                <span class="tag">Main Admin</span>
+
+                <span class="tag">
+                    Main Admin
+                </span>
+
             {% elif role == "admin" %}
-                <span class="tag">Admin</span>
+
+                <span class="tag">
+                    Admin
+                </span>
+
             {% else %}
-                <span class="tag">Student</span>
+
+                <span class="tag">
+                    Student
+                </span>
+
             {% endif %}
 
         </div>
@@ -44,7 +72,36 @@ Dashboard — SchoolVoice
     </div>
 
 
-    <!-- MAIN ADMIN STATISTICS -->
+    <!-- =========================
+         ERROR MESSAGE
+    ========================== -->
+
+    {% if error %}
+
+    <div class="alert error">
+        {{ error }}
+    </div>
+
+    {% endif %}
+
+
+    <!-- =========================
+         SUCCESS MESSAGE
+    ========================== -->
+
+    {% if success %}
+
+    <div class="alert success">
+        {{ success }}
+    </div>
+
+    {% endif %}
+
+
+    <!-- =========================
+         MAIN ADMIN STATISTICS
+    ========================== -->
+
     {% if role == "main_admin" and stats %}
 
     <section class="panel">
@@ -52,11 +109,19 @@ Dashboard — SchoolVoice
         <div class="panel-heading">
 
             <div>
-                <p class="eyebrow">Overview</p>
+
+                <p class="eyebrow">
+                    Overview
+                </p>
 
                 <h2>
                     School Statistics
                 </h2>
+
+                <p class="muted">
+                    Overview of reports submitted through SchoolVoice.
+                </p>
+
             </div>
 
         </div>
@@ -65,33 +130,80 @@ Dashboard — SchoolVoice
         <div class="stats-grid">
 
             <div class="stat-card">
-                <span>Total Reports</span>
-                <strong>{{ stats.total }}</strong>
+
+                <span>
+                    Total Reports
+                </span>
+
+                <strong>
+                    {{ stats.total }}
+                </strong>
+
             </div>
 
-            <div class="stat-card">
-                <span>Pending</span>
-                <strong>{{ stats.pending }}</strong>
-            </div>
 
             <div class="stat-card">
-                <span>Reviewed</span>
-                <strong>{{ stats.reviewed }}</strong>
+
+                <span>
+                    Pending
+                </span>
+
+                <strong>
+                    {{ stats.pending }}
+                </strong>
+
             </div>
 
-            <div class="stat-card">
-                <span>In Progress</span>
-                <strong>{{ stats.in_progress }}</strong>
-            </div>
 
             <div class="stat-card">
-                <span>Resolved</span>
-                <strong>{{ stats.resolved }}</strong>
+
+                <span>
+                    Reviewed
+                </span>
+
+                <strong>
+                    {{ stats.reviewed }}
+                </strong>
+
             </div>
 
+
             <div class="stat-card">
-                <span>Unreasonable</span>
-                <strong>{{ stats.unreasonable }}</strong>
+
+                <span>
+                    In Progress
+                </span>
+
+                <strong>
+                    {{ stats.in_progress }}
+                </strong>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <span>
+                    Resolved
+                </span>
+
+                <strong>
+                    {{ stats.resolved }}
+                </strong>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <span>
+                    Unreasonable
+                </span>
+
+                <strong>
+                    {{ stats.unreasonable }}
+                </strong>
+
             </div>
 
         </div>
@@ -101,7 +213,10 @@ Dashboard — SchoolVoice
     {% endif %}
 
 
-    <!-- STUDENT ACTIONS -->
+    <!-- =========================
+         STUDENT DASHBOARD
+    ========================== -->
+
     {% if role == "student" %}
 
     <section class="panel">
@@ -109,27 +224,22 @@ Dashboard — SchoolVoice
         <div class="panel-heading">
 
             <div>
-                <p class="eyebrow">Student</p>
+
+                <p class="eyebrow">
+                    Student
+                </p>
 
                 <h2>
-                    Report an Issue
+                    Submit a Report
                 </h2>
 
                 <p class="muted">
-                    Submit a report about something that needs attention.
+                    Tell the school about an issue that needs attention.
                 </p>
+
             </div>
 
         </div>
-
-
-        {% if error %}
-
-        <div class="alert error">
-            {{ error }}
-        </div>
-
-        {% endif %}
 
 
         <form
@@ -138,10 +248,16 @@ Dashboard — SchoolVoice
             enctype="multipart/form-data"
         >
 
+            <!-- CATEGORY -->
+
             <label>
+
                 Category
 
-                <select name="category" required>
+                <select
+                    name="category"
+                    required
+                >
 
                     <option value="General">
                         General
@@ -180,7 +296,10 @@ Dashboard — SchoolVoice
             </label>
 
 
+            <!-- LOCATION -->
+
             <label>
+
                 Location
 
                 <input
@@ -193,7 +312,10 @@ Dashboard — SchoolVoice
             </label>
 
 
+            <!-- MESSAGE -->
+
             <label>
+
                 Description
 
                 <textarea
@@ -207,7 +329,10 @@ Dashboard — SchoolVoice
             </label>
 
 
+            <!-- PHOTOS -->
+
             <label>
+
                 Photos
 
                 <input
@@ -224,6 +349,8 @@ Dashboard — SchoolVoice
             </label>
 
 
+            <!-- SUBMIT -->
+
             <button
                 type="submit"
                 class="btn primary"
@@ -236,21 +363,28 @@ Dashboard — SchoolVoice
     </section>
 
 
-    <!-- STUDENT NAVIGATION -->
+    <!-- =========================
+         STUDENT REPORTS
+    ========================== -->
+
     <section class="panel">
 
         <div class="panel-heading">
 
             <div>
-                <p class="eyebrow">Reports</p>
+
+                <p class="eyebrow">
+                    Your Reports
+                </p>
 
                 <h2>
-                    School Reports
+                    My Reports
                 </h2>
 
                 <p class="muted">
-                    View reports submitted by students across the school.
+                    View and track the reports you have submitted.
                 </p>
+
             </div>
 
         </div>
@@ -259,18 +393,10 @@ Dashboard — SchoolVoice
         <div class="action-grid">
 
             <a
-                href="/reports"
+                href="/my-reports"
                 class="btn primary"
             >
-                View All School Reports
-            </a>
-
-
-            <a
-                href="/my-reports"
-                class="btn"
-            >
-                My Reports
+                View My Reports
             </a>
 
         </div>
@@ -280,7 +406,10 @@ Dashboard — SchoolVoice
     {% endif %}
 
 
-    <!-- ADMIN NAVIGATION -->
+    <!-- =========================
+         ADMIN DASHBOARD
+    ========================== -->
+
     {% if role == "admin" %}
 
     <section class="panel">
@@ -288,15 +417,19 @@ Dashboard — SchoolVoice
         <div class="panel-heading">
 
             <div>
-                <p class="eyebrow">Administration</p>
+
+                <p class="eyebrow">
+                    Administration
+                </p>
 
                 <h2>
                     Report Management
                 </h2>
 
                 <p class="muted">
-                    Review reports and communicate with students.
+                    Review reports submitted by students and communicate with reporters.
                 </p>
+
             </div>
 
         </div>
@@ -318,7 +451,10 @@ Dashboard — SchoolVoice
     {% endif %}
 
 
-    <!-- MAIN ADMIN NAVIGATION -->
+    <!-- =========================
+         MAIN ADMIN DASHBOARD
+    ========================== -->
+
     {% if role == "main_admin" %}
 
     <section class="panel">
@@ -326,7 +462,10 @@ Dashboard — SchoolVoice
         <div class="panel-heading">
 
             <div>
-                <p class="eyebrow">Main Administration</p>
+
+                <p class="eyebrow">
+                    Main Administration
+                </p>
 
                 <h2>
                     Management
@@ -335,6 +474,7 @@ Dashboard — SchoolVoice
                 <p class="muted">
                     Manage reports, users and administrator applications.
                 </p>
+
             </div>
 
         </div>
@@ -378,7 +518,6 @@ Dashboard — SchoolVoice
     </section>
 
     {% endif %}
-
 
 </div>
 
