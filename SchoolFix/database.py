@@ -150,7 +150,9 @@ def init_db():
         (
             "Chinmay Epili",
             os.environ.get("Chinmay_Epili")
-        ),
+        )
+    ]
+    admins = [
         (
             "Arshad Khan",
             os.environ.get("Arshad_Khan")
