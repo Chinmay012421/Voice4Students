@@ -930,7 +930,11 @@ def submit_report():
             "dashboard.html",
             username=session["username"],
             role=session["role"],
-            stats=None,
+            stats=(
+                get_report_stats()
+                if is_main_admin()
+                else None
+            ),
             error="Unable to create the report."
         )
 
@@ -961,45 +965,67 @@ def submit_report():
 
 
 # =========================================================
-# MY REPORTS
-# =========================================================
-
-@app.route("/reports")
-def reports():
-
-    if not is_admin():
-        return redirect("/dashboard")
-
-    reports = get_all_reports()
-
-    return render_template(
-        "reports.html",
-        reports=reports,
-        role=session["role"]
-    )
-
-
-# =========================================================
 # ALL REPORTS
 # =========================================================
 #
-# Students can now see ALL reports.
+# Students, Admins and Main Admins can all VIEW
+# every report.
 #
-# Admin/Main Admin can also see ALL reports.
-# Only logged-in users can access this page.
+# This is intentionally the ONLY /reports route.
 # =========================================================
 
 @app.route("/reports")
 def reports():
 
     if not logged_in():
-        return redirect("/login")
 
-    reports = get_all_reports()
+        return redirect(
+            "/login"
+        )
+
+    all_reports = get_all_reports()
 
     return render_template(
         "reports.html",
-        reports=reports,
+        reports=all_reports,
+        role=session["role"],
+        username=session["username"]
+    )
+
+
+# =========================================================
+# MY REPORTS
+# =========================================================
+#
+# This route remains available for students.
+# Admins and Main Admins should not be shown an
+# "Own Reports" button by the templates.
+# =========================================================
+
+@app.route("/my-reports")
+def my_reports():
+
+    if not logged_in():
+
+        return redirect(
+            "/login"
+        )
+
+    # Admins do not need an Own Reports page.
+    # Send them to the complete reports page.
+    if is_admin():
+
+        return redirect(
+            "/reports"
+        )
+
+    user_reports = get_user_reports(
+        session["username"]
+    )
+
+    return render_template(
+        "my_reports.html",
+        reports=user_reports,
         role=session["role"]
     )
 
@@ -1010,9 +1036,16 @@ def reports():
 #
 # EVERY logged-in user can open EVERY report.
 #
-# Students cannot edit report status.
-# Students cannot post messages on somebody else's report.
-# Admin/Main Admin can manage reports.
+# Students:
+#   - Can view every report
+#   - Can view the report conversation
+#   - Can reply only to their own report
+#
+# Admin/Main Admin:
+#   - Can view every report
+#   - Can reply
+#   - Can update report status
+#   - Can mark reports unreasonable
 # =========================================================
 
 @app.route(
@@ -1080,8 +1113,8 @@ def report_message(report_id):
             "/reports"
         )
 
-    # Students may only reply to their own reports.
-    # They can still VIEW every report.
+    # Students may VIEW every report,
+    # but may only reply to their own report.
     if (
         session.get("role") == "student"
         and report[1] != session["username"]
@@ -1096,14 +1129,24 @@ def report_message(report_id):
         ""
     ).strip()
 
-    if message:
+    if not message:
 
-        add_report_message(
-            report_id,
-            session["username"],
-            session["role"],
-            message
+        return redirect(
+            f"/report/{report_id}"
         )
+
+    if len(message) > 2000:
+
+        return redirect(
+            f"/report/{report_id}"
+        )
+
+    add_report_message(
+        report_id,
+        session["username"],
+        session["role"],
+        message
+    )
 
     return redirect(
         f"/report/{report_id}"
@@ -1229,6 +1272,13 @@ def delete_report_route(report_id):
 
 # =========================================================
 # MAIN ADMIN CHECK
+# =========================================================
+#
+# This route only shows Main Admin usernames and status.
+# It NEVER exposes passwords.
+#
+# Existing Main Admin passwords are managed by
+# database.py and are not overwritten by init_db().
 # =========================================================
 
 @app.route("/check-main-admins")
