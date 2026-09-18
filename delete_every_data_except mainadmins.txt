@@ -1,0 +1,11 @@
+-- Delete report-related test data first
+DELETE FROM report_messages;
+DELETE FROM report_photos;
+DELETE FROM reports;
+
+-- Delete test admin applications
+DELETE FROM admin_applications;
+
+-- Delete ONLY non-main-admin users
+DELETE FROM users
+WHERE role <> 'main_admin';
