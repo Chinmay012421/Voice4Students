@@ -1,2 +1,200 @@
-{% extends "base.html" %}{% block title %}Login — SchoolFix{% endblock %}
-{% block content %}<div class="auth-wrap"><div class="auth-card"><p class="eyebrow">Welcome back</p><h1>Log in to SchoolFix</h1>{% if error %}<div class="alert error">{{ error }}</div>{% endif %}{% if message %}<div class="alert success">{{ message }}</div>{% endif %}<form method="post"><label>Username<input name="username" required></label><label>Password<input type="password" name="password" required></label><button class="btn primary full">Login</button></form><p class="muted">New student? <a href="/register">Create an account</a></p></div></div>{% endblock %}
+{% extends "base.html" %}
+
+{% block title %}
+Login — SchoolVoice
+{% endblock %}
+
+{% block content %}
+
+<div class="auth-container">
+
+    <div class="auth-card">
+
+        <div class="auth-header">
+            <p class="eyebrow">SchoolVoice</p>
+
+            <h1>
+                Welcome Back
+            </h1>
+
+            <p class="muted">
+                Login to continue to your account.
+            </p>
+        </div>
+
+
+        {% if error %}
+        <div class="alert error">
+            {{ error }}
+        </div>
+        {% endif %}
+
+
+        {% if message %}
+        <div class="alert success">
+            {{ message }}
+        </div>
+        {% endif %}
+
+
+        <form
+            method="POST"
+            action="/login"
+            class="auth-form"
+        >
+
+            <!-- USERNAME -->
+
+            <label>
+                Username
+
+                <input
+                    type="text"
+                    name="username"
+                    placeholder="Enter your username"
+                    autocomplete="username"
+                    required
+                    value="{{ request.form.get('username', '') }}"
+                >
+
+            </label>
+
+
+            <!-- PASSWORD -->
+
+            <label>
+                Password
+
+                <div class="password-wrapper">
+
+                    <input
+                        type="password"
+                        id="login-password"
+                        name="password"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                    <button
+                        type="button"
+                        class="password-toggle"
+                        id="password-toggle"
+                        aria-label="Show password"
+                        onclick="togglePassword()"
+                    >
+                        👁
+                    </button>
+
+                </div>
+
+            </label>
+
+
+            <button
+                type="submit"
+                class="btn primary"
+            >
+                Login
+            </button>
+
+        </form>
+
+
+        <div class="auth-footer">
+
+            <p>
+                Don't have an account?
+                <a href="/register">
+                    Create an account
+                </a>
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+function togglePassword() {
+
+    const passwordInput =
+        document.getElementById("login-password");
+
+    const toggleButton =
+        document.getElementById("password-toggle");
+
+    if (passwordInput.type === "password") {
+
+        passwordInput.type = "text";
+
+        toggleButton.textContent = "🙈";
+
+        toggleButton.setAttribute(
+            "aria-label",
+            "Hide password"
+        );
+
+        toggleButton.title =
+            "Hide password";
+
+    } else {
+
+        passwordInput.type = "password";
+
+        toggleButton.textContent = "👁";
+
+        toggleButton.setAttribute(
+            "aria-label",
+            "Show password"
+        );
+
+        toggleButton.title =
+            "Show password";
+    }
+}
+
+</script>
+
+
+<style>
+
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-wrapper input {
+    width: 100%;
+    padding-right: 52px;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+
+    border: none;
+    background: transparent;
+
+    cursor: pointer;
+
+    font-size: 20px;
+
+    padding: 6px;
+
+    line-height: 1;
+}
+
+.password-toggle:hover {
+    opacity: 0.7;
+}
+
+</style>
+
+{% endblock %}
