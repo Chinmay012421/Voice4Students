@@ -1,7 +1,7 @@
 import os
-import sqlite3
 from datetime import datetime
 
+from supabase import create_client, Client
 from werkzeug.security import (
     generate_password_hash,
     check_password_hash
@@ -9,26 +9,112 @@ from werkzeug.security import (
 
 
 # =========================================================
-# DATABASE
+# SUPABASE
 # =========================================================
 
-DB_NAME = "schoolfix.db"
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_SERVICE_KEY = os.environ.get("SUPABASE_SERVICE_KEY")
+
+if not SUPABASE_URL:
+    raise RuntimeError("SUPABASE_URL environment variable is missing.")
+
+if not SUPABASE_SERVICE_KEY:
+    raise RuntimeError("SUPABASE_SERVICE_KEY environment variable is missing.")
+
+supabase: Client = create_client(
+    SUPABASE_URL,
+    SUPABASE_SERVICE_KEY
+)
 
 
-def connect():
-    conn = sqlite3.connect(
-        DB_NAME,
-        timeout=30
-    )
-
-    conn.execute("PRAGMA busy_timeout = 30000")
-    conn.execute("PRAGMA foreign_keys = ON")
-
-    return conn
-
+# =========================================================
+# TIME
+# =========================================================
 
 def now():
     return datetime.now().strftime("%Y-%m-%d %H:%M")
+
+
+# =========================================================
+# HELPERS
+# =========================================================
+
+def _first(response):
+    """
+    Return the first Supabase row or None.
+    """
+    if response and response.data:
+        return response.data[0]
+    return None
+
+
+def _rows(response):
+    """
+    Return Supabase rows safely.
+    """
+    if response and response.data:
+        return response.data
+    return []
+
+
+def _user_tuple(row):
+    """
+    Keep the same tuple format used by the old SQLite database.
+
+    Indexes:
+        0 = id
+        1 = username
+        2 = password
+        3 = role
+        4 = active
+        5 = must_change_password
+        6 = registered_at
+    """
+
+    if not row:
+        return None
+
+    return (
+        row.get("id"),
+        row.get("username"),
+        row.get("password"),
+        row.get("role"),
+        row.get("active"),
+        row.get("must_change_password"),
+        row.get("registered_at")
+    )
+
+
+def _report_tuple(row):
+    """
+    Keep the same report tuple format as SQLite.
+
+    Indexes:
+        0 = id
+        1 = username
+        2 = category
+        3 = location
+        4 = message
+        5 = status
+        6 = date
+        7 = admin_note
+        8 = photo
+    """
+
+    if not row:
+        return None
+
+    return (
+        row.get("id"),
+        row.get("username"),
+        row.get("category"),
+        row.get("location"),
+        row.get("message"),
+        row.get("status"),
+        row.get("date"),
+        row.get("admin_note"),
+        row.get("photo")
+    )
 
 
 # =========================================================
@@ -37,243 +123,15 @@ def now():
 
 def init_db():
 
-    conn = connect()
-    cur = conn.cursor()
-
     # =====================================================
-    # USERS
-    # =====================================================
-
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            role TEXT NOT NULL DEFAULT 'student',
-            active INTEGER NOT NULL DEFAULT 1,
-            must_change_password INTEGER NOT NULL DEFAULT 0,
-            registered_at TEXT NOT NULL DEFAULT ''
-        )
-    """)
-
-    user_columns = {
-        row[1]
-        for row in cur.execute(
-            "PRAGMA table_info(users)"
-        ).fetchall()
-    }
-
-    if "must_change_password" not in user_columns:
-        cur.execute("""
-            ALTER TABLE users
-            ADD COLUMN must_change_password
-            INTEGER NOT NULL DEFAULT 0
-        """)
-
-    if "registered_at" not in user_columns:
-        cur.execute("""
-            ALTER TABLE users
-            ADD COLUMN registered_at
-            TEXT NOT NULL DEFAULT ''
-        """)
-
-        cur.execute("""
-            UPDATE users
-            SET registered_at=?
-            WHERE registered_at IS NULL
-               OR registered_at=''
-        """, (now(),))
-
-    # =====================================================
-    # ADMIN APPLICATIONS
-    # =====================================================
-
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS admin_applications (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT NOT NULL,
-            reason TEXT NOT NULL,
-            status TEXT NOT NULL DEFAULT 'Pending',
-            date TEXT NOT NULL
-        )
-    """)
-
-    # =====================================================
-    # REPORTS
-    # =====================================================
-
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS reports (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT NOT NULL,
-            category TEXT NOT NULL,
-            location TEXT,
-            message TEXT NOT NULL,
-            status TEXT NOT NULL DEFAULT 'Pending',
-            date TEXT NOT NULL,
-            admin_note TEXT DEFAULT '',
-            photo TEXT DEFAULT ''
-        )
-    """)
-
-    report_columns = {
-        row[1]
-        for row in cur.execute(
-            "PRAGMA table_info(reports)"
-        ).fetchall()
-    }
-
-    if "photo" not in report_columns:
-        cur.execute("""
-            ALTER TABLE reports
-            ADD COLUMN photo TEXT DEFAULT ''
-        """)
-
-    # =====================================================
-    # MULTIPLE REPORT PHOTOS
-    # =====================================================
-
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS report_photos (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            report_id INTEGER NOT NULL,
-            filename TEXT NOT NULL,
-            uploaded_at TEXT NOT NULL,
-            FOREIGN KEY(report_id)
-                REFERENCES reports(id)
-                ON DELETE CASCADE
-        )
-    """)
-
-    # =====================================================
-    # REPORT CONVERSATIONS
-    # =====================================================
-
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS report_messages (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            report_id INTEGER NOT NULL,
-            username TEXT NOT NULL,
-            role TEXT NOT NULL,
-            message TEXT NOT NULL,
-            date TEXT NOT NULL,
-            FOREIGN KEY(report_id)
-                REFERENCES reports(id)
-                ON DELETE CASCADE
-        )
-    """)
-
-    # =====================================================
-    # MIGRATE OLD SINGLE PHOTOS
-    # =====================================================
-
-    old_photos = cur.execute("""
-        SELECT id, photo
-        FROM reports
-        WHERE photo IS NOT NULL
-          AND photo != ''
-    """).fetchall()
-
-    for report_id, filename in old_photos:
-
-        exists = cur.execute("""
-            SELECT id
-            FROM report_photos
-            WHERE report_id=?
-              AND filename=?
-        """, (
-            report_id,
-            filename
-        )).fetchone()
-
-        if not exists:
-
-            cur.execute("""
-                INSERT INTO report_photos
-                (
-                    report_id,
-                    filename,
-                    uploaded_at
-                )
-                VALUES (?, ?, ?)
-            """, (
-                report_id,
-                filename,
-                now()
-            ))
-
-    # =====================================================
-    # MIGRATE ORIGINAL REPORT MESSAGE
-    # =====================================================
-
-    old_reports = cur.execute("""
-        SELECT
-            id,
-            username,
-            message,
-            date
-        FROM reports
-    """).fetchall()
-
-    for report_id, username, message, report_date in old_reports:
-
-        exists = cur.execute("""
-            SELECT id
-            FROM report_messages
-            WHERE report_id=?
-              AND username=?
-              AND message=?
-        """, (
-            report_id,
-            username,
-            message
-        )).fetchone()
-
-        if not exists:
-
-            role_row = cur.execute("""
-                SELECT role
-                FROM users
-                WHERE username=?
-            """, (username,)).fetchone()
-
-            role = (
-                role_row[0]
-                if role_row
-                else "student"
-            )
-
-            cur.execute("""
-                INSERT INTO report_messages
-                (
-                    report_id,
-                    username,
-                    role,
-                    message,
-                    date
-                )
-                VALUES (?, ?, ?, ?, ?)
-            """, (
-                report_id,
-                username,
-                role,
-                message,
-                report_date
-            ))
-
-    # =====================================================
-    # MAIN ADMIN ACCOUNTS
-    # =====================================================
+    # IMPORTANT
     #
-    # IMPORTANT:
+    # The tables are already created in Supabase SQL Editor.
     #
-    # Existing Main Admin accounts are NEVER overwritten.
+    # This function ONLY ensures that the required Main
+    # Admin accounts exist.
     #
-    # If Main Admin accounts already exist in schoolfix.db,
-    # this section does nothing to their passwords.
-    #
-    # If this is a brand-new database, the passwords must
-    # be supplied through environment variables.
+    # EXISTING MAIN ADMIN PASSWORDS ARE NEVER OVERWRITTEN.
     # =====================================================
 
     main_admins = [
@@ -301,43 +159,68 @@ def init_db():
 
     for username, password in main_admins:
 
-        existing = cur.execute("""
-            SELECT id, role
-            FROM users
-            WHERE username=?
-        """, (username,)).fetchone()
+        try:
 
-        # Existing account:
-        # NEVER replace its password.
-        if existing:
-            continue
+            # -------------------------------------------------
+            # Check whether the account already exists.
+            # -------------------------------------------------
 
-        # Brand-new account:
-        # only create it when its password exists.
-        if password:
+            response = (
+                supabase
+                .table("users")
+                .select("id, username, role, password")
+                .eq("username", username)
+                .limit(1)
+                .execute()
+            )
 
-            cur.execute("""
-                INSERT INTO users
-                (
-                    username,
-                    password,
-                    role,
-                    active,
-                    must_change_password,
-                    registered_at
+            existing = _first(response)
+
+            # -------------------------------------------------
+            # CRITICAL:
+            #
+            # If the Main Admin already exists, DO NOTHING.
+            #
+            # This means the existing password remains exactly
+            # as it is.
+            # -------------------------------------------------
+
+            if existing:
+                continue
+
+            # -------------------------------------------------
+            # Account doesn't exist.
+            #
+            # Only create it if its password exists in Render
+            # environment variables.
+            # -------------------------------------------------
+
+            if not password:
+                print(
+                    f"WARNING: Password environment variable "
+                    f"missing for Main Admin '{username}'."
                 )
-                VALUES (?, ?, ?, ?, ?, ?)
-            """, (
-                username,
-                generate_password_hash(password),
-                "main_admin",
-                1,
-                0,
-                now()
-            ))
+                continue
 
-    conn.commit()
-    conn.close()
+            supabase.table("users").insert({
+                "username": username,
+                "password": generate_password_hash(password),
+                "role": "main_admin",
+                "active": True,
+                "must_change_password": False,
+                "registered_at": now()
+            }).execute()
+
+            print(
+                f"Main Admin created: {username}"
+            )
+
+        except Exception as e:
+
+            print(
+                f"ERROR while initializing Main Admin "
+                f"'{username}': {e}"
+            )
 
 
 # =========================================================
@@ -355,40 +238,35 @@ def save_user(
     if not username or not password:
         return False
 
-    conn = connect()
-
     try:
 
-        conn.execute("""
-            INSERT INTO users
-            (
-                username,
-                password,
-                role,
-                active,
-                must_change_password,
-                registered_at
-            )
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, (
-            username,
-            generate_password_hash(password),
-            role,
-            1,
-            0,
-            now()
-        ))
+        existing = (
+            supabase
+            .table("users")
+            .select("id")
+            .eq("username", username)
+            .limit(1)
+            .execute()
+        )
 
-        conn.commit()
+        if existing.data:
+            return False
+
+        supabase.table("users").insert({
+            "username": username,
+            "password": generate_password_hash(password),
+            "role": role,
+            "active": True,
+            "must_change_password": False,
+            "registered_at": now()
+        }).execute()
 
         return True
 
-    except sqlite3.IntegrityError:
-        conn.rollback()
-        return False
+    except Exception as e:
 
-    finally:
-        conn.close()
+        print("save_user error:", e)
+        return False
 
 
 def get_user(
@@ -396,118 +274,150 @@ def get_user(
     password
 ):
 
-    conn = connect()
-
-    row = conn.execute("""
-        SELECT *
-        FROM users
-        WHERE username=?
-          AND active=1
-    """, (
-        username,
-    )).fetchone()
-
-    conn.close()
-
-    if not row:
-        return None
-
     try:
-        if check_password_hash(
-            row[2],
-            password
-        ):
-            return row
-    except Exception:
-        return None
+
+        response = (
+            supabase
+            .table("users")
+            .select(
+                "id, username, password, role, active, "
+                "must_change_password, registered_at"
+            )
+            .eq("username", username)
+            .eq("active", True)
+            .limit(1)
+            .execute()
+        )
+
+        row = _first(response)
+
+        if not row:
+            return None
+
+        try:
+
+            if check_password_hash(
+                row.get("password", ""),
+                password
+            ):
+                return _user_tuple(row)
+
+        except Exception:
+            return None
+
+    except Exception as e:
+
+        print("get_user error:", e)
 
     return None
 
 
 def get_user_by_username(username):
 
-    conn = connect()
+    try:
 
-    row = conn.execute("""
-        SELECT *
-        FROM users
-        WHERE username=?
-    """, (
-        username,
-    )).fetchone()
+        response = (
+            supabase
+            .table("users")
+            .select(
+                "id, username, password, role, active, "
+                "must_change_password, registered_at"
+            )
+            .eq("username", username)
+            .limit(1)
+            .execute()
+        )
 
-    conn.close()
+        return _user_tuple(_first(response))
 
-    return row
+    except Exception as e:
+
+        print("get_user_by_username error:", e)
+        return None
 
 
 def get_all_users():
 
-    conn = connect()
+    try:
 
-    rows = conn.execute("""
-        SELECT
-            id,
-            username,
-            password,
-            role,
-            active,
-            must_change_password,
-            registered_at
-        FROM users
-        ORDER BY id ASC
-    """).fetchall()
+        response = (
+            supabase
+            .table("users")
+            .select(
+                "id, username, password, role, active, "
+                "must_change_password, registered_at"
+            )
+            .order("id")
+            .execute()
+        )
 
-    conn.close()
+        return [
+            _user_tuple(row)
+            for row in _rows(response)
+        ]
 
-    return rows
+    except Exception as e:
+
+        print("get_all_users error:", e)
+        return []
 
 
 def deactivate_user(user_id):
 
-    conn = connect()
+    try:
 
-    row = conn.execute("""
-        SELECT role
-        FROM users
-        WHERE id=?
-    """, (user_id,)).fetchone()
+        response = (
+            supabase
+            .table("users")
+            .select("role")
+            .eq("id", user_id)
+            .limit(1)
+            .execute()
+        )
 
-    if not row:
-        conn.close()
+        row = _first(response)
+
+        if not row:
+            return False
+
+        # Main Admin cannot be disabled.
+        if row.get("role") == "main_admin":
+            return False
+
+        result = (
+            supabase
+            .table("users")
+            .update({"active": False})
+            .eq("id", user_id)
+            .execute()
+        )
+
+        return bool(result.data)
+
+    except Exception as e:
+
+        print("deactivate_user error:", e)
         return False
-
-    # Main Admin cannot be disabled here.
-    if row[0] == "main_admin":
-        conn.close()
-        return False
-
-    conn.execute("""
-        UPDATE users
-        SET active=0
-        WHERE id=?
-    """, (user_id,))
-
-    conn.commit()
-    conn.close()
-
-    return True
 
 
 def activate_user(user_id):
 
-    conn = connect()
+    try:
 
-    conn.execute("""
-        UPDATE users
-        SET active=1
-        WHERE id=?
-    """, (user_id,))
+        result = (
+            supabase
+            .table("users")
+            .update({"active": True})
+            .eq("id", user_id)
+            .execute()
+        )
 
-    conn.commit()
-    conn.close()
+        return bool(result.data)
 
-    return True
+    except Exception as e:
+
+        print("activate_user error:", e)
+        return False
 
 
 # =========================================================
@@ -519,118 +429,155 @@ def save_admin_application(
     reason
 ):
 
-    conn = connect()
+    try:
 
-    conn.execute("""
-        INSERT INTO admin_applications
-        (
-            username,
-            reason,
-            status,
-            date
-        )
-        VALUES (?, ?, ?, ?)
-    """, (
-        username,
-        reason,
-        "Pending",
-        now()
-    ))
+        supabase.table("admin_applications").insert({
+            "username": username,
+            "reason": reason,
+            "status": "Pending",
+            "date": now()
+        }).execute()
 
-    conn.commit()
-    conn.close()
+        return True
+
+    except Exception as e:
+
+        print("save_admin_application error:", e)
+        return False
 
 
 def get_pending_applications():
 
-    conn = connect()
+    try:
 
-    rows = conn.execute("""
-        SELECT *
-        FROM admin_applications
-        WHERE status='Pending'
-        ORDER BY id DESC
-    """).fetchall()
+        response = (
+            supabase
+            .table("admin_applications")
+            .select("*")
+            .eq("status", "Pending")
+            .order("id", desc=True)
+            .execute()
+        )
 
-    conn.close()
+        rows = []
 
-    return rows
+        for row in _rows(response):
+
+            rows.append((
+                row.get("id"),
+                row.get("username"),
+                row.get("reason"),
+                row.get("status"),
+                row.get("date")
+            ))
+
+        return rows
+
+    except Exception as e:
+
+        print("get_pending_applications error:", e)
+        return []
 
 
 def get_all_applications():
 
-    conn = connect()
+    try:
 
-    rows = conn.execute("""
-        SELECT *
-        FROM admin_applications
-        ORDER BY id DESC
-    """).fetchall()
+        response = (
+            supabase
+            .table("admin_applications")
+            .select("*")
+            .order("id", desc=True)
+            .execute()
+        )
 
-    conn.close()
+        rows = []
 
-    return rows
+        for row in _rows(response):
+
+            rows.append((
+                row.get("id"),
+                row.get("username"),
+                row.get("reason"),
+                row.get("status"),
+                row.get("date")
+            ))
+
+        return rows
+
+    except Exception as e:
+
+        print("get_all_applications error:", e)
+        return []
 
 
 def approve_admin(
     application_id
 ):
 
-    conn = connect()
+    try:
 
-    row = conn.execute("""
-        SELECT username
-        FROM admin_applications
-        WHERE id=?
-    """, (
-        application_id,
-    )).fetchone()
+        response = (
+            supabase
+            .table("admin_applications")
+            .select("username")
+            .eq("id", application_id)
+            .limit(1)
+            .execute()
+        )
 
-    if not row:
-        conn.close()
+        row = _first(response)
+
+        if not row:
+            return False
+
+        username = row.get("username")
+
+        # Promote only a student.
+        supabase.table("users").update({
+            "role": "admin"
+        }).eq(
+            "username", username
+        ).eq(
+            "role", "student"
+        ).execute()
+
+        supabase.table("admin_applications").update({
+            "status": "Approved"
+        }).eq(
+            "id", application_id
+        ).execute()
+
+        return True
+
+    except Exception as e:
+
+        print("approve_admin error:", e)
         return False
-
-    conn.execute("""
-        UPDATE users
-        SET role='admin'
-        WHERE username=?
-          AND role='student'
-    """, (
-        row[0],
-    ))
-
-    conn.execute("""
-        UPDATE admin_applications
-        SET status='Approved'
-        WHERE id=?
-    """, (
-        application_id,
-    ))
-
-    conn.commit()
-    conn.close()
-
-    return True
 
 
 def reject_admin(
     application_id
 ):
 
-    conn = connect()
+    try:
 
-    conn.execute("""
-        UPDATE admin_applications
-        SET status='Rejected'
-        WHERE id=?
-    """, (
-        application_id,
-    ))
+        result = (
+            supabase
+            .table("admin_applications")
+            .update({
+                "status": "Rejected"
+            })
+            .eq("id", application_id)
+            .execute()
+        )
 
-    conn.commit()
-    conn.close()
+        return bool(result.data)
 
-    return True
+    except Exception as e:
+
+        print("reject_admin error:", e)
+        return False
 
 
 # =========================================================
@@ -650,142 +597,147 @@ def save_report(
     if not message:
         return None
 
-    conn = connect()
-    cur = conn.cursor()
+    try:
 
-    report_date = now()
+        report_date = now()
 
-    cur.execute("""
-        INSERT INTO reports
-        (
-            username,
-            category,
-            location,
-            message,
-            status,
-            date,
-            admin_note,
-            photo
+        response = supabase.table("reports").insert({
+            "username": username,
+            "category": category,
+            "location": location,
+            "message": message,
+            "status": "Pending",
+            "date": report_date,
+            "admin_note": "",
+            "photo": photo
+        }).execute()
+
+        row = _first(response)
+
+        if not row:
+            return None
+
+        report_id = row.get("id")
+
+        # -------------------------------------------------
+        # Find reporter role
+        # -------------------------------------------------
+
+        role_response = (
+            supabase
+            .table("users")
+            .select("role")
+            .eq("username", username)
+            .limit(1)
+            .execute()
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    """, (
-        username,
-        category,
-        location,
-        message,
-        "Pending",
-        report_date,
-        "",
-        photo
-    ))
 
-    report_id = cur.lastrowid
+        role_row = _first(role_response)
 
-    # Find reporter role
-    role_row = cur.execute("""
-        SELECT role
-        FROM users
-        WHERE username=?
-    """, (
-        username,
-    )).fetchone()
-
-    role = (
-        role_row[0]
-        if role_row
-        else "student"
-    )
-
-    # Add original report message
-    cur.execute("""
-        INSERT INTO report_messages
-        (
-            report_id,
-            username,
-            role,
-            message,
-            date
+        role = (
+            role_row.get("role")
+            if role_row
+            else "student"
         )
-        VALUES (?, ?, ?, ?, ?)
-    """, (
-        report_id,
-        username,
-        role,
-        message,
-        report_date
-    ))
 
-    # Save first photo into multiple-photo table
-    if photo:
+        # -------------------------------------------------
+        # Original report message
+        # -------------------------------------------------
 
-        cur.execute("""
-            INSERT INTO report_photos
-            (
-                report_id,
-                filename,
-                uploaded_at
-            )
-            VALUES (?, ?, ?)
-        """, (
-            report_id,
-            photo,
-            report_date
-        ))
+        supabase.table("report_messages").insert({
+            "report_id": report_id,
+            "username": username,
+            "role": role,
+            "message": message,
+            "date": report_date
+        }).execute()
 
-    conn.commit()
-    conn.close()
+        # -------------------------------------------------
+        # First photo
+        # -------------------------------------------------
 
-    return report_id
+        if photo:
+
+            supabase.table("report_photos").insert({
+                "report_id": report_id,
+                "filename": photo,
+                "uploaded_at": report_date
+            }).execute()
+
+        return report_id
+
+    except Exception as e:
+
+        print("save_report error:", e)
+        return None
 
 
 def get_report(report_id):
 
-    conn = connect()
+    try:
 
-    row = conn.execute("""
-        SELECT *
-        FROM reports
-        WHERE id=?
-    """, (
-        report_id,
-    )).fetchone()
+        response = (
+            supabase
+            .table("reports")
+            .select("*")
+            .eq("id", report_id)
+            .limit(1)
+            .execute()
+        )
 
-    conn.close()
+        return _report_tuple(_first(response))
 
-    return row
+    except Exception as e:
+
+        print("get_report error:", e)
+        return None
 
 
 def get_all_reports():
 
-    conn = connect()
+    try:
 
-    rows = conn.execute("""
-        SELECT *
-        FROM reports
-        ORDER BY id DESC
-    """).fetchall()
+        response = (
+            supabase
+            .table("reports")
+            .select("*")
+            .order("id", desc=True)
+            .execute()
+        )
 
-    conn.close()
+        return [
+            _report_tuple(row)
+            for row in _rows(response)
+        ]
 
-    return rows
+    except Exception as e:
+
+        print("get_all_reports error:", e)
+        return []
 
 
 def get_user_reports(username):
 
-    conn = connect()
+    try:
 
-    rows = conn.execute("""
-        SELECT *
-        FROM reports
-        WHERE username=?
-        ORDER BY id DESC
-    """, (
-        username,
-    )).fetchall()
+        response = (
+            supabase
+            .table("reports")
+            .select("*")
+            .eq("username", username)
+            .order("id", desc=True)
+            .execute()
+        )
 
-    conn.close()
+        return [
+            _report_tuple(row)
+            for row in _rows(response)
+        ]
 
-    return rows
+    except Exception as e:
+
+        print("get_user_reports error:", e)
+        return []
 
 
 def update_report_status(
@@ -805,98 +757,102 @@ def update_report_status(
     if status not in allowed_statuses:
         return False
 
-    conn = connect()
+    try:
 
-    conn.execute("""
-        UPDATE reports
-        SET
-            status=?,
-            admin_note=?
-        WHERE id=?
-    """, (
-        status,
-        admin_note,
-        report_id
-    ))
+        response = (
+            supabase
+            .table("reports")
+            .update({
+                "status": status,
+                "admin_note": admin_note
+            })
+            .eq("id", report_id)
+            .execute()
+        )
 
-    changed = conn.total_changes > 0
+        return bool(response.data)
 
-    conn.commit()
-    conn.close()
+    except Exception as e:
 
-    return changed
+        print("update_report_status error:", e)
+        return False
 
 
 def mark_report_unreasonable(report_id):
 
-    conn = connect()
+    try:
 
-    conn.execute("""
-        UPDATE reports
-        SET status='Unreasonable'
-        WHERE id=?
-    """, (
-        report_id,
-    ))
+        response = (
+            supabase
+            .table("reports")
+            .update({
+                "status": "Unreasonable"
+            })
+            .eq("id", report_id)
+            .execute()
+        )
 
-    changed = conn.total_changes > 0
+        return bool(response.data)
 
-    conn.commit()
-    conn.close()
+    except Exception as e:
 
-    return changed
+        print("mark_report_unreasonable error:", e)
+        return False
 
 
 def get_unreasonable_reports():
 
-    conn = connect()
+    try:
 
-    rows = conn.execute("""
-        SELECT *
-        FROM reports
-        WHERE status='Unreasonable'
-        ORDER BY id DESC
-    """).fetchall()
+        response = (
+            supabase
+            .table("reports")
+            .select("*")
+            .eq("status", "Unreasonable")
+            .order("id", desc=True)
+            .execute()
+        )
 
-    conn.close()
+        return [
+            _report_tuple(row)
+            for row in _rows(response)
+        ]
 
-    return rows
+    except Exception as e:
+
+        print("get_unreasonable_reports error:", e)
+        return []
 
 
 def delete_report(report_id):
 
-    conn = connect()
+    try:
 
-    # Explicit deletes keep this safe even if foreign keys
-    # were not enabled by an older connection.
+        # Delete messages first.
+        supabase.table("report_messages").delete().eq(
+            "report_id", report_id
+        ).execute()
 
-    conn.execute("""
-        DELETE FROM report_messages
-        WHERE report_id=?
-    """, (
-        report_id,
-    ))
+        # Delete photo records.
+        supabase.table("report_photos").delete().eq(
+            "report_id", report_id
+        ).execute()
 
-    conn.execute("""
-        DELETE FROM report_photos
-        WHERE report_id=?
-    """, (
-        report_id,
-    ))
+        # Delete report.
+        response = (
+            supabase
+            .table("reports")
+            .delete()
+            .eq("id", report_id)
+            .execute()
+        )
 
-    conn.execute("""
-        DELETE FROM reports
-        WHERE id=?
-    """, (
-        report_id,
-    ))
+        return bool(response.data)
 
-    changed = conn.total_changes > 0
+    except Exception as e:
 
-    conn.commit()
-    conn.close()
-
-    return changed
+        print("delete_report error:", e)
+        return False
 
 
 # =========================================================
@@ -911,90 +867,97 @@ def add_report_photo(
     if not filename:
         return False
 
-    conn = connect()
+    try:
 
-    # Make sure report exists
-    report = conn.execute("""
-        SELECT id
-        FROM reports
-        WHERE id=?
-    """, (
-        report_id,
-    )).fetchone()
-
-    if not report:
-        conn.close()
-        return False
-
-    conn.execute("""
-        INSERT INTO report_photos
-        (
-            report_id,
-            filename,
-            uploaded_at
+        # Make sure report exists.
+        report_response = (
+            supabase
+            .table("reports")
+            .select("id")
+            .eq("id", report_id)
+            .limit(1)
+            .execute()
         )
-        VALUES (?, ?, ?)
-    """, (
-        report_id,
-        filename,
-        now()
-    ))
 
-    conn.commit()
-    conn.close()
+        if not _first(report_response):
+            return False
 
-    return True
+        supabase.table("report_photos").insert({
+            "report_id": report_id,
+            "filename": filename,
+            "uploaded_at": now()
+        }).execute()
+
+        return True
+
+    except Exception as e:
+
+        print("add_report_photo error:", e)
+        return False
 
 
 def get_report_photos(report_id):
 
-    conn = connect()
+    try:
 
-    rows = conn.execute("""
-        SELECT
-            id,
-            report_id,
-            filename,
-            uploaded_at
-        FROM report_photos
-        WHERE report_id=?
-        ORDER BY id ASC
-    """, (
-        report_id,
-    )).fetchall()
+        response = (
+            supabase
+            .table("report_photos")
+            .select(
+                "id, report_id, filename, uploaded_at"
+            )
+            .eq("report_id", report_id)
+            .order("id")
+            .execute()
+        )
 
-    conn.close()
+        return [
+            (
+                row.get("id"),
+                row.get("report_id"),
+                row.get("filename"),
+                row.get("uploaded_at")
+            )
+            for row in _rows(response)
+        ]
 
-    return rows
+    except Exception as e:
+
+        print("get_report_photos error:", e)
+        return []
 
 
 def delete_report_photo(photo_id):
 
-    conn = connect()
+    try:
 
-    row = conn.execute("""
-        SELECT report_id, filename
-        FROM report_photos
-        WHERE id=?
-    """, (
-        photo_id,
-    )).fetchone()
+        response = (
+            supabase
+            .table("report_photos")
+            .select("report_id, filename")
+            .eq("id", photo_id)
+            .limit(1)
+            .execute()
+        )
 
-    if not row:
-        conn.close()
+        row = _first(response)
+
+        if not row:
+            return None
+
+        supabase.table("report_photos").delete().eq(
+            "id", photo_id
+        ).execute()
+
+        return (
+            row.get("report_id"),
+            row.get("filename")
+        )
+
+    except Exception as e:
+
+        print("delete_report_photo error:", e)
         return None
-
-    conn.execute("""
-        DELETE FROM report_photos
-        WHERE id=?
-    """, (
-        photo_id,
-    ))
-
-    conn.commit()
-    conn.close()
-
-    return row
 
 
 # =========================================================
@@ -1013,66 +976,67 @@ def add_report_message(
     if not message:
         return False
 
-    conn = connect()
+    try:
 
-    report = conn.execute("""
-        SELECT id
-        FROM reports
-        WHERE id=?
-    """, (
-        report_id,
-    )).fetchone()
-
-    if not report:
-        conn.close()
-        return False
-
-    conn.execute("""
-        INSERT INTO report_messages
-        (
-            report_id,
-            username,
-            role,
-            message,
-            date
+        report_response = (
+            supabase
+            .table("reports")
+            .select("id")
+            .eq("id", report_id)
+            .limit(1)
+            .execute()
         )
-        VALUES (?, ?, ?, ?, ?)
-    """, (
-        report_id,
-        username,
-        role,
-        message,
-        now()
-    ))
 
-    conn.commit()
-    conn.close()
+        if not _first(report_response):
+            return False
 
-    return True
+        supabase.table("report_messages").insert({
+            "report_id": report_id,
+            "username": username,
+            "role": role,
+            "message": message,
+            "date": now()
+        }).execute()
+
+        return True
+
+    except Exception as e:
+
+        print("add_report_message error:", e)
+        return False
 
 
 def get_report_messages(report_id):
 
-    conn = connect()
+    try:
 
-    rows = conn.execute("""
-        SELECT
-            id,
-            report_id,
-            username,
-            role,
-            message,
-            date
-        FROM report_messages
-        WHERE report_id=?
-        ORDER BY id ASC
-    """, (
-        report_id,
-    )).fetchall()
+        response = (
+            supabase
+            .table("report_messages")
+            .select(
+                "id, report_id, username, role, message, date"
+            )
+            .eq("report_id", report_id)
+            .order("id")
+            .execute()
+        )
 
-    conn.close()
+        return [
+            (
+                row.get("id"),
+                row.get("report_id"),
+                row.get("username"),
+                row.get("role"),
+                row.get("message"),
+                row.get("date")
+            )
+            for row in _rows(response)
+        ]
 
-    return rows
+    except Exception as e:
+
+        print("get_report_messages error:", e)
+        return []
 
 
 # =========================================================
@@ -1087,45 +1051,44 @@ def set_temporary_password(
     if not temporary_password:
         return None
 
-    conn = connect()
+    try:
 
-    row = conn.execute("""
-        SELECT
-            id,
-            username,
-            role
-        FROM users
-        WHERE id=?
-    """, (
-        user_id,
-    )).fetchone()
+        response = (
+            supabase
+            .table("users")
+            .select("id, username, role")
+            .eq("id", user_id)
+            .limit(1)
+            .execute()
+        )
 
-    if not row:
-        conn.close()
+        row = _first(response)
+
+        if not row:
+            return None
+
+        # -------------------------------------------------
+        # MAIN ADMIN PROTECTION
+        # -------------------------------------------------
+
+        if row.get("role") == "main_admin":
+            return "protected"
+
+        supabase.table("users").update({
+            "password": generate_password_hash(
+                temporary_password
+            ),
+            "must_change_password": True
+        }).eq(
+            "id", user_id
+        ).execute()
+
+        return row.get("username")
+
+    except Exception as e:
+
+        print("set_temporary_password error:", e)
         return None
-
-    # Main Admin accounts are protected.
-    if row[2] == "main_admin":
-        conn.close()
-        return "protected"
-
-    conn.execute("""
-        UPDATE users
-        SET
-            password=?,
-            must_change_password=1
-        WHERE id=?
-    """, (
-        generate_password_hash(
-            temporary_password
-        ),
-        user_id
-    ))
-
-    conn.commit()
-    conn.close()
-
-    return row[1]
 
 
 def set_permanent_password(
@@ -1136,47 +1099,45 @@ def set_permanent_password(
     if not new_password:
         return None
 
-    conn = connect()
+    try:
 
-    row = conn.execute("""
-        SELECT
-            id,
-            username,
-            role
-        FROM users
-        WHERE id=?
-          AND active=1
-    """, (
-        user_id,
-    )).fetchone()
+        response = (
+            supabase
+            .table("users")
+            .select("id, username, role")
+            .eq("id", user_id)
+            .eq("active", True)
+            .limit(1)
+            .execute()
+        )
 
-    if not row:
-        conn.close()
+        row = _first(response)
+
+        if not row:
+            return None
+
+        # -------------------------------------------------
+        # MAIN ADMIN PROTECTION
+        # -------------------------------------------------
+
+        if row.get("role") == "main_admin":
+            return "protected"
+
+        supabase.table("users").update({
+            "password": generate_password_hash(
+                new_password
+            ),
+            "must_change_password": False
+        }).eq(
+            "id", user_id
+        ).execute()
+
+        return row.get("username")
+
+    except Exception as e:
+
+        print("set_permanent_password error:", e)
         return None
-
-    # Main Admin passwords cannot be changed through
-    # ordinary user management.
-    if row[2] == "main_admin":
-        conn.close()
-        return "protected"
-
-    conn.execute("""
-        UPDATE users
-        SET
-            password=?,
-            must_change_password=0
-        WHERE id=?
-    """, (
-        generate_password_hash(
-            new_password
-        ),
-        user_id
-    ))
-
-    conn.commit()
-    conn.close()
-
-    return row[1]
 
 
 def change_password(
@@ -1187,58 +1148,71 @@ def change_password(
     if not new_password:
         return False
 
-    conn = connect()
+    try:
 
-    row = conn.execute("""
-        SELECT role
-        FROM users
-        WHERE username=?
-          AND active=1
-    """, (
-        username,
-    )).fetchone()
+        response = (
+            supabase
+            .table("users")
+            .select("role")
+            .eq("username", username)
+            .eq("active", True)
+            .limit(1)
+            .execute()
+        )
 
-    if not row:
-        conn.close()
+        row = _first(response)
+
+        if not row:
+            return False
+
+        # -------------------------------------------------
+        # MAIN ADMINS CANNOT BE CHANGED THROUGH THIS ROUTE.
+        # -------------------------------------------------
+
+        if row.get("role") == "main_admin":
+            return False
+
+        supabase.table("users").update({
+            "password": generate_password_hash(
+                new_password
+            ),
+            "must_change_password": False
+        }).eq(
+            "username", username
+        ).execute()
+
+        return True
+
+    except Exception as e:
+
+        print("change_password error:", e)
         return False
-
-    conn.execute("""
-        UPDATE users
-        SET
-            password=?,
-            must_change_password=0
-        WHERE username=?
-    """, (
-        generate_password_hash(
-            new_password
-        ),
-        username
-    ))
-
-    conn.commit()
-    conn.close()
-
-    return True
 
 
 def must_change_password(username):
 
-    conn = connect()
+    try:
 
-    row = conn.execute("""
-        SELECT must_change_password
-        FROM users
-        WHERE username=?
-          AND active=1
-    """, (
-        username,
-    )).fetchone()
+        response = (
+            supabase
+            .table("users")
+            .select("must_change_password")
+            .eq("username", username)
+            .eq("active", True)
+            .limit(1)
+            .execute()
+        )
 
-    conn.close()
+        row = _first(response)
 
-    return bool(
-        row and row[0]
-    )
+        return bool(
+            row and row.get("must_change_password")
+        )
+
+    except Exception as e:
+
+        print("must_change_password error:", e)
+        return False
 
 
 # =========================================================
@@ -1247,50 +1221,62 @@ def must_change_password(username):
 
 def get_report_stats():
 
-    conn = connect()
+    try:
 
-    total = conn.execute("""
-        SELECT COUNT(*)
-        FROM reports
-    """).fetchone()[0]
+        response = (
+            supabase
+            .table("reports")
+            .select("status")
+            .execute()
+        )
 
-    pending = conn.execute("""
-        SELECT COUNT(*)
-        FROM reports
-        WHERE status='Pending'
-    """).fetchone()[0]
+        rows = _rows(response)
 
-    reviewed = conn.execute("""
-        SELECT COUNT(*)
-        FROM reports
-        WHERE status='Reviewed'
-    """).fetchone()[0]
+        total = len(rows)
 
-    in_progress = conn.execute("""
-        SELECT COUNT(*)
-        FROM reports
-        WHERE status='In Progress'
-    """).fetchone()[0]
+        pending = sum(
+            1 for row in rows
+            if row.get("status") == "Pending"
+        )
 
-    resolved = conn.execute("""
-        SELECT COUNT(*)
-        FROM reports
-        WHERE status='Resolved'
-    """).fetchone()[0]
+        reviewed = sum(
+            1 for row in rows
+            if row.get("status") == "Reviewed"
+        )
 
-    unreasonable = conn.execute("""
-        SELECT COUNT(*)
-        FROM reports
-        WHERE status='Unreasonable'
-    """).fetchone()[0]
+        in_progress = sum(
+            1 for row in rows
+            if row.get("status") == "In Progress"
+        )
 
-    conn.close()
+        resolved = sum(
+            1 for row in rows
+            if row.get("status") == "Resolved"
+        )
 
-    return {
-        "total": total,
-        "pending": pending,
-        "reviewed": reviewed,
-        "in_progress": in_progress,
-        "resolved": resolved,
-        "unreasonable": unreasonable
-    }
+        unreasonable = sum(
+            1 for row in rows
+            if row.get("status") == "Unreasonable"
+        )
+
+        return {
+            "total": total,
+            "pending": pending,
+            "reviewed": reviewed,
+            "in_progress": in_progress,
+            "resolved": resolved,
+            "unreasonable": unreasonable
+        }
+
+    except Exception as e:
+
+        print("get_report_stats error:", e)
+
+        return {
+            "total": 0,
+            "pending": 0,
+            "reviewed": 0,
+            "in_progress": 0,
+            "resolved": 0,
+            "unreasonable": 0
+        }
