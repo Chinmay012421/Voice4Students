@@ -80,13 +80,14 @@ Report #{{ report[0] }} — SchoolVoice
             {% for photo in photos %}
 
             <a
-                href="{{ url_for('static', filename='uploads/' + photo[2]) }}"
+                href="{{ photo[2] }}"
                 target="_blank"
+                rel="noopener noreferrer"
                 class="gallery-photo"
             >
 
                 <img
-                    src="{{ url_for('static', filename='uploads/' + photo[2]) }}"
+                    src="{{ photo[2] }}"
                     alt="Photo attached to report"
                     loading="lazy"
                 >
