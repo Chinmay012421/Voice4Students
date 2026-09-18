@@ -964,21 +964,16 @@ def submit_report():
 # MY REPORTS
 # =========================================================
 
-@app.route("/my-reports")
-def my_reports():
+@app.route("/reports")
+def reports():
 
-    if not logged_in():
+    if not is_admin():
+        return redirect("/dashboard")
 
-        return redirect(
-            "/login"
-        )
-
-    reports = get_user_reports(
-        session["username"]
-    )
+    reports = get_all_reports()
 
     return render_template(
-        "my_reports.html",
+        "reports.html",
         reports=reports,
         role=session["role"]
     )
