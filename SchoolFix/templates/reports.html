@@ -1,129 +1,182 @@
 {% extends "base.html" %}
 
 {% block title %}
-Reports — SchoolVoice
+All School Reports — SchoolVoice
 {% endblock %}
 
 {% block content %}
 
-<div class="section-title">
-
-    <div>
-
-        <p class="eyebrow">
-            Admin workspace
-        </p>
-
-        <h1>
-            Student Reports
-        </h1>
-
-        <p class="muted">
-            Review reports, update their status and communicate with students.
-        </p>
-
-    </div>
-
-</div>
+<div class="reports-page">
 
 
-{% if reports %}
+    <!-- HEADER -->
+    <div class="page-header">
 
-<div class="report-list">
+        <div>
 
-    {% for r in reports %}
+            <p class="eyebrow">
+                SchoolVoice
+            </p>
 
-    <div class="report-card">
+            <h1>
+                All School Reports
+            </h1>
 
-        <div class="report-top">
+            <p class="muted">
+                Reports submitted by students across the school.
+            </p>
 
-            <div>
-
-                <span class="tag">
-                    {{ r[2] }}
-                </span>
-
-                <h2>
-                    {{ r[4] }}
-                </h2>
-
-            </div>
+        </div>
 
 
-            <span class="status {{ r[5]|lower|replace(' ','-') }}">
-                {{ r[5] }}
+        <div>
+
+            <span class="tag">
+
+                {% if role == "main_admin" %}
+                    Main Admin
+                {% elif role == "admin" %}
+                    Admin
+                {% else %}
+                    Student
+                {% endif %}
+
             </span>
 
         </div>
 
+    </div>
+
+
+    {% if reports %}
+
+    <div class="reports-list">
+
+        {% for report in reports %}
+
+        <a
+            href="/report/{{ report[0] }}"
+            class="report-card"
+        >
+
+            <div class="report-card-top">
+
+                <span class="tag">
+                    {{ report[2] }}
+                </span>
+
+
+                <span
+                    class="status {{ report[5]|lower|replace(' ','-') }}"
+                >
+                    {{ report[5] }}
+                </span>
+
+            </div>
+
+
+            <h2>
+                {{ report[4] }}
+            </h2>
+
+
+            <p class="report-preview">
+
+                {% if report[4]|length > 180 %}
+                    {{ report[4][:180] }}...
+                {% else %}
+                    {{ report[4] }}
+                {% endif %}
+
+            </p>
+
+
+            <div class="report-card-meta">
+
+                <span>
+                    Report #{{ report[0] }}
+                </span>
+
+
+                <span>
+                    {{ report[6] }}
+                </span>
+
+
+                {% if report[3] %}
+
+                <span>
+                    📍 {{ report[3] }}
+                </span>
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="report-card-footer">
+
+                <span>
+                    Submitted by:
+                    <strong>{{ report[1] }}</strong>
+                </span>
+
+
+                <span>
+                    View Report →
+                </span>
+
+            </div>
+
+        </a>
+
+        {% endfor %}
+
+    </div>
+
+
+    {% else %}
+
+    <div class="panel empty-state">
+
+        <div class="empty-icon">
+            📋
+        </div>
+
+        <h2>
+            No reports yet
+        </h2>
 
         <p class="muted">
-
-            Submitted by
-            <strong>{{ r[1] }}</strong>
-
-            • {{ r[6] }}
-
-            {% if r[3] %}
-                • {{ r[3] }}
-            {% endif %}
-
+            There are currently no reports to display.
         </p>
 
 
-        {% if r[7] %}
+        {% if role == "student" %}
 
-        <div class="note">
+        <a
+            href="/dashboard"
+            class="btn primary"
+        >
+            Submit a Report
+        </a>
 
-            <strong>
-                Admin note
-            </strong>
+        {% else %}
 
-            <br>
-
-            {{ r[7] }}
-
-        </div>
+        <a
+            href="/dashboard"
+            class="btn"
+        >
+            Back to Dashboard
+        </a>
 
         {% endif %}
 
-
-        <div class="report-actions">
-
-            <a
-                href="/report/{{ r[0] }}"
-                class="btn primary"
-            >
-                💬 Open Report
-            </a>
-
-        </div>
-
     </div>
 
-    {% endfor %}
+    {% endif %}
+
 
 </div>
-
-
-{% else %}
-
-<div class="empty">
-
-    <div class="empty-icon">
-        📋
-    </div>
-
-    <h2>
-        No reports yet
-    </h2>
-
-    <p class="muted">
-        Student reports will appear here.
-    </p>
-
-</div>
-
-{% endif %}
 
 {% endblock %}
