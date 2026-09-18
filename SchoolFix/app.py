@@ -37,8 +37,7 @@ from database import (
     add_report_photo,
     get_report_photos,
     add_report_message,
-    get_report_messages,
-    connect
+    get_report_messages
 )
 
 
