@@ -11,7 +11,6 @@ from flask import (
 )
 
 from werkzeug.utils import secure_filename
-from supabase import create_client
 
 from database import (
     init_db,
@@ -54,33 +53,19 @@ app.secret_key = os.environ.get(
 
 
 # =========================================================
-# SUPABASE STORAGE
-# =========================================================
-
-SUPABASE_URL = os.environ.get("SUPABASE_URL")
-SUPABASE_SERVICE_KEY = os.environ.get("SUPABASE_SERVICE_KEY")
-
-if not SUPABASE_URL:
-    raise RuntimeError(
-        "SUPABASE_URL environment variable is missing."
-    )
-
-if not SUPABASE_SERVICE_KEY:
-    raise RuntimeError(
-        "SUPABASE_SERVICE_KEY environment variable is missing."
-    )
-
-supabase = create_client(
-    SUPABASE_URL,
-    SUPABASE_SERVICE_KEY
-)
-
-PHOTO_BUCKET = "report-photos"
-
-
-# =========================================================
 # UPLOAD SETTINGS
 # =========================================================
+
+UPLOAD_FOLDER = os.path.join(
+    app.root_path,
+    "static",
+    "uploads"
+)
+
+os.makedirs(
+    UPLOAD_FOLDER,
+    exist_ok=True
+)
 
 ALLOWED_EXTENSIONS = {
     "png",
@@ -91,6 +76,7 @@ ALLOWED_EXTENSIONS = {
 
 MAX_PHOTOS_PER_REPORT = 5
 
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024
 
 
@@ -106,20 +92,14 @@ init_db()
 # =========================================================
 
 def logged_in():
-
     return "username" in session
 
 
 def is_main_admin():
-
-    return (
-        session.get("role")
-        == "main_admin"
-    )
+    return session.get("role") == "main_admin"
 
 
 def is_admin():
-
     return session.get("role") in (
         "admin",
         "main_admin"
@@ -146,78 +126,6 @@ def allowed_file(filename):
     return extension in ALLOWED_EXTENSIONS
 
 
-def upload_photo_to_supabase(
-    photo,
-    report_id
-):
-
-    if not photo or not photo.filename:
-        return None
-
-    original_name = secure_filename(
-        photo.filename
-    )
-
-    if not original_name:
-        return None
-
-    _, extension = os.path.splitext(
-        original_name
-    )
-
-    extension = extension.lower()
-
-    photo_name = (
-        secrets.token_hex(16)
-        + extension
-    )
-
-    storage_path = (
-        f"reports/{report_id}/{photo_name}"
-    )
-
-    try:
-
-        photo_bytes = photo.read()
-
-        if not photo_bytes:
-            return None
-
-        content_type = (
-            photo.mimetype
-            or "application/octet-stream"
-        )
-
-        supabase.storage.from_(
-            PHOTO_BUCKET
-        ).upload(
-            storage_path,
-            photo_bytes,
-            {
-                "content-type": content_type,
-                "upsert": False
-            }
-        )
-
-        public_url = (
-            supabase
-            .storage
-            .from_(PHOTO_BUCKET)
-            .get_public_url(storage_path)
-        )
-
-        return public_url
-
-    except Exception as e:
-
-        app.logger.exception(
-            "Supabase photo upload failed: %s",
-            e
-        )
-
-        return None
-
-
 # =========================================================
 # HOME
 # =========================================================
@@ -241,10 +149,7 @@ def home():
 def login():
 
     if logged_in():
-
-        return redirect(
-            "/dashboard"
-        )
+        return redirect("/dashboard")
 
     if request.method == "POST":
 
@@ -262,10 +167,7 @@ def login():
 
             return render_template(
                 "login.html",
-                error=(
-                    "Please enter both "
-                    "username and password."
-                )
+                error="Please enter both username and password."
             )
 
         user = get_user(
@@ -277,11 +179,11 @@ def login():
 
             session.clear()
 
-            # Database tuple:
+            # users table:
             #
             # 0 = id
             # 1 = username
-            # 2 = password
+            # 2 = password hash
             # 3 = role
             # 4 = active
             # 5 = must_change_password
@@ -290,9 +192,7 @@ def login():
             session["username"] = user[1]
             session["role"] = user[3]
 
-            if must_change_password(
-                user[1]
-            ):
+            if must_change_password(user[1]):
 
                 return redirect(
                     "/change-password"
@@ -357,10 +257,7 @@ def register():
 
             return render_template(
                 "register.html",
-                error=(
-                    "Password must be at least "
-                    "8 characters."
-                )
+                error="Password must be at least 8 characters."
             )
 
         try:
@@ -417,9 +314,7 @@ def change_password_route():
 
     if not logged_in():
 
-        return redirect(
-            "/login"
-        )
+        return redirect("/login")
 
     if request.method == "POST":
 
@@ -437,10 +332,7 @@ def change_password_route():
 
             return render_template(
                 "change_password.html",
-                error=(
-                    "Password must be at least "
-                    "8 characters."
-                )
+                error="Password must be at least 8 characters."
             )
 
         if new_password != confirm:
@@ -473,6 +365,7 @@ def change_password_route():
 
 # =========================================================
 # USERS
+# MAIN ADMIN ONLY
 # =========================================================
 
 @app.route("/users")
@@ -480,11 +373,9 @@ def users():
 
     if not is_main_admin():
 
-        return redirect(
-            "/dashboard"
-        )
+        return redirect("/dashboard")
 
-    users = get_all_users()
+    all_users = get_all_users()
 
     search = request.args.get(
         "search",
@@ -498,7 +389,7 @@ def users():
 
     filtered_users = []
 
-    for user in users:
+    for user in all_users:
 
         username = str(
             user[1] or ""
@@ -532,9 +423,7 @@ def users():
         ):
             continue
 
-        filtered_users.append(
-            user
-        )
+        filtered_users.append(user)
 
     return render_template(
         "users.html",
@@ -559,9 +448,7 @@ def reset_password(user_id):
 
     if not is_main_admin():
 
-        return redirect(
-            "/dashboard"
-        )
+        return redirect("/dashboard")
 
     alphabet = (
         string.ascii_letters
@@ -616,9 +503,7 @@ def change_user_password(user_id):
 
     if not is_main_admin():
 
-        return redirect(
-            "/dashboard"
-        )
+        return redirect("/dashboard")
 
     new_password = request.form.get(
         "new_password",
@@ -635,10 +520,7 @@ def change_user_password(user_id):
         return render_template(
             "users.html",
             users=get_all_users(),
-            error=(
-                "Password must be at least "
-                "8 characters."
-            )
+            error="Password must be at least 8 characters."
         )
 
     if new_password != confirm_password:
@@ -670,17 +552,14 @@ def change_user_password(user_id):
         return render_template(
             "users.html",
             users=get_all_users(),
-            error=(
-                "User not found or inactive."
-            )
+            error="User not found or inactive."
         )
 
     return render_template(
         "users.html",
         users=get_all_users(),
         success=(
-            f"Password permanently changed "
-            f"for {result}."
+            f"Password permanently changed for {result}."
         )
     )
 
@@ -694,9 +573,7 @@ def dashboard():
 
     if not logged_in():
 
-        return redirect(
-            "/login"
-        )
+        return redirect("/login")
 
     stats = None
 
@@ -727,9 +604,7 @@ def apply_admin():
         or session.get("role") != "student"
     ):
 
-        return redirect(
-            "/login"
-        )
+        return redirect("/login")
 
     if request.method == "POST":
 
@@ -755,9 +630,7 @@ def apply_admin():
 
         return render_template(
             "apply_admin.html",
-            message=(
-                "Application sent to Main Admin."
-            )
+            message="Application sent to Main Admin."
         )
 
     return render_template(
@@ -774,9 +647,7 @@ def admin_applications():
 
     if not is_main_admin():
 
-        return redirect(
-            "/dashboard"
-        )
+        return redirect("/dashboard")
 
     return render_template(
         "admin_applications.html",
@@ -787,15 +658,11 @@ def admin_applications():
 @app.route(
     "/approve-admin/<int:application_id>"
 )
-def approve_admin_route(
-    application_id
-):
+def approve_admin_route(application_id):
 
     if not is_main_admin():
 
-        return redirect(
-            "/dashboard"
-        )
+        return redirect("/dashboard")
 
     approve_admin(
         application_id
@@ -809,15 +676,11 @@ def approve_admin_route(
 @app.route(
     "/reject-admin/<int:application_id>"
 )
-def reject_admin_route(
-    application_id
-):
+def reject_admin_route(application_id):
 
     if not is_main_admin():
 
-        return redirect(
-            "/dashboard"
-        )
+        return redirect("/dashboard")
 
     reject_admin(
         application_id
@@ -829,7 +692,7 @@ def reject_admin_route(
 
 
 # =========================================================
-# SUBMIT REPORT + MULTIPLE PHOTOS
+# SUBMIT REPORT
 # =========================================================
 
 @app.route(
@@ -843,9 +706,7 @@ def submit_report():
         or session.get("role") != "student"
     ):
 
-        return redirect(
-            "/login"
-        )
+        return redirect("/login")
 
     category = request.form.get(
         "category",
@@ -879,9 +740,7 @@ def submit_report():
         if not photo or not photo.filename:
             continue
 
-        if not allowed_file(
-            photo.filename
-        ):
+        if not allowed_file(photo.filename):
 
             return render_template(
                 "dashboard.html",
@@ -911,10 +770,7 @@ def submit_report():
                 if is_main_admin()
                 else None
             ),
-            error=(
-                "You can attach a maximum "
-                "of 5 photos."
-            )
+            error="You can attach a maximum of 5 photos."
         )
 
     report_id = save_report(
@@ -930,33 +786,37 @@ def submit_report():
             "dashboard.html",
             username=session["username"],
             role=session["role"],
-            stats=(
-                get_report_stats()
-                if is_main_admin()
-                else None
-            ),
+            stats=None,
             error="Unable to create the report."
         )
 
     for photo in valid_photos:
 
-        public_url = upload_photo_to_supabase(
-            photo,
-            report_id
+        original_name = secure_filename(
+            photo.filename
         )
 
-        if not public_url:
+        _, extension = os.path.splitext(
+            original_name
+        )
 
-            app.logger.error(
-                "Photo upload failed for report %s",
-                report_id
-            )
+        photo_name = (
+            secrets.token_hex(16)
+            + extension.lower()
+        )
 
-            continue
+        photo_path = os.path.join(
+            app.config["UPLOAD_FOLDER"],
+            photo_name
+        )
+
+        photo.save(
+            photo_path
+        )
 
         add_report_photo(
             report_id,
-            public_url
+            photo_name
         )
 
     return redirect(
@@ -965,41 +825,9 @@ def submit_report():
 
 
 # =========================================================
-# ALL REPORTS
-# =========================================================
-#
-# Students, Admins and Main Admins can all VIEW
-# every report.
-#
-# This is intentionally the ONLY /reports route.
-# =========================================================
-
-@app.route("/reports")
-def reports():
-
-    if not logged_in():
-
-        return redirect(
-            "/login"
-        )
-
-    all_reports = get_all_reports()
-
-    return render_template(
-        "reports.html",
-        reports=all_reports,
-        role=session["role"],
-        username=session["username"]
-    )
-
-
-# =========================================================
 # MY REPORTS
-# =========================================================
 #
-# This route remains available for students.
-# Admins and Main Admins should not be shown an
-# "Own Reports" button by the templates.
+# STUDENTS ONLY SEE THEIR OWN REPORTS
 # =========================================================
 
 @app.route("/my-reports")
@@ -1007,45 +835,59 @@ def my_reports():
 
     if not logged_in():
 
-        return redirect(
-            "/login"
+        return redirect("/login")
+
+    # Students get ONLY their own reports.
+    #
+    # Admins do not need this page because they use
+    # /reports for all reports.
+
+    if session.get("role") == "student":
+
+        reports = get_user_reports(
+            session["username"]
         )
 
-    # Admins do not need an Own Reports page.
-    # Send them to the complete reports page.
-    if is_admin():
+    else:
 
-        return redirect(
-            "/reports"
-        )
-
-    user_reports = get_user_reports(
-        session["username"]
-    )
+        reports = get_all_reports()
 
     return render_template(
         "my_reports.html",
-        reports=user_reports,
+        reports=reports,
+        role=session["role"]
+    )
+
+
+# =========================================================
+# ALL REPORTS
+#
+# ADMIN + MAIN ADMIN ONLY
+# =========================================================
+
+@app.route("/reports")
+def reports():
+
+    # IMPORTANT:
+    # Students are NOT allowed here.
+
+    if not is_admin():
+
+        return redirect("/dashboard")
+
+    reports = get_all_reports()
+
+    return render_template(
+        "reports.html",
+        reports=reports,
         role=session["role"]
     )
 
 
 # =========================================================
 # REPORT DETAIL
-# =========================================================
 #
-# EVERY logged-in user can open EVERY report.
-#
-# Students:
-#   - Can view every report
-#   - Can view the report conversation
-#   - Can reply only to their own report
-#
-# Admin/Main Admin:
-#   - Can view every report
-#   - Can reply
-#   - Can update report status
-#   - Can mark reports unreasonable
+# STUDENTS CAN ONLY OPEN THEIR OWN REPORT
 # =========================================================
 
 @app.route(
@@ -1055,9 +897,7 @@ def report_detail(report_id):
 
     if not logged_in():
 
-        return redirect(
-            "/login"
-        )
+        return redirect("/login")
 
     report = get_report(
         report_id
@@ -1065,9 +905,25 @@ def report_detail(report_id):
 
     if not report:
 
-        return redirect(
-            "/reports"
-        )
+        return redirect("/dashboard")
+
+    # -----------------------------------------------------
+    # SECURITY CHECK
+    # -----------------------------------------------------
+    #
+    # A student cannot access another student's report
+    # even if they manually type:
+    #
+    # /report/123
+    #
+    # in the browser.
+    # -----------------------------------------------------
+
+    if session.get("role") == "student":
+
+        if report[1] != session["username"]:
+
+            return redirect("/my-reports")
 
     photos = get_report_photos(
         report_id
@@ -1099,9 +955,7 @@ def report_message(report_id):
 
     if not logged_in():
 
-        return redirect(
-            "/login"
-        )
+        return redirect("/login")
 
     report = get_report(
         report_id
@@ -1109,44 +963,29 @@ def report_message(report_id):
 
     if not report:
 
-        return redirect(
-            "/reports"
-        )
+        return redirect("/dashboard")
 
-    # Students may VIEW every report,
-    # but may only reply to their own report.
-    if (
-        session.get("role") == "student"
-        and report[1] != session["username"]
-    ):
+    # Students can only message on their own reports.
 
-        return redirect(
-            f"/report/{report_id}"
-        )
+    if session.get("role") == "student":
+
+        if report[1] != session["username"]:
+
+            return redirect("/my-reports")
 
     message = request.form.get(
         "message",
         ""
     ).strip()
 
-    if not message:
+    if message:
 
-        return redirect(
-            f"/report/{report_id}"
+        add_report_message(
+            report_id,
+            session["username"],
+            session["role"],
+            message
         )
-
-    if len(message) > 2000:
-
-        return redirect(
-            f"/report/{report_id}"
-        )
-
-    add_report_message(
-        report_id,
-        session["username"],
-        session["role"],
-        message
-    )
 
     return redirect(
         f"/report/{report_id}"
@@ -1165,9 +1004,7 @@ def update_report(report_id):
 
     if not is_admin():
 
-        return redirect(
-            "/dashboard"
-        )
+        return redirect("/dashboard")
 
     status = request.form.get(
         "status",
@@ -1212,9 +1049,7 @@ def unreasonable(report_id):
 
     if not is_admin():
 
-        return redirect(
-            "/dashboard"
-        )
+        return redirect("/dashboard")
 
     update_report_status(
         report_id,
@@ -1236,9 +1071,7 @@ def unreasonable_reports():
 
     if not is_main_admin():
 
-        return redirect(
-            "/dashboard"
-        )
+        return redirect("/dashboard")
 
     return render_template(
         "unreasonable_reports.html",
@@ -1257,9 +1090,7 @@ def delete_report_route(report_id):
 
     if not is_main_admin():
 
-        return redirect(
-            "/dashboard"
-        )
+        return redirect("/dashboard")
 
     delete_report(
         report_id
@@ -1273,38 +1104,45 @@ def delete_report_route(report_id):
 # =========================================================
 # MAIN ADMIN CHECK
 # =========================================================
-#
-# This route only shows Main Admin usernames and status.
-# It NEVER exposes passwords.
-#
-# Existing Main Admin passwords are managed by
-# database.py and are not overwritten by init_db().
-# =========================================================
 
 @app.route("/check-main-admins")
 def check_main_admins():
 
+    # This route intentionally DOES NOT expose passwords.
+
     if not is_main_admin():
 
-        return redirect(
-            "/login"
-        )
+        return redirect("/dashboard")
 
-    users = get_all_users()
+    from database import connect
+
+    conn = connect()
+
+    rows = conn.execute("""
+        SELECT
+            id,
+            username,
+            role,
+            active,
+            must_change_password
+        FROM users
+        WHERE role='main_admin'
+        ORDER BY id ASC
+    """).fetchall()
+
+    conn.close()
 
     accounts = []
 
-    for user in users:
+    for row in rows:
 
-        if user[3] == "main_admin":
-
-            accounts.append({
-                "id": user[0],
-                "username": user[1],
-                "role": user[3],
-                "active": bool(user[4]),
-                "must_change_password": bool(user[5])
-            })
+        accounts.append({
+            "id": row[0],
+            "username": row[1],
+            "role": row[2],
+            "active": bool(row[3]),
+            "must_change_password": bool(row[4])
+        })
 
     return {
         "main_admin_count": len(accounts),
@@ -1319,5 +1157,12 @@ def check_main_admins():
 if __name__ == "__main__":
 
     app.run(
-        debug=True
+        host="0.0.0.0",
+        port=int(
+            os.environ.get(
+                "PORT",
+                5000
+            )
+        ),
+        debug=False
     )
