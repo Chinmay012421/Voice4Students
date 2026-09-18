@@ -11,6 +11,7 @@ from flask import (
 )
 
 from werkzeug.utils import secure_filename
+from supabase import create_client
 
 from database import (
     init_db,
@@ -53,19 +54,33 @@ app.secret_key = os.environ.get(
 
 
 # =========================================================
-# UPLOAD SETTINGS
+# SUPABASE STORAGE
 # =========================================================
 
-UPLOAD_FOLDER = os.path.join(
-    app.root_path,
-    "static",
-    "uploads"
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_SERVICE_KEY = os.environ.get("SUPABASE_SERVICE_KEY")
+
+if not SUPABASE_URL:
+    raise RuntimeError(
+        "SUPABASE_URL environment variable is missing."
+    )
+
+if not SUPABASE_SERVICE_KEY:
+    raise RuntimeError(
+        "SUPABASE_SERVICE_KEY environment variable is missing."
+    )
+
+supabase = create_client(
+    SUPABASE_URL,
+    SUPABASE_SERVICE_KEY
 )
 
-os.makedirs(
-    UPLOAD_FOLDER,
-    exist_ok=True
-)
+PHOTO_BUCKET = "report-photos"
+
+
+# =========================================================
+# UPLOAD SETTINGS
+# =========================================================
 
 ALLOWED_EXTENSIONS = {
     "png",
@@ -76,11 +91,7 @@ ALLOWED_EXTENSIONS = {
 
 MAX_PHOTOS_PER_REPORT = 5
 
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-
-app.config["MAX_CONTENT_LENGTH"] = (
-    20 * 1024 * 1024
-)
+app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024
 
 
 # =========================================================
@@ -115,11 +126,6 @@ def is_admin():
     )
 
 
-def is_student():
-
-    return session.get("role") == "student"
-
-
 # =========================================================
 # FILE HELPERS
 # =========================================================
@@ -138,6 +144,78 @@ def allowed_file(filename):
     )[1].lower()
 
     return extension in ALLOWED_EXTENSIONS
+
+
+def upload_photo_to_supabase(
+    photo,
+    report_id
+):
+
+    if not photo or not photo.filename:
+        return None
+
+    original_name = secure_filename(
+        photo.filename
+    )
+
+    if not original_name:
+        return None
+
+    _, extension = os.path.splitext(
+        original_name
+    )
+
+    extension = extension.lower()
+
+    photo_name = (
+        secrets.token_hex(16)
+        + extension
+    )
+
+    storage_path = (
+        f"reports/{report_id}/{photo_name}"
+    )
+
+    try:
+
+        photo_bytes = photo.read()
+
+        if not photo_bytes:
+            return None
+
+        content_type = (
+            photo.mimetype
+            or "application/octet-stream"
+        )
+
+        supabase.storage.from_(
+            PHOTO_BUCKET
+        ).upload(
+            storage_path,
+            photo_bytes,
+            {
+                "content-type": content_type,
+                "upsert": False
+            }
+        )
+
+        public_url = (
+            supabase
+            .storage
+            .from_(PHOTO_BUCKET)
+            .get_public_url(storage_path)
+        )
+
+        return public_url
+
+    except Exception as e:
+
+        app.logger.exception(
+            "Supabase photo upload failed: %s",
+            e
+        )
+
+        return None
 
 
 # =========================================================
@@ -199,11 +277,11 @@ def login():
 
             session.clear()
 
-            # Database layout:
+            # Database tuple:
             #
             # 0 = id
             # 1 = username
-            # 2 = password hash
+            # 2 = password
             # 3 = role
             # 4 = active
             # 5 = must_change_password
@@ -226,10 +304,7 @@ def login():
 
         return render_template(
             "login.html",
-            error=(
-                "Invalid username "
-                "or password."
-            )
+            error="Invalid username or password."
         )
 
     return render_template(
@@ -275,9 +350,7 @@ def register():
 
             return render_template(
                 "register.html",
-                error=(
-                    "Please fill all fields."
-                )
+                error="Please fill all fields."
             )
 
         if len(password) < 8:
@@ -302,9 +375,7 @@ def register():
 
                 return render_template(
                     "register.html",
-                    error=(
-                        "Username already exists."
-                    )
+                    error="Username already exists."
                 )
 
             return render_template(
@@ -346,7 +417,9 @@ def change_password_route():
 
     if not logged_in():
 
-        return redirect("/login")
+        return redirect(
+            "/login"
+        )
 
     if request.method == "POST":
 
@@ -374,9 +447,7 @@ def change_password_route():
 
             return render_template(
                 "change_password.html",
-                error=(
-                    "Passwords do not match."
-                )
+                error="Passwords do not match."
             )
 
         success = change_password(
@@ -388,9 +459,7 @@ def change_password_route():
 
             return render_template(
                 "change_password.html",
-                error=(
-                    "Unable to change password."
-                )
+                error="Unable to change password."
             )
 
         return redirect(
@@ -404,12 +473,6 @@ def change_password_route():
 
 # =========================================================
 # USERS
-# =========================================================
-#
-# MAIN ADMIN ONLY
-#
-# Normal Admins cannot access user management.
-# Main Admin accounts remain protected by database.py.
 # =========================================================
 
 @app.route("/users")
@@ -437,16 +500,6 @@ def users():
 
     for user in users:
 
-        # Database layout:
-        #
-        # 0 = id
-        # 1 = username
-        # 2 = password hash
-        # 3 = role
-        # 4 = active
-        # 5 = must_change_password
-        # 6 = registered_at
-
         username = str(
             user[1] or ""
         ).lower()
@@ -455,10 +508,7 @@ def users():
             user[3] or ""
         )
 
-        if (
-            search
-            and search not in username
-        ):
+        if search and search not in username:
             continue
 
         if (
@@ -596,9 +646,7 @@ def change_user_password(user_id):
         return render_template(
             "users.html",
             users=get_all_users(),
-            error=(
-                "Passwords do not match."
-            )
+            error="Passwords do not match."
         )
 
     result = set_permanent_password(
@@ -631,7 +679,7 @@ def change_user_password(user_id):
         "users.html",
         users=get_all_users(),
         success=(
-            "Password permanently changed "
+            f"Password permanently changed "
             f"for {result}."
         )
     )
@@ -652,7 +700,6 @@ def dashboard():
 
     stats = None
 
-    # Statistics are available to Main Admin.
     if is_main_admin():
 
         stats = get_report_stats()
@@ -829,10 +876,7 @@ def submit_report():
 
     for photo in photos:
 
-        if (
-            not photo
-            or not photo.filename
-        ):
+        if not photo or not photo.filename:
             continue
 
         if not allowed_file(
@@ -854,14 +898,9 @@ def submit_report():
                 )
             )
 
-        valid_photos.append(
-            photo
-        )
+        valid_photos.append(photo)
 
-    if (
-        len(valid_photos)
-        > MAX_PHOTOS_PER_REPORT
-    ):
+    if len(valid_photos) > MAX_PHOTOS_PER_REPORT:
 
         return render_template(
             "dashboard.html",
@@ -878,7 +917,6 @@ def submit_report():
             )
         )
 
-    # Create report first.
     report_id = save_report(
         session["username"],
         category,
@@ -892,44 +930,29 @@ def submit_report():
             "dashboard.html",
             username=session["username"],
             role=session["role"],
-            stats=(
-                get_report_stats()
-                if is_main_admin()
-                else None
-            ),
-            error=(
-                "Unable to create the report."
-            )
+            stats=None,
+            error="Unable to create the report."
         )
 
-    # Save uploaded photos.
     for photo in valid_photos:
 
-        original_name = secure_filename(
-            photo.filename
+        public_url = upload_photo_to_supabase(
+            photo,
+            report_id
         )
 
-        _, extension = os.path.splitext(
-            original_name
-        )
+        if not public_url:
 
-        photo_name = (
-            secrets.token_hex(16)
-            + extension.lower()
-        )
+            app.logger.error(
+                "Photo upload failed for report %s",
+                report_id
+            )
 
-        photo_path = os.path.join(
-            app.config["UPLOAD_FOLDER"],
-            photo_name
-        )
-
-        photo.save(
-            photo_path
-        )
+            continue
 
         add_report_photo(
             report_id,
-            photo_name
+            public_url
         )
 
     return redirect(
@@ -940,13 +963,6 @@ def submit_report():
 # =========================================================
 # MY REPORTS
 # =========================================================
-#
-# IMPORTANT:
-#
-# ONLY STUDENTS have "My Reports".
-#
-# Admin and Main Admin are redirected to ALL REPORTS.
-# =========================================================
 
 @app.route("/my-reports")
 def my_reports():
@@ -955,13 +971,6 @@ def my_reports():
 
         return redirect(
             "/login"
-        )
-
-    # Admins do NOT have My Reports.
-    if session.get("role") != "student":
-
-        return redirect(
-            "/reports"
         )
 
     reports = get_user_reports(
@@ -979,14 +988,10 @@ def my_reports():
 # ALL REPORTS
 # =========================================================
 #
-# STUDENTS:
-#   Can see every report.
+# Students can now see ALL reports.
 #
-# ADMINS:
-#   Can see every report.
-#
-# MAIN ADMINS:
-#   Can see every report.
+# Admin/Main Admin can also see ALL reports.
+# Only logged-in users can access this page.
 # =========================================================
 
 @app.route("/reports")
@@ -1012,14 +1017,11 @@ def reports():
 # REPORT DETAIL
 # =========================================================
 #
-# IMPORTANT CHANGE:
+# EVERY logged-in user can open EVERY report.
 #
-# Students are now allowed to OPEN ANY report.
-#
-# There is NO ownership restriction here.
-#
-# The ownership restriction is still applied to
-# student conversation replies below.
+# Students cannot edit report status.
+# Students cannot post messages on somebody else's report.
+# Admin/Main Admin can manage reports.
 # =========================================================
 
 @app.route(
@@ -1064,13 +1066,6 @@ def report_detail(report_id):
 # =========================================================
 # REPORT CONVERSATION
 # =========================================================
-#
-# Students:
-#   Can reply ONLY to their own report.
-#
-# Admin/Main Admin:
-#   Can reply to any report.
-# =========================================================
 
 @app.route(
     "/report/<int:report_id>/message",
@@ -1094,8 +1089,8 @@ def report_message(report_id):
             "/reports"
         )
 
-    # Students can view every report,
-    # but can only send messages on their own.
+    # Students may only reply to their own reports.
+    # They can still VIEW every report.
     if (
         session.get("role") == "student"
         and report[1] != session["username"]
@@ -1126,9 +1121,6 @@ def report_message(report_id):
 
 # =========================================================
 # UPDATE REPORT
-# =========================================================
-#
-# ADMIN + MAIN ADMIN ONLY
 # =========================================================
 
 @app.route(
@@ -1178,9 +1170,6 @@ def update_report(report_id):
 # =========================================================
 # MARK UNREASONABLE
 # =========================================================
-#
-# ADMIN + MAIN ADMIN ONLY
-# =========================================================
 
 @app.route(
     "/unreasonable/<int:report_id>"
@@ -1207,13 +1196,8 @@ def unreasonable(report_id):
 # =========================================================
 # UNREASONABLE REPORTS
 # =========================================================
-#
-# MAIN ADMIN ONLY
-# =========================================================
 
-@app.route(
-    "/unreasonable-reports"
-)
+@app.route("/unreasonable-reports")
 def unreasonable_reports():
 
     if not is_main_admin():
@@ -1230,9 +1214,6 @@ def unreasonable_reports():
 
 # =========================================================
 # DELETE REPORT
-# =========================================================
-#
-# MAIN ADMIN ONLY
 # =========================================================
 
 @app.route(
@@ -1258,93 +1239,36 @@ def delete_report_route(report_id):
 # =========================================================
 # MAIN ADMIN CHECK
 # =========================================================
-#
-# This route DOES NOT show passwords.
-#
-# It only confirms which Main Admin accounts exist.
-#
-# Existing Main Admin passwords are never changed
-# by this route.
-#
-# You can remove this route later if you don't need it.
-# =========================================================
 
-@app.route(
-    "/check-main-admins"
-)
+@app.route("/check-main-admins")
 def check_main_admins():
 
-    # Only Main Admin should be able to inspect
-    # the Main Admin account list.
     if not is_main_admin():
 
         return redirect(
             "/login"
         )
 
-    from database import connect
-
-    conn = connect()
-
-    rows = conn.execute("""
-        SELECT
-            id,
-            username,
-            role,
-            active,
-            must_change_password
-        FROM users
-        WHERE role='main_admin'
-        ORDER BY id ASC
-    """).fetchall()
-
-    conn.close()
+    users = get_all_users()
 
     accounts = []
 
-    for row in rows:
+    for user in users:
 
-        accounts.append({
-            "id": row[0],
-            "username": row[1],
-            "role": row[2],
-            "active": bool(row[3]),
-            "must_change_password": bool(row[4])
-        })
+        if user[3] == "main_admin":
+
+            accounts.append({
+                "id": user[0],
+                "username": user[1],
+                "role": user[3],
+                "active": bool(user[4]),
+                "must_change_password": bool(user[5])
+            })
 
     return {
         "main_admin_count": len(accounts),
         "accounts": accounts
     }
-
-
-# =========================================================
-# ERROR HANDLERS
-# =========================================================
-
-@app.errorhandler(413)
-def file_too_large(error):
-
-    if logged_in():
-
-        return render_template(
-            "dashboard.html",
-            username=session["username"],
-            role=session["role"],
-            stats=(
-                get_report_stats()
-                if is_main_admin()
-                else None
-            ),
-            error=(
-                "Uploaded files are too large. "
-                "Maximum total upload size is 20 MB."
-            )
-        ), 413
-
-    return redirect(
-        "/login"
-    )
 
 
 # =========================================================
