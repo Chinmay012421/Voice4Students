@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-All School Reports — SchoolVoice
+All Reports — SchoolVoice
 {% endblock %}
 
 {% block content %}
@@ -9,7 +9,10 @@ All School Reports — SchoolVoice
 <div class="reports-page">
 
 
-    <!-- HEADER -->
+    <!-- =========================
+         HEADER
+    ========================== -->
+
     <div class="page-header">
 
         <div>
@@ -19,11 +22,11 @@ All School Reports — SchoolVoice
             </p>
 
             <h1>
-                All School Reports
+                All Reports
             </h1>
 
             <p class="muted">
-                Reports submitted by students across the school.
+                Review reports submitted by students.
             </p>
 
         </div>
@@ -31,22 +34,28 @@ All School Reports — SchoolVoice
 
         <div>
 
-            <span class="tag">
+            {% if role == "main_admin" %}
 
-                {% if role == "main_admin" %}
+                <span class="tag">
                     Main Admin
-                {% elif role == "admin" %}
-                    Admin
-                {% else %}
-                    Student
-                {% endif %}
+                </span>
 
-            </span>
+            {% elif role == "admin" %}
+
+                <span class="tag">
+                    Admin
+                </span>
+
+            {% endif %}
 
         </div>
 
     </div>
 
+
+    <!-- =========================
+         REPORT LIST
+    ========================== -->
 
     {% if reports %}
 
@@ -58,6 +67,8 @@ All School Reports — SchoolVoice
             href="/report/{{ report[0] }}"
             class="report-card"
         >
+
+            <!-- TOP -->
 
             <div class="report-card-top">
 
@@ -75,21 +86,31 @@ All School Reports — SchoolVoice
             </div>
 
 
+            <!-- TITLE -->
+
             <h2>
                 {{ report[4] }}
             </h2>
 
 
+            <!-- DESCRIPTION -->
+
             <p class="report-preview">
 
                 {% if report[4]|length > 180 %}
+
                     {{ report[4][:180] }}...
+
                 {% else %}
+
                     {{ report[4] }}
+
                 {% endif %}
 
             </p>
 
+
+            <!-- META -->
 
             <div class="report-card-meta">
 
@@ -114,11 +135,15 @@ All School Reports — SchoolVoice
             </div>
 
 
+            <!-- FOOTER -->
+
             <div class="report-card-footer">
 
                 <span>
                     Submitted by:
-                    <strong>{{ report[1] }}</strong>
+                    <strong>
+                        {{ report[1] }}
+                    </strong>
                 </span>
 
 
@@ -135,6 +160,10 @@ All School Reports — SchoolVoice
     </div>
 
 
+    <!-- =========================
+         NO REPORTS
+    ========================== -->
+
     {% else %}
 
     <div class="panel empty-state">
@@ -143,25 +172,16 @@ All School Reports — SchoolVoice
             📋
         </div>
 
+
         <h2>
-            No reports yet
+            No Reports Yet
         </h2>
+
 
         <p class="muted">
             There are currently no reports to display.
         </p>
 
-
-        {% if role == "student" %}
-
-        <a
-            href="/dashboard"
-            class="btn primary"
-        >
-            Submit a Report
-        </a>
-
-        {% else %}
 
         <a
             href="/dashboard"
@@ -170,12 +190,9 @@ All School Reports — SchoolVoice
             Back to Dashboard
         </a>
 
-        {% endif %}
-
     </div>
 
     {% endif %}
-
 
 </div>
 
