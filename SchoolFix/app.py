@@ -54,6 +54,28 @@ app.secret_key = os.environ.get(
 
 
 # =========================================================
+# DATABASE CONNECTION
+# =========================================================
+
+DATABASE = os.path.join(
+    app.root_path,
+    "schoolfix.db"
+)
+
+
+def connect():
+    """
+    Create a SQLite database connection.
+
+    This function is used by routes that need direct
+    database access, such as deleting users.
+    """
+    conn = sqlite3.connect(DATABASE)
+
+    return conn
+
+
+# =========================================================
 # UPLOAD SETTINGS
 # =========================================================
 
@@ -85,7 +107,7 @@ app.config["MAX_CONTENT_LENGTH"] = (
 
 
 # =========================================================
-# DATABASE
+# DATABASE INITIALIZATION
 # =========================================================
 
 init_db()
@@ -96,20 +118,14 @@ init_db()
 # =========================================================
 
 def logged_in():
-
     return "username" in session
 
 
 def is_main_admin():
-
-    return (
-        session.get("role")
-        == "main_admin"
-    )
+    return session.get("role") == "main_admin"
 
 
 def is_admin():
-
     return session.get("role") in (
         "admin",
         "main_admin"
@@ -134,6 +150,57 @@ def allowed_file(filename):
     )[1].lower()
 
     return extension in ALLOWED_EXTENSIONS
+
+
+def delete_report_files(report_id):
+    """
+    Delete all physical photo files belonging to a report.
+    """
+
+    try:
+        photos = get_report_photos(report_id)
+
+    except Exception:
+
+        app.logger.exception(
+            "Unable to get report photos."
+        )
+
+        return
+
+    for photo in photos:
+
+        try:
+
+            # report_photos structure:
+            # id, report_id, filename, uploaded_at
+
+            filename = photo[2]
+
+        except (IndexError, TypeError):
+
+            continue
+
+        if not filename:
+            continue
+
+        file_path = os.path.join(
+            app.config["UPLOAD_FOLDER"],
+            filename
+        )
+
+        try:
+
+            if os.path.isfile(file_path):
+
+                os.remove(file_path)
+
+        except OSError:
+
+            app.logger.warning(
+                "Could not delete photo file: %s",
+                file_path
+            )
 
 
 # =========================================================
@@ -254,6 +321,12 @@ def logout():
 )
 def register():
 
+    if logged_in():
+
+        return redirect(
+            "/dashboard"
+        )
+
     if request.method == "POST":
 
         username = request.form.get(
@@ -272,6 +345,16 @@ def register():
                 "register.html",
                 error=(
                     "Please fill all fields."
+                )
+            )
+
+        if len(username) < 3:
+
+            return render_template(
+                "register.html",
+                error=(
+                    "Username must be at least "
+                    "3 characters."
                 )
             )
 
@@ -410,7 +493,7 @@ def users():
             "/dashboard"
         )
 
-    users = get_all_users()
+    all_users = get_all_users()
 
     search = request.args.get(
         "search",
@@ -424,7 +507,7 @@ def users():
 
     filtered_users = []
 
-    for user in users:
+    for user in all_users:
 
         username = str(
             user[1] or ""
@@ -480,20 +563,6 @@ def users():
 # =========================================================
 # DELETE USER
 # =========================================================
-#
-# ONLY MAIN ADMIN CAN DO THIS.
-#
-# Main Admin accounts can NEVER be deleted.
-#
-# When a student/admin is deleted:
-# - their reports are deleted
-# - report messages are deleted
-# - report photos are deleted
-# - their account is deleted
-# - related admin applications are deleted
-#
-# Uploaded image files are also removed.
-# =========================================================
 
 @app.route(
     "/delete-user/<int:user_id>",
@@ -511,31 +580,31 @@ def delete_user_route(user_id):
 
     try:
 
-        # Find the user first.
-        user = conn.execute("""
+        user = conn.execute(
+            """
             SELECT
                 id,
                 username,
                 role
             FROM users
             WHERE id=?
-        """, (
-            user_id,
-        )).fetchone()
+            """,
+            (user_id,)
+        ).fetchone()
 
         if not user:
 
-            return redirect(
-                "/users"
+            return render_template(
+                "users.html",
+                users=get_all_users(),
+                error="User not found."
             )
 
         username = user[1]
         role = user[2]
 
-        # NEVER allow a Main Admin to be deleted.
+        # Main Admin accounts can NEVER be deleted.
         if role == "main_admin":
-
-            conn.close()
 
             return render_template(
                 "users.html",
@@ -546,119 +615,112 @@ def delete_user_route(user_id):
                 )
             )
 
-        # -------------------------------------------------
-        # Find reports belonging to this user.
-        # -------------------------------------------------
-
-        report_rows = conn.execute("""
+        # Find all reports belonging to this user.
+        report_rows = conn.execute(
+            """
             SELECT id
             FROM reports
             WHERE username=?
-        """, (
-            username,
-        )).fetchall()
+            """,
+            (username,)
+        ).fetchall()
 
         report_ids = [
             row[0]
             for row in report_rows
         ]
 
-        # -------------------------------------------------
-        # Delete report photos and files.
-        # -------------------------------------------------
-
+        # Delete physical photo files.
         for report_id in report_ids:
 
-            photo_rows = conn.execute("""
-                SELECT filename
-                FROM report_photos
-                WHERE report_id=?
-            """, (
-                report_id,
-            )).fetchall()
+            try:
 
-            for photo_row in photo_rows:
+                photo_rows = conn.execute(
+                    """
+                    SELECT filename
+                    FROM report_photos
+                    WHERE report_id=?
+                    """,
+                    (report_id,)
+                ).fetchall()
 
-                filename = photo_row[0]
+                for photo_row in photo_rows:
 
-                if not filename:
-                    continue
+                    filename = photo_row[0]
 
-                file_path = os.path.join(
-                    app.config["UPLOAD_FOLDER"],
-                    filename
-                )
+                    if not filename:
+                        continue
 
-                try:
+                    file_path = os.path.join(
+                        app.config["UPLOAD_FOLDER"],
+                        filename
+                    )
 
-                    if os.path.isfile(
-                        file_path
-                    ):
+                    try:
 
-                        os.remove(
+                        if os.path.isfile(file_path):
+
+                            os.remove(file_path)
+
+                    except OSError:
+
+                        app.logger.warning(
+                            "Could not delete file: %s",
                             file_path
                         )
 
-                except OSError:
+            except Exception:
 
-                    app.logger.warning(
-                        "Could not delete file: %s",
-                        file_path
-                    )
+                app.logger.exception(
+                    "Error deleting report files."
+                )
 
-        # -------------------------------------------------
         # Delete report messages.
-        # -------------------------------------------------
-
         for report_id in report_ids:
 
-            conn.execute("""
+            conn.execute(
+                """
                 DELETE FROM report_messages
                 WHERE report_id=?
-            """, (
-                report_id,
-            ))
+                """,
+                (report_id,)
+            )
 
-            conn.execute("""
+            conn.execute(
+                """
                 DELETE FROM report_photos
                 WHERE report_id=?
-            """, (
-                report_id,
-            ))
+                """,
+                (report_id,)
+            )
 
-        # -------------------------------------------------
         # Delete reports.
-        # -------------------------------------------------
-
-        conn.execute("""
+        conn.execute(
+            """
             DELETE FROM reports
             WHERE username=?
-        """, (
-            username,
-        ))
+            """,
+            (username,)
+        )
 
-        # -------------------------------------------------
-        # Delete admin applications belonging to user.
-        # -------------------------------------------------
-
-        conn.execute("""
+        # Delete admin applications.
+        conn.execute(
+            """
             DELETE FROM admin_applications
             WHERE username=?
-        """, (
-            username,
-        ))
+            """,
+            (username,)
+        )
 
-        # -------------------------------------------------
-        # Finally delete the user.
-        # -------------------------------------------------
-
-        conn.execute("""
+        # Finally delete the account.
+        conn.execute(
+            """
             DELETE FROM users
             WHERE id=?
-              AND role!='main_admin'
-        """, (
-            user_id,
-        ))
+            AND role!='main_admin'
+            """,
+            (user_id,)
+        )
 
         conn.commit()
 
@@ -676,7 +738,7 @@ def delete_user_route(user_id):
         conn.rollback()
 
         app.logger.exception(
-            "Error deleting user"
+            "Error deleting user."
         )
 
         return render_template(
@@ -895,10 +957,25 @@ def apply_admin():
                 )
             )
 
-        save_admin_application(
-            session["username"],
-            reason
-        )
+        try:
+
+            save_admin_application(
+                session["username"],
+                reason
+            )
+
+        except Exception:
+
+            app.logger.exception(
+                "Admin application error."
+            )
+
+            return render_template(
+                "apply_admin.html",
+                error=(
+                    "Unable to send your application."
+                )
+            )
 
         return render_template(
             "apply_admin.html",
@@ -934,9 +1011,7 @@ def admin_applications():
 @app.route(
     "/approve-admin/<int:application_id>"
 )
-def approve_admin_route(
-    application_id
-):
+def approve_admin_route(application_id):
 
     if not is_main_admin():
 
@@ -956,9 +1031,7 @@ def approve_admin_route(
 @app.route(
     "/reject-admin/<int:application_id>"
 )
-def reject_admin_route(
-    application_id
-):
+def reject_admin_route(application_id):
 
     if not is_main_admin():
 
@@ -1009,10 +1082,21 @@ def submit_report():
         ""
     ).strip()
 
+    if not category:
+
+        category = "General"
+
     if not message:
 
-        return redirect(
-            "/dashboard"
+        return render_template(
+            "dashboard.html",
+            username=session["username"],
+            role=session["role"],
+            stats=None,
+            error=(
+                "Please describe the problem "
+                "before submitting."
+            )
         )
 
     photos = request.files.getlist(
@@ -1035,11 +1119,7 @@ def submit_report():
                 "dashboard.html",
                 username=session["username"],
                 role=session["role"],
-                stats=(
-                    get_report_stats()
-                    if is_main_admin()
-                    else None
-                ),
+                stats=None,
                 error=(
                     "Only PNG, JPG, JPEG "
                     "and WEBP images are allowed."
@@ -1056,23 +1136,37 @@ def submit_report():
             "dashboard.html",
             username=session["username"],
             role=session["role"],
-            stats=(
-                get_report_stats()
-                if is_main_admin()
-                else None
-            ),
+            stats=None,
             error=(
                 "You can attach a maximum "
                 "of 5 photos."
             )
         )
 
-    report_id = save_report(
-        session["username"],
-        category,
-        location,
-        message
-    )
+    try:
+
+        report_id = save_report(
+            session["username"],
+            category,
+            location,
+            message
+        )
+
+    except Exception:
+
+        app.logger.exception(
+            "Unable to create report."
+        )
+
+        return render_template(
+            "dashboard.html",
+            username=session["username"],
+            role=session["role"],
+            stats=None,
+            error=(
+                "Unable to create the report."
+            )
+        )
 
     if not report_id:
 
@@ -1086,34 +1180,43 @@ def submit_report():
             )
         )
 
+    # Save photos.
     for photo in valid_photos:
 
-        original_name = secure_filename(
-            photo.filename
-        )
+        try:
 
-        _, extension = os.path.splitext(
-            original_name
-        )
+            original_name = secure_filename(
+                photo.filename
+            )
 
-        photo_name = (
-            secrets.token_hex(16)
-            + extension.lower()
-        )
+            _, extension = os.path.splitext(
+                original_name
+            )
 
-        photo_path = os.path.join(
-            app.config["UPLOAD_FOLDER"],
-            photo_name
-        )
+            photo_name = (
+                secrets.token_hex(16)
+                + extension.lower()
+            )
 
-        photo.save(
-            photo_path
-        )
+            photo_path = os.path.join(
+                app.config["UPLOAD_FOLDER"],
+                photo_name
+            )
 
-        add_report_photo(
-            report_id,
-            photo_name
-        )
+            photo.save(
+                photo_path
+            )
+
+            add_report_photo(
+                report_id,
+                photo_name
+            )
+
+        except Exception:
+
+            app.logger.exception(
+                "Unable to save report photo."
+            )
 
     return redirect(
         f"/report/{report_id}"
@@ -1122,13 +1225,6 @@ def submit_report():
 
 # =========================================================
 # MY REPORTS
-# =========================================================
-#
-# IMPORTANT:
-# This page is available to students.
-# Students ONLY get their own reports.
-#
-# Admins/Main Admins should use /reports.
 # =========================================================
 
 @app.route("/my-reports")
@@ -1140,19 +1236,16 @@ def my_reports():
             "/login"
         )
 
-    # Students see ONLY their own reports.
-    if session.get("role") == "student":
+    # Admins do NOT use Own Reports.
+    if session.get("role") != "student":
 
-        reports = get_user_reports(
-            session["username"]
-        )
-
-    else:
-
-        # Admins don't need this page.
         return redirect(
             "/reports"
         )
+
+    reports = get_user_reports(
+        session["username"]
+    )
 
     return render_template(
         "my_reports.html",
@@ -1163,11 +1256,6 @@ def my_reports():
 
 # =========================================================
 # ALL REPORTS
-# =========================================================
-#
-# ONLY ADMINS AND MAIN ADMINS CAN ACCESS THIS.
-#
-# Students are automatically redirected to dashboard.
 # =========================================================
 
 @app.route("/reports")
@@ -1219,10 +1307,7 @@ def report_detail(report_id):
             "/dashboard"
         )
 
-    # -----------------------------------------------------
-    # STUDENTS CAN ONLY SEE THEIR OWN REPORT.
-    # -----------------------------------------------------
-
+    # Students can ONLY view their own report.
     if session.get("role") == "student":
 
         if report[1] != session["username"]:
@@ -1275,10 +1360,7 @@ def report_message(report_id):
             "/dashboard"
         )
 
-    # -----------------------------------------------------
-    # STUDENTS CAN ONLY MESSAGE ON THEIR OWN REPORTS.
-    # -----------------------------------------------------
-
+    # Students can only message on their own reports.
     if session.get("role") == "student":
 
         if report[1] != session["username"]:
@@ -1294,12 +1376,20 @@ def report_message(report_id):
 
     if message:
 
-        add_report_message(
-            report_id,
-            session["username"],
-            session["role"],
-            message
-        )
+        try:
+
+            add_report_message(
+                report_id,
+                session["username"],
+                session["role"],
+                message
+            )
+
+        except Exception:
+
+            app.logger.exception(
+                "Unable to add report message."
+            )
 
     return redirect(
         f"/report/{report_id}"
@@ -1355,11 +1445,12 @@ def update_report(report_id):
 
 
 # =========================================================
-# MARK UNREASONABLE
+# MARK REPORT UNREASONABLE
 # =========================================================
 
 @app.route(
-    "/unreasonable/<int:report_id>"
+    "/unreasonable/<int:report_id>",
+    methods=["POST", "GET"]
 )
 def unreasonable(report_id):
 
@@ -1415,45 +1506,22 @@ def delete_report_route(report_id):
             "/dashboard"
         )
 
-    # Get photos first so their physical files
-    # can also be deleted.
-
-    photos = get_report_photos(
+    # Delete physical photo files first.
+    delete_report_files(
         report_id
     )
 
-    for photo in photos:
+    try:
 
-        filename = photo[2]
-
-        if not filename:
-            continue
-
-        file_path = os.path.join(
-            app.config["UPLOAD_FOLDER"],
-            filename
+        delete_report(
+            report_id
         )
 
-        try:
+    except Exception:
 
-            if os.path.isfile(
-                file_path
-            ):
-
-                os.remove(
-                    file_path
-                )
-
-        except OSError:
-
-            app.logger.warning(
-                "Could not delete report photo: %s",
-                file_path
-            )
-
-    delete_report(
-        report_id
-    )
+        app.logger.exception(
+            "Unable to delete report."
+        )
 
     return redirect(
         "/unreasonable-reports"
@@ -1464,9 +1532,11 @@ def delete_report_route(report_id):
 # MAIN ADMIN CHECK
 # =========================================================
 #
-# This route does NOT show passwords.
+# This route DOES NOT show passwords.
 #
 # It only confirms that Main Admin accounts exist.
+#
+# You can remove this route later if you don't need it.
 # =========================================================
 
 @app.route("/check-main-admins")
@@ -1480,19 +1550,25 @@ def check_main_admins():
 
     conn = connect()
 
-    rows = conn.execute("""
-        SELECT
-            id,
-            username,
-            role,
-            active,
-            must_change_password
-        FROM users
-        WHERE role='main_admin'
-        ORDER BY id ASC
-    """).fetchall()
+    try:
 
-    conn.close()
+        rows = conn.execute(
+            """
+            SELECT
+                id,
+                username,
+                role,
+                active,
+                must_change_password
+            FROM users
+            WHERE role='main_admin'
+            ORDER BY id ASC
+            """
+        ).fetchall()
+
+    finally:
+
+        conn.close()
 
     accounts = []
 
@@ -1548,11 +1624,71 @@ def file_too_large(error):
 
 
 # =========================================================
-# RUN
+# GENERAL SERVER ERROR
+# =========================================================
+
+@app.errorhandler(500)
+def internal_server_error(error):
+
+    app.logger.exception(
+        "Internal server error."
+    )
+
+    if logged_in():
+
+        return render_template(
+            "dashboard.html",
+            username=session.get(
+                "username",
+                ""
+            ),
+            role=session.get(
+                "role",
+                "student"
+            ),
+            stats=(
+                get_report_stats()
+                if is_main_admin()
+                else None
+            ),
+            error=(
+                "Something went wrong on the server. "
+                "Please try again."
+            )
+        ), 500
+
+    return render_template(
+        "login.html",
+        error=(
+            "Something went wrong on the server."
+        )
+    ), 500
+
+
+# =========================================================
+# RUN LOCALLY
+# =========================================================
+#
+# IMPORTANT FOR RENDER:
+#
+# Render should use:
+#
+# gunicorn --bind 0.0.0.0:$PORT app:app
+#
+# Do NOT use "python app.py" as the Render start command.
 # =========================================================
 
 if __name__ == "__main__":
 
+    port = int(
+        os.environ.get(
+            "PORT",
+            10000
+        )
+    )
+
     app.run(
-        debug=True
+        host="0.0.0.0",
+        port=port,
+        debug=False
     )
