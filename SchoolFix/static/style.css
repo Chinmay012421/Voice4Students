@@ -2804,6 +2804,75 @@ textarea:focus-visible {
 
     text-align: center;
 }
+
+
+/* =========================================================
+   EMPTY PAGE BOXES
+   Used by My Reports + Admin Applications
+   ========================================================= */
+
+.empty {
+    width: 100%;
+    max-width: 760px;
+
+    margin: 30px auto;
+
+    padding: 45px 30px;
+
+    background: #ffffff !important;
+
+    border: 1px solid #dfe5ec;
+
+    border-radius: 14px;
+
+    box-shadow:
+        0 6px 20px rgba(23, 32, 51, 0.08);
+
+    text-align: center;
+}
+
+
+/* Icon on My Reports */
+
+.empty .empty-icon {
+    font-size: 38px;
+
+    margin-bottom: 12px;
+}
+
+
+/* Heading */
+
+.empty h2 {
+    margin: 0 0 10px;
+
+    color: #172033;
+
+    font-size: 22px;
+
+    font-weight: 800;
+}
+
+
+/* Description */
+
+.empty p {
+    margin: 0 0 22px;
+
+    color: #687587;
+
+    line-height: 1.6;
+}
+
+
+/* Keep the button nicely centered */
+
+.empty .btn {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+}
 /* =========================================================
    END
    ========================================================= */
