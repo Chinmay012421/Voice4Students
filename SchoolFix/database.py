@@ -9,8 +9,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 # SUPABASE CONNECTION
 # ============================================================
 
-SUPABASE_URL = os.environ.get("SUPABASE_URL")
-SUPABASE_SERVICE_KEY = os.environ.get("SUPABASE_SERVICE_KEY")
+SUPABASE_URL = os.environ.get("https://ywiliickclswcyrneivz.supabase.co")
+SUPABASE_SERVICE_KEY = os.environ.get("sb_secret_T197BTfYTcKxtfYmJIVOTw_xZB5pxUR")
 
 if not SUPABASE_URL or not SUPABASE_SERVICE_KEY:
     raise RuntimeError(
