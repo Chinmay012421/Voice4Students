@@ -8,18 +8,10 @@ All Reports — SchoolVoice
 
 <div class="reports-page">
 
-
-    <!-- =========================
-         HEADER
-    ========================== -->
-
     <div class="page-header">
 
         <div>
-
-            <p class="eyebrow">
-                SchoolVoice
-            </p>
+            <p class="eyebrow">SchoolVoice</p>
 
             <h1>
                 All Reports
@@ -28,9 +20,7 @@ All Reports — SchoolVoice
             <p class="muted">
                 Review reports submitted by students.
             </p>
-
         </div>
-
 
         <div>
 
@@ -53,102 +43,83 @@ All Reports — SchoolVoice
     </div>
 
 
-    <!-- =========================
-         REPORT LIST
-    ========================== -->
-
     {% if reports %}
 
-    <div class="reports-list">
+    <div class="compact-reports-list">
 
         {% for report in reports %}
 
         <a
             href="/report/{{ report[0] }}"
-            class="report-card"
+            class="compact-report-tab"
         >
 
-            <!-- TOP -->
+            <!-- LEFT: REPORT NUMBER -->
 
-            <div class="report-card-top">
+            <div class="compact-report-number">
 
-                <span class="tag">
-                    {{ report[2] }}
+                <span>
+                    REPORT
                 </span>
 
+                <strong>
+                    #{{ report[0] }}
+                </strong>
 
-                <span
-                    class="status {{ report[5]|lower|replace(' ','-') }}"
-                >
+            </div>
+
+
+            <!-- MIDDLE: REPORT INFORMATION -->
+
+            <div class="compact-report-info">
+
+                <div class="compact-report-title-row">
+
+                    <h2>
+                        {{ report[4] }}
+                    </h2>
+
+                    <span class="tag compact-category">
+                        {{ report[2] }}
+                    </span>
+
+                </div>
+
+
+                <div class="compact-report-meta">
+
+                    <span>
+                        Submitted by:
+                        <strong>{{ report[1] }}</strong>
+                    </span>
+
+                    <span>
+                        {{ report[6] }}
+                    </span>
+
+                    {% if report[3] %}
+
+                    <span>
+                        📍 {{ report[3] }}
+                    </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <!-- RIGHT: STATUS + OPEN -->
+
+            <div class="compact-report-right">
+
+                <span class="status {{ report[5]|lower|replace(' ','-') }}">
                     {{ report[5] }}
                 </span>
 
-            </div>
-
-
-            <!-- TITLE -->
-
-            <h2>
-                {{ report[4] }}
-            </h2>
-
-
-            <!-- DESCRIPTION -->
-
-            <p class="report-preview">
-
-                {% if report[4]|length > 180 %}
-
-                    {{ report[4][:180] }}...
-
-                {% else %}
-
-                    {{ report[4] }}
-
-                {% endif %}
-
-            </p>
-
-
-            <!-- META -->
-
-            <div class="report-card-meta">
-
-                <span>
-                    Report #{{ report[0] }}
-                </span>
-
-
-                <span>
-                    {{ report[6] }}
-                </span>
-
-
-                {% if report[3] %}
-
-                <span>
-                    📍 {{ report[3] }}
-                </span>
-
-                {% endif %}
-
-            </div>
-
-
-            <!-- FOOTER -->
-
-            <div class="report-card-footer">
-
-                <span>
-                    Submitted by:
-                    <strong>
-                        {{ report[1] }}
-                    </strong>
-                </span>
-
-
-                <span>
-                    View Report →
+                <span class="compact-open">
+                    Open →
                 </span>
 
             </div>
@@ -160,10 +131,6 @@ All Reports — SchoolVoice
     </div>
 
 
-    <!-- =========================
-         NO REPORTS
-    ========================== -->
-
     {% else %}
 
     <div class="panel empty-state">
@@ -172,16 +139,13 @@ All Reports — SchoolVoice
             📋
         </div>
 
-
         <h2>
             No Reports Yet
         </h2>
 
-
         <p class="muted">
             There are currently no reports to display.
         </p>
-
 
         <a
             href="/dashboard"
