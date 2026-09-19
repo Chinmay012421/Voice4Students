@@ -1,6 +1,6 @@
 /* =========================================================
    SCHOOLVOICE — COMPLETE UI
-   Clean cards + clear school background
+   Clear school background + clean white cards
    ========================================================= */
 
 
@@ -23,7 +23,6 @@ html {
 body {
     margin: 0;
     padding: 0;
-
     min-height: 100vh;
 
     font-family:
@@ -35,7 +34,6 @@ body {
         sans-serif;
 
     color: #172033;
-
     background: #eef3f7;
 
     position: relative;
@@ -43,20 +41,18 @@ body {
 
 
 /* =========================================================
-   CLEAR SCHOOL BACKGROUND
+   SCHOOL BACKGROUND
    ========================================================= */
 
 body::before {
     content: "";
 
     position: fixed;
-
     inset: 0;
 
     z-index: -10;
 
-    background-image:
-        url("/static/images/background.png");
+    background-image: url("/static/images/background.png");
 
     background-position: center;
     background-size: cover;
@@ -66,17 +62,12 @@ body::before {
 }
 
 
-/*
-   Very light readability layer.
-   It is NOT placed over the actual image.
-   Content cards provide the readability instead.
-*/
+/* Very light readability layer only */
 
 body::after {
     content: "";
 
     position: fixed;
-
     inset: 0;
 
     z-index: -9;
@@ -93,7 +84,6 @@ body::after {
 
 a {
     color: #176fb3;
-
     text-decoration: none;
 }
 
@@ -107,10 +97,7 @@ a:hover {
    ========================================================= */
 
 .page {
-    width: min(
-        1180px,
-        calc(100% - 40px)
-    );
+    width: min(1180px, calc(100% - 40px));
 
     margin: 0 auto;
 
@@ -131,24 +118,14 @@ a:hover {
 .section-card,
 .dashboard-card {
 
-    background: rgba(
-        255,
-        255,
-        255,
-        0.96
-    );
+    background: rgba(255, 255, 255, 0.96);
 
     border: 1px solid #dce5ed;
 
     border-radius: 18px;
 
     box-shadow:
-        0 12px 35px rgba(
-            23,
-            32,
-            51,
-            0.10
-        );
+        0 12px 35px rgba(23, 32, 51, 0.10);
 
     position: relative;
 }
@@ -163,25 +140,17 @@ h2,
 h3,
 h4 {
     color: #172033;
-
     line-height: 1.15;
-
     margin-top: 0;
 }
 
 h1 {
-    font-size: clamp(
-        32px,
-        5vw,
-        52px
-    );
-
+    font-size: clamp(32px, 5vw, 52px);
     letter-spacing: -1.5px;
 }
 
 h2 {
     font-size: 28px;
-
     letter-spacing: -0.7px;
 }
 
@@ -206,71 +175,42 @@ p {
 
 
 /* =========================================================
-   =========================================================
    HOME PAGE
-   =========================================================
    ========================================================= */
-
-
-/* Main home hero */
 
 .home-hero,
 .hero {
 
     width: 100%;
-
     max-width: 1100px;
 
     margin: 5px auto 30px;
 
     padding: 40px 38px;
 
-    background:
-        rgba(
-            255,
-            255,
-            255,
-            0.95
-        );
+    background: rgba(255, 255, 255, 0.95);
 
-    border:
-        1px solid
-        rgba(
-            215,
-            225,
-            234,
-            0.95
-        );
+    border: 1px solid rgba(215, 225, 234, 0.95);
 
     border-radius: 20px;
 
     box-shadow:
-        0 15px 45px rgba(
-            23,
-            32,
-            51,
-            0.13
-        );
+        0 15px 45px rgba(23, 32, 51, 0.13);
 }
 
-
-/* Home heading */
 
 .home-hero h1,
 .hero h1 {
 
     max-width: 800px;
 
-    margin:
-        10px 0 16px;
+    margin: 10px 0 16px;
 
     color: #172033;
 
     font-weight: 850;
 }
 
-
-/* Home description */
 
 .home-hero > p,
 .hero > p {
@@ -285,7 +225,9 @@ p {
 }
 
 
-/* Small eyebrow */
+/* =========================================================
+   EYEBROW
+   ========================================================= */
 
 .eyebrow {
 
@@ -322,7 +264,9 @@ p {
 }
 
 
-/* Generic buttons */
+/* =========================================================
+   BUTTONS
+   ========================================================= */
 
 .btn,
 button,
@@ -352,7 +296,7 @@ input[type="button"] {
 }
 
 
-/* Primary */
+/* Primary button */
 
 .btn.primary,
 .btn-primary,
@@ -364,12 +308,7 @@ input[type="submit"] {
     color: #ffffff;
 
     box-shadow:
-        0 6px 18px rgba(
-            23,
-            111,
-            179,
-            0.22
-        );
+        0 6px 18px rgba(23, 111, 179, 0.22);
 }
 
 
@@ -383,16 +322,11 @@ input[type="submit"]:hover {
     transform: translateY(-1px);
 
     box-shadow:
-        0 9px 23px rgba(
-            23,
-            111,
-            179,
-            0.27
-        );
+        0 9px 23px rgba(23, 111, 179, 0.27);
 }
 
 
-/* Secondary */
+/* Secondary button */
 
 .btn.secondary,
 .btn-secondary {
@@ -404,12 +338,7 @@ input[type="submit"]:hover {
     border: 1px solid #ccd9e4;
 
     box-shadow:
-        0 5px 15px rgba(
-            23,
-            32,
-            51,
-            0.07
-        );
+        0 5px 15px rgba(23, 32, 51, 0.07);
 }
 
 
@@ -435,10 +364,7 @@ input[type="submit"]:hover {
     display: grid;
 
     grid-template-columns:
-        repeat(
-            3,
-            minmax(0, 1fr)
-        );
+        repeat(3, minmax(0, 1fr));
 
     gap: 20px;
 
@@ -452,29 +378,16 @@ input[type="submit"]:hover {
 .feature-card,
 .feature-item {
 
-    background:
-        rgba(
-            255,
-            255,
-            255,
-            0.96
-        );
+    background: rgba(255, 255, 255, 0.96);
 
-    border:
-        1px solid
-        #dce5ed;
+    border: 1px solid #dce5ed;
 
     border-radius: 16px;
 
     padding: 25px;
 
     box-shadow:
-        0 10px 30px rgba(
-            23,
-            32,
-            51,
-            0.09
-        );
+        0 10px 30px rgba(23, 32, 51, 0.09);
 
     transition:
         transform 0.18s ease,
@@ -489,12 +402,7 @@ input[type="submit"]:hover {
     transform: translateY(-3px);
 
     box-shadow:
-        0 15px 35px rgba(
-            23,
-            32,
-            51,
-            0.13
-        );
+        0 15px 35px rgba(23, 32, 51, 0.13);
 }
 
 
@@ -502,8 +410,7 @@ input[type="submit"]:hover {
 .feature-card h3,
 .feature-item h3 {
 
-    margin:
-        8px 0 8px;
+    margin: 8px 0 8px;
 
     font-size: 19px;
 }
@@ -520,8 +427,6 @@ input[type="submit"]:hover {
     font-size: 14px;
 }
 
-
-/* Feature icon */
 
 .feature-icon,
 .feature-card-icon,
@@ -549,6 +454,13 @@ input[type="submit"]:hover {
 
 /* =========================================================
    LOGIN / REGISTER
+   =========================================================
+   
+   PC:
+   Slightly left of center for a more balanced layout.
+
+   Mobile:
+   Centered.
    ========================================================= */
 
 .auth-page,
@@ -561,44 +473,42 @@ input[type="submit"]:hover {
 
     align-items: center;
 
-    justify-content: center;
+    justify-content: flex-start;
 
-    padding: 25px 0;
+    padding-top: 35px;
+
+    padding-bottom: 60px;
+
+    padding-left:
+        max(
+            8%,
+            calc((100vw - 1180px) / 2)
+        );
+
+    padding-right: 20px;
 }
 
+
+/* =========================================================
+   AUTH CARD
+   ========================================================= */
 
 .auth-card,
 .login-card,
 .register-card {
 
-    width: min(
-        500px,
-        100%
-    );
+    width: min(500px, calc(100vw - 40px));
 
     padding: 36px;
 
-    background:
-        rgba(
-            255,
-            255,
-            255,
-            0.96
-        );
+    background: rgba(255, 255, 255, 0.96);
 
-    border:
-        1px solid
-        #dce5ed;
+    border: 1px solid #dce5ed;
 
     border-radius: 20px;
 
     box-shadow:
-        0 16px 45px rgba(
-            23,
-            32,
-            51,
-            0.14
-        );
+        0 16px 45px rgba(23, 32, 51, 0.14);
 }
 
 
@@ -607,14 +517,12 @@ input[type="submit"]:hover {
    ========================================================= */
 
 form {
-
     width: 100%;
 }
 
 
 .form-group,
 .field {
-
     margin-bottom: 18px;
 }
 
@@ -647,9 +555,7 @@ textarea {
 
     background: #ffffff;
 
-    border:
-        1px solid
-        #ccd9e4;
+    border: 1px solid #ccd9e4;
 
     border-radius: 10px;
 
@@ -666,8 +572,7 @@ select {
 
     height: 48px;
 
-    padding:
-        0 14px;
+    padding: 0 14px;
 }
 
 
@@ -695,28 +600,20 @@ textarea:focus {
     border-color: #4d99cb;
 
     box-shadow:
-        0 0 0 3px
-        rgba(
-            23,
-            111,
-            179,
-            0.12
-        );
+        0 0 0 3px rgba(23, 111, 179, 0.12);
 }
 
 
 /* =========================================================
-   PASSWORD SHOW/HIDE
+   PASSWORD SHOW / HIDE
    ========================================================= */
 
 .password-wrapper {
-
     position: relative;
 }
 
 
 .password-wrapper input {
-
     padding-right: 50px;
 }
 
@@ -729,8 +626,7 @@ textarea:focus {
 
     top: 50%;
 
-    transform:
-        translateY(-50%);
+    transform: translateY(-50%);
 
     width: 34px;
 
@@ -754,13 +650,12 @@ textarea:focus {
 
     background: #eef4f8;
 
-    transform:
-        translateY(-50%);
+    transform: translateY(-50%);
 }
 
 
 /* =========================================================
-   LOGIN FOOTER TEXT
+   LOGIN FOOTER
    ========================================================= */
 
 .auth-footer,
@@ -790,27 +685,16 @@ textarea:focus {
    ========================================================= */
 
 .dashboard {
-
     width: 100%;
 }
 
 
-/* Dashboard introduction */
-
 .dashboard-header,
 .dashboard-intro {
 
-    background:
-        rgba(
-            255,
-            255,
-            255,
-            0.94
-        );
+    background: rgba(255, 255, 255, 0.94);
 
-    border:
-        1px solid
-        #dce5ed;
+    border: 1px solid #dce5ed;
 
     border-radius: 18px;
 
@@ -819,18 +703,12 @@ textarea:focus {
     margin-bottom: 24px;
 
     box-shadow:
-        0 10px 30px rgba(
-            23,
-            32,
-            51,
-            0.09
-        );
+        0 10px 30px rgba(23, 32, 51, 0.09);
 }
 
 
 .dashboard-header h1,
 .dashboard-intro h1 {
-
     margin-bottom: 8px;
 }
 
@@ -886,14 +764,12 @@ textarea:focus {
 
 
 .panel-heading {
-
     margin-bottom: 20px;
 }
 
 
 .panel-heading h2,
 .panel-heading h3 {
-
     margin-bottom: 6px;
 }
 
@@ -915,10 +791,7 @@ textarea:focus {
     display: grid;
 
     grid-template-columns:
-        repeat(
-            5,
-            minmax(0, 1fr)
-        );
+        repeat(5, minmax(0, 1fr));
 
     gap: 15px;
 }
@@ -932,19 +805,12 @@ textarea:focus {
 
     background: #ffffff;
 
-    border:
-        1px solid
-        #dce5ed;
+    border: 1px solid #dce5ed;
 
     border-radius: 15px;
 
     box-shadow:
-        0 6px 20px rgba(
-            23,
-            32,
-            51,
-            0.07
-        );
+        0 6px 20px rgba(23, 32, 51, 0.07);
 
     display: flex;
 
@@ -975,7 +841,7 @@ textarea:focus {
 
 
 /* =========================================================
-   TWO COLUMN LAYOUT
+   TWO COLUMN
    ========================================================= */
 
 .two {
@@ -983,10 +849,7 @@ textarea:focus {
     display: grid;
 
     grid-template-columns:
-        repeat(
-            2,
-            minmax(0, 1fr)
-        );
+        repeat(2, minmax(0, 1fr));
 
     gap: 22px;
 }
@@ -1002,10 +865,7 @@ textarea:focus {
     display: grid;
 
     grid-template-columns:
-        repeat(
-            4,
-            minmax(0, 1fr)
-        );
+        repeat(4, minmax(0, 1fr));
 
     gap: 15px;
 }
@@ -1020,21 +880,14 @@ textarea:focus {
 
     background: #ffffff;
 
-    border:
-        1px solid
-        #dce5ed;
+    border: 1px solid #dce5ed;
 
     border-radius: 14px;
 
     color: #172033;
 
     box-shadow:
-        0 6px 18px rgba(
-            23,
-            32,
-            51,
-            0.06
-        );
+        0 6px 18px rgba(23, 32, 51, 0.06);
 
     transition:
         transform 0.16s ease,
@@ -1053,12 +906,7 @@ textarea:focus {
     border-color: #aac9df;
 
     box-shadow:
-        0 10px 25px rgba(
-            23,
-            32,
-            51,
-            0.10
-        );
+        0 10px 25px rgba(23, 32, 51, 0.10);
 }
 
 
@@ -1083,51 +931,30 @@ textarea:focus {
 
 
 /* =========================================================
-   REPORT SUBMISSION PAGE
+   REPORT SUBMISSION
    ========================================================= */
 
 .report-form,
 .submit-report,
 .report-page {
 
-    background:
-        rgba(
-            255,
-            255,
-            255,
-            0.96
-        );
+    background: rgba(255, 255, 255, 0.96);
 
-    border:
-        1px solid
-        #dce5ed;
+    border: 1px solid #dce5ed;
 
     border-radius: 19px;
 
     padding: 32px;
 
     box-shadow:
-        0 14px 40px rgba(
-            23,
-            32,
-            51,
-            0.11
-        );
+        0 14px 40px rgba(23, 32, 51, 0.11);
 }
 
 
 .report-form h1,
 .submit-report h1,
 .report-page h1 {
-
     margin-bottom: 8px;
-}
-
-
-.report-form .form-group,
-.submit-report .form-group {
-
-    margin-bottom: 18px;
 }
 
 
@@ -1138,7 +965,6 @@ textarea:focus {
 .reports-container,
 .reports-page,
 .my-reports {
-
     width: 100%;
 }
 
@@ -1158,27 +984,14 @@ textarea:focus {
 
     padding: 20px 22px;
 
-    background:
-        rgba(
-            255,
-            255,
-            255,
-            0.96
-        );
+    background: rgba(255, 255, 255, 0.96);
 
-    border:
-        1px solid
-        #dce5ed;
+    border: 1px solid #dce5ed;
 
     border-radius: 15px;
 
     box-shadow:
-        0 7px 22px rgba(
-            23,
-            32,
-            51,
-            0.07
-        );
+        0 7px 22px rgba(23, 32, 51, 0.07);
 
     transition:
         transform 0.16s ease,
@@ -1192,12 +1005,7 @@ textarea:focus {
     transform: translateY(-2px);
 
     box-shadow:
-        0 11px 27px rgba(
-            23,
-            32,
-            51,
-            0.10
-        );
+        0 11px 27px rgba(23, 32, 51, 0.10);
 }
 
 
@@ -1272,24 +1080,15 @@ textarea:focus {
    ========================================================= */
 
 .report-detail {
-
     width: 100%;
 }
 
 
 .report-detail-header {
 
-    background:
-        rgba(
-            255,
-            255,
-            255,
-            0.96
-        );
+    background: rgba(255, 255, 255, 0.96);
 
-    border:
-        1px solid
-        #dce5ed;
+    border: 1px solid #dce5ed;
 
     border-radius: 18px;
 
@@ -1298,17 +1097,11 @@ textarea:focus {
     margin-bottom: 20px;
 
     box-shadow:
-        0 10px 30px rgba(
-            23,
-            32,
-            51,
-            0.09
-        );
+        0 10px 30px rgba(23, 32, 51, 0.09);
 }
 
 
 .report-detail-header h1 {
-
     margin-bottom: 10px;
 }
 
@@ -1336,10 +1129,7 @@ textarea:focus {
     display: grid;
 
     grid-template-columns:
-        repeat(
-            3,
-            minmax(0, 1fr)
-        );
+        repeat(3, minmax(0, 1fr));
 
     gap: 12px;
 }
@@ -1365,29 +1155,16 @@ textarea:focus {
 
 .conversation-panel {
 
-    background:
-        rgba(
-            255,
-            255,
-            255,
-            0.96
-        );
+    background: rgba(255, 255, 255, 0.96);
 
-    border:
-        1px solid
-        #dce5ed;
+    border: 1px solid #dce5ed;
 
     border-radius: 18px;
 
     padding: 25px;
 
     box-shadow:
-        0 10px 30px rgba(
-            23,
-            32,
-            51,
-            0.08
-        );
+        0 10px 30px rgba(23, 32, 51, 0.08);
 }
 
 
@@ -1428,7 +1205,6 @@ textarea:focus {
 
 
 .message-student {
-
     align-self: flex-start;
 }
 
@@ -1461,27 +1237,14 @@ textarea:focus {
 
     overflow-x: auto;
 
-    background:
-        rgba(
-            255,
-            255,
-            255,
-            0.96
-        );
+    background: rgba(255, 255, 255, 0.96);
 
-    border:
-        1px solid
-        #dce5ed;
+    border: 1px solid #dce5ed;
 
     border-radius: 16px;
 
     box-shadow:
-        0 8px 25px rgba(
-            23,
-            32,
-            51,
-            0.08
-        );
+        0 8px 25px rgba(23, 32, 51, 0.08);
 }
 
 
@@ -1517,9 +1280,7 @@ td {
 
     padding: 15px 16px;
 
-    border-top:
-        1px solid
-        #e7edf2;
+    border-top: 1px solid #e7edf2;
 
     color: #263449;
 
@@ -1528,7 +1289,6 @@ td {
 
 
 tr:hover td {
-
     background: #fbfdfe;
 }
 
@@ -1553,12 +1313,7 @@ tr:hover td {
     color: #263449;
 
     box-shadow:
-        0 5px 15px rgba(
-            23,
-            32,
-            51,
-            0.06
-        );
+        0 5px 15px rgba(23, 32, 51, 0.06);
 }
 
 
@@ -1619,17 +1374,9 @@ tr:hover td {
 
     text-align: center;
 
-    background:
-        rgba(
-            255,
-            255,
-            255,
-            0.95
-        );
+    background: rgba(255, 255, 255, 0.95);
 
-    border:
-        1px dashed
-        #ccd9e4;
+    border: 1px dashed #ccd9e4;
 
     border-radius: 16px;
 
@@ -1638,7 +1385,7 @@ tr:hover td {
 
 
 /* =========================================================
-   HOME PAGE — WHITE LINK BOXES
+   HOME LINK BOXES
    ========================================================= */
 
 .home-links a,
@@ -1647,19 +1394,12 @@ tr:hover td {
 
     background: #ffffff;
 
-    border:
-        1px solid
-        #d3dfe8;
+    border: 1px solid #d3dfe8;
 
     border-radius: 10px;
 
     box-shadow:
-        0 6px 18px rgba(
-            23,
-            32,
-            51,
-            0.07
-        );
+        0 6px 18px rgba(23, 32, 51, 0.07);
 }
 
 
@@ -1674,7 +1414,7 @@ tr:hover td {
 
 
 /* =========================================================
-   FOCUS ACCESSIBILITY
+   ACCESSIBILITY
    ========================================================= */
 
 a:focus-visible,
@@ -1685,19 +1425,14 @@ textarea:focus-visible {
 
     outline:
         3px solid
-        rgba(
-            23,
-            111,
-            179,
-            0.25
-        );
+        rgba(23, 111, 179, 0.25);
 
     outline-offset: 2px;
 }
 
 
 /* =========================================================
-   RESPONSIVE — TABLET
+   TABLET
    ========================================================= */
 
 @media (max-width: 1000px) {
@@ -1705,10 +1440,7 @@ textarea:focus-visible {
     .stats-grid {
 
         grid-template-columns:
-            repeat(
-                3,
-                minmax(0, 1fr)
-            );
+            repeat(3, minmax(0, 1fr));
     }
 
 
@@ -1716,10 +1448,7 @@ textarea:focus-visible {
     .admin-action-grid {
 
         grid-template-columns:
-            repeat(
-                2,
-                minmax(0, 1fr)
-            );
+            repeat(2, minmax(0, 1fr));
     }
 
 
@@ -1728,28 +1457,42 @@ textarea:focus-visible {
     .feature-grid {
 
         grid-template-columns:
-            repeat(
-                2,
-                minmax(0, 1fr)
-            );
+            repeat(2, minmax(0, 1fr));
     }
-
 }
 
 
 /* =========================================================
-   RESPONSIVE — MOBILE
+   MOBILE
    ========================================================= */
 
 @media (max-width: 760px) {
 
     .page {
 
-        width:
-            calc(100% - 28px);
+        width: calc(100% - 28px);
 
-        padding:
-            25px 0 45px;
+        padding: 25px 0 45px;
+    }
+
+
+    /* Login/Register become centered */
+
+    .auth-page,
+    .login-page,
+    .register-page {
+
+        min-height: 600px;
+
+        justify-content: center;
+
+        padding-left: 14px;
+
+        padding-right: 14px;
+
+        padding-top: 25px;
+
+        padding-bottom: 40px;
     }
 
 
@@ -1774,13 +1517,11 @@ textarea:focus-visible {
 
 
     h1 {
-
         font-size: 34px;
     }
 
 
     h2 {
-
         font-size: 24px;
     }
 
@@ -1798,15 +1539,11 @@ textarea:focus-visible {
     .stats-grid {
 
         grid-template-columns:
-            repeat(
-                2,
-                minmax(0, 1fr)
-            );
+            repeat(2, minmax(0, 1fr));
     }
 
 
     .two {
-
         grid-template-columns: 1fr;
     }
 
@@ -1819,13 +1556,11 @@ textarea:focus-visible {
 
 
     .photo-gallery {
-
         grid-template-columns: 1fr;
     }
 
 
     .gallery-photo {
-
         height: 220px;
     }
 
@@ -1849,10 +1584,8 @@ textarea:focus-visible {
 
 
     .message {
-
         max-width: 92%;
     }
-
 }
 
 
@@ -1863,49 +1596,49 @@ textarea:focus-visible {
 @media (max-width: 480px) {
 
     .page {
-
-        width:
-            calc(100% - 20px);
+        width: calc(100% - 20px);
     }
 
 
     .stats-grid {
-
         grid-template-columns: 1fr;
     }
 
 
     .home-hero,
     .hero {
-
         padding: 20px;
     }
 
 
     .home-hero h1,
     .hero h1 {
-
         font-size: 30px;
     }
 
 
     input,
     select {
-
         height: 46px;
     }
 
 
     textarea {
-
         min-height: 125px;
     }
 
+
+    .auth-card,
+    .login-card,
+    .register-card {
+
+        width: 100%;
+
+        padding: 24px;
+    }
 }
 
 
 /* =========================================================
-   IMPORTANT:
-   Do NOT fade the background.
-   Do NOT put a global white overlay here.
+   END
    ========================================================= */
