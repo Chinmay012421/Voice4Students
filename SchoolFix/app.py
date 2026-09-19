@@ -18,6 +18,7 @@ from database import (
     get_user,
     must_change_password,
     save_user,
+    delete_user,
     save_admin_application,
     get_pending_applications,
     approve_admin,
