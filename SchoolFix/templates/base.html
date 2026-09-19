@@ -2,434 +2,460 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>{% block title %}SchoolVoice{% endblock %}</title>
+    <meta charset="utf-8">
 
-  <!-- =========================
-       BROWSER TAB FAVICON
-       ========================= -->
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
 
-  <link
-    rel="icon"
-    type="image/png"
-    sizes="512x512"
-    href="{{ url_for('static', filename='images/favicon.png') }}"
-  >
+    <title>
+        {% block title %}
+        SchoolVoice
+        {% endblock %}
+    </title>
 
-  <link
-    rel="shortcut icon"
-    type="image/png"
-    href="{{ url_for('static', filename='images/favicon.png') }}"
-  >
 
-  <!-- Main stylesheet -->
-  <link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='style.css') }}"
-  >
+    <link
+        rel="icon"
+        type="image/png"
+        sizes="512x512"
+        href="{{ url_for('static', filename='images/favicon.png') }}"
+    >
 
 
-  <style>
+    <link
+        rel="shortcut icon"
+        type="image/png"
+        href="{{ url_for('static', filename='images/favicon.png') }}"
+    >
 
-    /* =========================
-       HEADER
-       ========================= */
 
-    .topbar {
-      min-height: 76px;
-      background: #ffffff;
-      border-bottom: 1px solid #e8eaf0;
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
 
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
 
-      padding: 8px 6%;
+    <style>
 
-      position: sticky;
-      top: 0;
-      z-index: 5;
-    }
+        /* =================================================
+           HEADER
+           ================================================= */
 
+        .topbar {
+            position: sticky;
 
-    /* =========================
-       BRAND
-       ========================= */
+            top: 0;
 
-    .brand {
-      display: flex;
-      align-items: center;
+            z-index: 1000;
 
-      gap: 12px;
+            min-height: 76px;
 
-      font-family: 'Space Grotesk', sans-serif;
+            display: flex;
 
-      text-decoration: none;
+            align-items: center;
 
-      white-space: nowrap;
-    }
+            justify-content: space-between;
 
+            gap: 24px;
 
-    /* KVS logo in header */
+            padding: 10px
+                max(20px, calc((100vw - 1180px) / 2));
 
-    .top-kv-logo {
-      width: 150px;
-      height: 70px;
+            background:
+                rgba(255, 255, 255, 0.96);
 
-      object-fit: contain;
-      object-position: center;
+            border-bottom:
+                1px solid #e4e8f0;
 
-      display: block;
+            box-shadow:
+                0 4px 20px
+                rgba(15, 23, 42, 0.05);
 
-      flex-shrink: 0;
-    }
+            backdrop-filter:
+                blur(12px);
+        }
 
 
-    /* School name */
+        /* =================================================
+           BRAND
+           ================================================= */
 
-    .school-name {
-      color: #172033;
+        .brand {
+            display: flex;
 
-      font-size: 22px;
-      font-weight: 800;
+            align-items: center;
 
-      letter-spacing: -0.5px;
+            gap: 12px;
 
-      line-height: 1.15;
+            min-width: 0;
 
-      white-space: nowrap;
-    }
+            color: #172033;
 
+            text-decoration: none;
+        }
 
-    /* =========================
-       NAVIGATION
-       ========================= */
 
-    .topbar nav {
-      display: flex;
-      align-items: center;
+        .top-kv-logo {
+            width: 82px;
 
-      gap: 24px;
+            height: 56px;
 
-      font-size: 14px;
-      font-weight: 600;
-    }
+            flex: 0 0 auto;
 
+            object-fit: contain;
 
-    .topbar nav a {
-      color: #172033;
+            display: block;
+        }
 
-      text-decoration: none;
 
-      transition: color 0.2s ease;
-    }
+        .school-name {
+            max-width: 360px;
 
+            color: #172033;
 
-    .topbar nav a:hover {
-      color: #5b5ce2;
-    }
+            font-size: 18px;
 
+            font-weight: 850;
 
-    /* Logout / Register button */
+            line-height: 1.2;
 
-    .nav-button {
-      padding: 10px 17px;
+            overflow-wrap: anywhere;
+        }
 
-      background: #172033;
 
-      color: #ffffff !important;
+        /* =================================================
+           NAVIGATION
+           ================================================= */
 
-      border-radius: 10px;
-    }
+        .topbar nav {
+            display: flex;
 
+            align-items: center;
 
-    .nav-button:hover {
-      background: #5b5ce2;
+            justify-content: flex-end;
 
-      color: #ffffff !important;
-    }
+            gap: 6px;
 
+            flex-wrap: wrap;
+        }
 
-    /* =========================
-       FOOTER
-       ========================= */
 
-    .school-footer {
-      position: relative;
+        .topbar nav a {
+            display: inline-flex;
 
-      min-height: 130px;
+            align-items: center;
 
-      display: flex;
-      align-items: center;
-      justify-content: center;
+            justify-content: center;
 
-      padding: 20px 40px;
+            min-height: 38px;
 
-      border-top: 1px solid #e8eaf0;
+            padding: 8px 12px;
 
-      color: #89909e;
+            border-radius: 9px;
 
-      font-size: 12px;
+            color: #536078;
 
-      background: #ffffff;
-    }
+            font-size: 13px;
 
+            font-weight: 750;
 
-    /* Footer text */
+            text-decoration: none;
 
-    .footer-text {
-      text-align: center;
+            white-space: nowrap;
 
-      padding: 0 190px;
+            transition:
+                color 0.18s ease,
+                background 0.18s ease;
+        }
 
-      line-height: 1.6;
-    }
 
+        .topbar nav a:hover {
+            color: #3730a3;
 
-    /* =========================
-       FOOTER KVS LOGO
-       ========================= */
+            background: #eef2ff;
+        }
 
-    .bottom-kv-logo {
-      position: absolute;
 
-      left: 35px;
-      bottom: 15px;
+        .topbar nav a.nav-button {
+            margin-left: 4px;
 
-      width: 150px;
-      height: 70px;
+            padding-left: 15px;
 
-      object-fit: contain;
-      object-position: center;
+            padding-right: 15px;
 
-      display: block;
-    }
+            background: #172033;
 
+            color: #ffffff !important;
+        }
 
-    /* =========================
-       PM SHRI LOGO
-       ========================= */
 
-    .pm-shri-logo {
-      position: absolute;
+        .topbar nav a.nav-button:hover {
+            background: #4f46e5;
 
-      right: 35px;
-      bottom: 15px;
+            color: #ffffff !important;
+        }
 
-      width: 150px;
-      height: 70px;
 
-      object-fit: contain;
-      object-position: center;
+        /* =================================================
+           FOOTER
+           ================================================= */
 
-      display: block;
-    }
+        .school-footer {
+            position: relative;
 
+            min-height: 150px;
 
-    /* =========================
-       TABLET
-       ========================= */
+            display: flex;
 
-    @media (max-width: 900px) {
+            align-items: center;
 
-      .topbar {
-        padding: 8px 25px;
-      }
+            justify-content: center;
 
+            padding: 30px 180px;
 
-      .top-kv-logo {
-        width: 125px;
-        height: 65px;
-      }
+            border-top:
+                1px solid #e4e8f0;
 
+            background: #ffffff;
 
-      .school-name {
-        font-size: 18px;
-      }
+            color: #7a8498;
 
+            font-size: 13px;
+        }
 
-      .topbar nav {
-        gap: 12px;
-      }
 
-    }
+        .footer-text {
+            max-width: 500px;
 
+            text-align: center;
 
-    /* =========================
-       MOBILE
-       ========================= */
+            line-height: 1.6;
+        }
 
-    @media (max-width: 800px) {
 
-      .topbar {
-        padding: 7px 20px;
+        .bottom-kv-logo {
+            position: absolute;
 
-        min-height: 70px;
-      }
+            left: 35px;
 
+            bottom: 20px;
 
-      .brand {
-        gap: 8px;
-      }
+            width: 105px;
 
+            height: 60px;
 
-      .top-kv-logo {
-        width: 80px;
-        height: 55px;
-      }
+            object-fit: contain;
+        }
 
 
-      .school-name {
-        font-size: 16px;
+        .pm-shri-logo {
+            position: absolute;
 
-        white-space: normal;
+            right: 35px;
 
-        line-height: 1.1;
+            bottom: 20px;
 
-        max-width: 190px;
-      }
+            width: 125px;
 
+            height: 60px;
 
-      .topbar nav {
-        gap: 10px;
-      }
+            object-fit: contain;
+        }
 
 
-      /*
-        Hide normal navigation links on mobile.
-        Keep the main button visible.
-      */
+        /* =================================================
+           TABLET
+           ================================================= */
 
-      .topbar nav a:not(.nav-button) {
-        display: none;
-      }
+        @media (max-width: 1050px) {
 
+            .topbar {
+                padding-left: 20px;
 
-      /* Footer */
+                padding-right: 20px;
+            }
 
-      .school-footer {
-        min-height: 165px;
 
-        padding: 90px 20px 20px;
-      }
+            .school-name {
+                max-width: 270px;
 
+                font-size: 16px;
+            }
 
-      .bottom-kv-logo {
-        width: 80px;
-        height: 55px;
 
-        left: 20px;
-        top: 15px;
-        bottom: auto;
-      }
+            .topbar nav {
+                gap: 3px;
+            }
 
 
-      .pm-shri-logo {
-        width: 105px;
-        height: 55px;
+            .topbar nav a {
+                padding-left: 9px;
 
-        right: 20px;
-        top: 15px;
-        bottom: auto;
-      }
+                padding-right: 9px;
+            }
 
+        }
 
-      .footer-text {
-        padding: 0;
 
-        max-width: 300px;
-      }
+        /* =================================================
+           MOBILE
+           ================================================= */
 
-    }
+        @media (max-width: 800px) {
 
+            .topbar {
+                position: relative;
 
-    /* =========================
-       SMALL PHONES
-       ========================= */
+                align-items: flex-start;
 
-    @media (max-width: 600px) {
+                flex-direction: column;
 
-      .topbar {
-        padding: 7px 15px;
-      }
+                gap: 10px;
 
+                padding: 12px 16px;
+            }
 
-      .top-kv-logo {
-        width: 70px;
-        height: 52px;
-      }
 
+            .brand {
+                width: 100%;
+            }
 
-      .school-name {
-        font-size: 14px;
 
-        max-width: 170px;
-      }
+            .top-kv-logo {
+                width: 72px;
 
+                height: 50px;
+            }
 
-      .brand {
-        gap: 7px;
-      }
 
+            .school-name {
+                max-width: none;
 
-      .school-footer {
-        min-height: 165px;
-      }
+                font-size: 15px;
+            }
 
 
-      .bottom-kv-logo {
-        width: 75px;
-        height: 52px;
+            .topbar nav {
+                width: 100%;
 
-        left: 15px;
-      }
+                justify-content: flex-start;
 
+                overflow-x: auto;
 
-      .pm-shri-logo {
-        width: 95px;
-        height: 52px;
+                flex-wrap: nowrap;
 
-        right: 15px;
-      }
+                padding-bottom: 2px;
 
-    }
+                scrollbar-width: thin;
+            }
 
 
-    /* =========================
-       VERY SMALL PHONES
-       ========================= */
+            .topbar nav a {
+                flex: 0 0 auto;
+            }
 
-    @media (max-width: 380px) {
 
-      .top-kv-logo {
-        width: 60px;
-        height: 48px;
-      }
+            .topbar nav a.nav-button {
+                margin-left: 0;
+            }
 
 
-      .school-name {
-        font-size: 12px;
+            .school-footer {
+                min-height: 175px;
 
-        max-width: 145px;
-      }
+                padding:
+                    90px 20px 25px;
+            }
 
 
-      .bottom-kv-logo {
-        width: 68px;
-        height: 48px;
-      }
+            .bottom-kv-logo {
+                left: 18px;
 
+                top: 18px;
 
-      .pm-shri-logo {
-        width: 85px;
-        height: 48px;
-      }
+                bottom: auto;
 
-    }
+                width: 80px;
 
-  </style>
+                height: 50px;
+            }
+
+
+            .pm-shri-logo {
+                right: 18px;
+
+                top: 18px;
+
+                bottom: auto;
+
+                width: 95px;
+
+                height: 50px;
+            }
+
+        }
+
+
+        /* =================================================
+           SMALL PHONES
+           ================================================= */
+
+        @media (max-width: 480px) {
+
+            .topbar {
+                padding:
+                    10px 12px;
+            }
+
+
+            .top-kv-logo {
+                width: 62px;
+
+                height: 46px;
+            }
+
+
+            .school-name {
+                font-size: 13px;
+            }
+
+
+            .topbar nav a {
+                min-height: 36px;
+
+                padding:
+                    7px 10px;
+
+                font-size: 12px;
+            }
+
+
+            .school-footer {
+                padding-left: 15px;
+
+                padding-right: 15px;
+            }
+
+
+            .bottom-kv-logo {
+                left: 12px;
+
+                width: 70px;
+            }
+
+
+            .pm-shri-logo {
+                right: 12px;
+
+                width: 85px;
+            }
+
+        }
+
+    </style>
 
 </head>
 
@@ -437,174 +463,130 @@
 <body>
 
 
-  <!-- =========================
-       HEADER
-       ========================= -->
+<header class="topbar">
 
-  <header class="topbar">
-
-
-    <!-- Logo + School Name -->
 
     <a
-      class="brand"
-      href="/"
+        href="/"
+        class="brand"
     >
 
-      <img
-        src="{{ url_for('static', filename='images/kv-logo.png') }}"
-        alt="Kendriya Vidyalaya Logo"
-        class="top-kv-logo"
-      >
+        <img
+            src="{{ url_for('static', filename='images/kv-logo.png') }}"
+            alt="Kendriya Vidyalaya Logo"
+            class="top-kv-logo"
+        >
 
 
-      <span class="school-name">
-        Kendriya Vidyalaya Andrews Ganj
-      </span>
+        <span class="school-name">
+            Kendriya Vidyalaya Andrews Ganj
+        </span>
 
     </a>
 
 
-    <!-- =========================
-         NAVIGATION
-         ========================= -->
-
     <nav>
 
+        {% if session.get('username') %}
 
-      {% if session.get('username') %}
-
-
-        <!-- Dashboard -->
-
-        <a href="/dashboard">
-          Dashboard
-        </a>
+            <a href="/dashboard">
+                Dashboard
+            </a>
 
 
-        <!-- =========================
-             STUDENT ONLY
-             ========================= -->
+            {% if session.get('role') == 'student' %}
 
-        {% if session.get('role') == 'student' %}
+                <a href="/my-reports">
+                    My Reports
+                </a>
 
-          <a href="/my-reports">
-            My Reports
-          </a>
+            {% endif %}
+
+
+            {% if session.get('role') in ['admin', 'main_admin'] %}
+
+                <a href="/reports">
+                    Reports
+                </a>
+
+            {% endif %}
+
+
+            {% if session.get('role') == 'main_admin' %}
+
+                <a href="/admin-applications">
+                    Applications
+                </a>
+
+                <a href="/users">
+                    Users
+                </a>
+
+            {% endif %}
+
+
+            <a
+                href="/logout"
+                class="nav-button"
+            >
+                Logout
+            </a>
+
+        {% else %}
+
+            <a href="/login">
+                Login
+            </a>
+
+
+            <a
+                href="/register"
+                class="nav-button"
+            >
+                Register
+            </a>
 
         {% endif %}
-
-
-        <!-- =========================
-             ADMIN + MAIN ADMIN
-             ========================= -->
-
-        {% if session.get('role') in ['admin', 'main_admin'] %}
-
-          <a href="/reports">
-            Reports
-          </a>
-
-        {% endif %}
-
-
-        <!-- =========================
-             MAIN ADMIN ONLY
-             ========================= -->
-
-        {% if session.get('role') == 'main_admin' %}
-
-          <a href="/admin-applications">
-            Applications
-          </a>
-
-        {% endif %}
-
-
-        <!-- Logout -->
-
-        <a
-          class="nav-button"
-          href="/logout"
-        >
-          Logout
-        </a>
-
-
-      {% else %}
-
-
-        <!-- =========================
-             LOGGED OUT
-             ========================= -->
-
-        <a href="/login">
-          Login
-        </a>
-
-
-        <a
-          class="nav-button"
-          href="/register"
-        >
-          Register
-        </a>
-
-
-      {% endif %}
-
 
     </nav>
 
-  </header>
+</header>
 
 
-  <!-- =========================
-       MAIN PAGE CONTENT
-       ========================= -->
+<main class="page">
 
-  <main class="page">
+    {% block content %}
 
-    {% block content %}{% endblock %}
+    {% endblock %}
 
-  </main>
+</main>
 
 
-  <!-- =========================
-       FOOTER
-       ========================= -->
+<footer class="school-footer">
 
-  <footer class="school-footer">
-
-
-    <!-- KVS Logo -->
 
     <img
-      src="{{ url_for('static', filename='images/kv-logo.png') }}"
-      alt="Kendriya Vidyalaya Logo"
-      class="bottom-kv-logo"
+        src="{{ url_for('static', filename='images/kv-logo.png') }}"
+        alt="Kendriya Vidyalaya Logo"
+        class="bottom-kv-logo"
     >
 
 
-    <!-- Footer Text -->
-
     <div class="footer-text">
 
-      SchoolVoice • Make your school better,
-      one report at a time.
+        SchoolVoice • Make your school better,
+        one report at a time.
 
     </div>
 
 
-    <!-- PM SHRI Logo -->
-
     <img
-      src="{{ url_for('static', filename='images/pm-shri-logo.png') }}"
-      alt="PM SHRI Logo"
-      class="pm-shri-logo"
+        src="{{ url_for('static', filename='images/pm-shri-logo.png') }}"
+        alt="PM SHRI Logo"
+        class="pm-shri-logo"
     >
 
-  </footer>
+</footer>
 
 
 </body>
