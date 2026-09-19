@@ -2,24 +2,20 @@ import os
 from datetime import datetime
 
 from supabase import create_client, Client
-from werkzeug.security import (
-    generate_password_hash,
-    check_password_hash
-)
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
-# =========================================================
-# SUPABASE
-# =========================================================
+# ============================================================
+# SUPABASE CONNECTION
+# ============================================================
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_SERVICE_KEY = os.environ.get("SUPABASE_SERVICE_KEY")
 
-if not SUPABASE_URL:
-    raise RuntimeError("SUPABASE_URL environment variable is missing.")
-
-if not SUPABASE_SERVICE_KEY:
-    raise RuntimeError("SUPABASE_SERVICE_KEY environment variable is missing.")
+if not SUPABASE_URL or not SUPABASE_SERVICE_KEY:
+    raise RuntimeError(
+        "SUPABASE_URL and SUPABASE_SERVICE_KEY environment variables are required."
+    )
 
 supabase: Client = create_client(
     SUPABASE_URL,
@@ -27,50 +23,33 @@ supabase: Client = create_client(
 )
 
 
-# =========================================================
-# TIME
-# =========================================================
-
-def now():
-    return datetime.now().strftime("%Y-%m-%d %H:%M")
-
-
-# =========================================================
+# ============================================================
 # HELPERS
-# =========================================================
+# ============================================================
 
-def _first(response):
+def _first(result):
     """
-    Return the first Supabase row or None.
+    Safely return the first row from a Supabase response.
     """
-    if response and response.data:
-        return response.data[0]
+    if result and getattr(result, "data", None):
+        return result.data[0]
     return None
 
 
-def _rows(response):
+def _rows(result):
     """
-    Return Supabase rows safely.
+    Safely return response rows.
     """
-    if response and response.data:
-        return response.data
+    if result and getattr(result, "data", None):
+        return result.data
     return []
 
 
 def _user_tuple(row):
     """
-    Keep the same tuple format used by the old SQLite database.
-
-    Indexes:
-        0 = id
-        1 = username
-        2 = password
-        3 = role
-        4 = active
-        5 = must_change_password
-        6 = registered_at
+    Convert Supabase user row into the tuple format
+    expected by the existing Flask templates.
     """
-
     if not row:
         return None
 
@@ -79,28 +58,15 @@ def _user_tuple(row):
         row.get("username"),
         row.get("password"),
         row.get("role"),
-        row.get("active"),
-        row.get("must_change_password"),
-        row.get("registered_at")
+        row.get("created_at")
     )
 
 
 def _report_tuple(row):
     """
-    Keep the same report tuple format as SQLite.
-
-    Indexes:
-        0 = id
-        1 = username
-        2 = category
-        3 = location
-        4 = message
-        5 = status
-        6 = date
-        7 = admin_note
-        8 = photo
+    Convert Supabase report row into the tuple format
+    expected by the existing Flask templates.
     """
-
     if not row:
         return None
 
@@ -117,1162 +83,728 @@ def _report_tuple(row):
     )
 
 
-# =========================================================
+# ============================================================
 # DATABASE INITIALIZATION
-# =========================================================
+# ============================================================
 
 def init_db():
+    """
+    Make sure the configured Main Admin accounts exist.
 
-    # =====================================================
-    # IMPORTANT
-    #
-    # The tables are already created in Supabase SQL Editor.
-    #
-    # This function ONLY ensures that the required Main
-    # Admin accounts exist.
-    #
-    # EXISTING MAIN ADMIN PASSWORDS ARE NEVER OVERWRITTEN.
-    # =====================================================
+    IMPORTANT:
+    Existing Main Admin passwords are NOT overwritten.
+    """
 
     main_admins = [
-        (
-            "Principal",
-            os.environ.get("Principal")
-        ),
-        (
-            "Vice Principal",
-            os.environ.get("Vice_Principal")
-        ),
-        (
-            "Harshil Bisen",
-            os.environ.get("Harshil_Bisen")
-        ),
-        (
-            "Chinmay Epili",
-            os.environ.get("Chinmay_Epili")
-        )
+        {
+            "username": "mainadmin",
+            "password": "admin123",
+        }
     ]
 
-    for username, password in main_admins:
+    for admin in main_admins:
+        existing = (
+            supabase
+            .table("users")
+            .select("*")
+            .eq("username", admin["username"])
+            .limit(1)
+            .execute()
+        )
 
-        try:
+        if _first(existing):
+            continue
 
-            # -------------------------------------------------
-            # Check whether the account already exists.
-            # -------------------------------------------------
-
-            response = (
-                supabase
-                .table("users")
-                .select("id, username, role, password")
-                .eq("username", username)
-                .limit(1)
-                .execute()
-            )
-
-            existing = _first(response)
-
-            # -------------------------------------------------
-            # CRITICAL:
-            #
-            # If the Main Admin already exists, DO NOTHING.
-            #
-            # This means the existing password remains exactly
-            # as it is.
-            # -------------------------------------------------
-
-            if existing:
-                continue
-
-            # -------------------------------------------------
-            # Account doesn't exist.
-            #
-            # Only create it if its password exists in Render
-            # environment variables.
-            # -------------------------------------------------
-
-            if not password:
-                print(
-                    f"WARNING: Password environment variable "
-                    f"missing for Main Admin '{username}'."
-                )
-                continue
-
-            supabase.table("users").insert({
-                "username": username,
-                "password": generate_password_hash(password),
-                "role": "main_admin",
-                "active": True,
-                "must_change_password": False,
-                "registered_at": now()
-            }).execute()
-
-            print(
-                f"Main Admin created: {username}"
-            )
-
-        except Exception as e:
-
-            print(
-                f"ERROR while initializing Main Admin "
-                f"'{username}': {e}"
-            )
+        supabase.table("users").insert({
+            "username": admin["username"],
+            "password": generate_password_hash(admin["password"]),
+            "role": "main_admin"
+        }).execute()
 
 
-# =========================================================
-# USERS
-# =========================================================
+# ============================================================
+# USER FUNCTIONS
+# ============================================================
 
-def save_user(
-    username,
-    password,
-    role="student"
-):
-
+def create_user(username, password, role="student"):
     username = username.strip()
 
     if not username or not password:
         return False
 
-    try:
+    existing = (
+        supabase
+        .table("users")
+        .select("id")
+        .eq("username", username)
+        .limit(1)
+        .execute()
+    )
 
-        existing = (
-            supabase
-            .table("users")
-            .select("id")
-            .eq("username", username)
-            .limit(1)
-            .execute()
-        )
-
-        if existing.data:
-            return False
-
-        supabase.table("users").insert({
-            "username": username,
-            "password": generate_password_hash(password),
-            "role": role,
-            "active": True,
-            "must_change_password": False,
-            "registered_at": now()
-        }).execute()
-
-        return True
-
-    except Exception as e:
-
-        print("save_user error:", e)
+    if _first(existing):
         return False
 
+    hashed_password = generate_password_hash(password)
 
-def get_user(
-    username,
-    password
-):
+    supabase.table("users").insert({
+        "username": username,
+        "password": hashed_password,
+        "role": role
+    }).execute()
+
+    return True
+
+
+def authenticate_user(username, password):
+    username = username.strip()
+
+    result = (
+        supabase
+        .table("users")
+        .select("*")
+        .eq("username", username)
+        .limit(1)
+        .execute()
+    )
+
+    user = _first(result)
+
+    if not user:
+        return None
+
+    stored_password = user.get("password")
+
+    if not stored_password:
+        return None
 
     try:
+        valid = check_password_hash(stored_password, password)
+    except Exception:
+        valid = False
 
-        response = (
-            supabase
-            .table("users")
-            .select(
-                "id, username, password, role, active, "
-                "must_change_password, registered_at"
-            )
-            .eq("username", username)
-            .eq("active", True)
-            .limit(1)
-            .execute()
-        )
+    if not valid:
+        return None
 
-        row = _first(response)
+    return _user_tuple(user)
 
-        if not row:
-            return None
 
-        try:
+def get_user(user_id):
+    result = (
+        supabase
+        .table("users")
+        .select("*")
+        .eq("id", user_id)
+        .limit(1)
+        .execute()
+    )
 
-            if check_password_hash(
-                row.get("password", ""),
-                password
-            ):
-                return _user_tuple(row)
-
-        except Exception:
-            return None
-
-    except Exception as e:
-
-        print("get_user error:", e)
-
-    return None
+    return _user_tuple(_first(result))
 
 
 def get_user_by_username(username):
+    result = (
+        supabase
+        .table("users")
+        .select("*")
+        .eq("username", username)
+        .limit(1)
+        .execute()
+    )
 
-    try:
-
-        response = (
-            supabase
-            .table("users")
-            .select(
-                "id, username, password, role, active, "
-                "must_change_password, registered_at"
-            )
-            .eq("username", username)
-            .limit(1)
-            .execute()
-        )
-
-        return _user_tuple(_first(response))
-
-    except Exception as e:
-
-        print("get_user_by_username error:", e)
-        return None
+    return _user_tuple(_first(result))
 
 
 def get_all_users():
+    result = (
+        supabase
+        .table("users")
+        .select("*")
+        .order("created_at", desc=True)
+        .execute()
+    )
 
-    try:
-
-        response = (
-            supabase
-            .table("users")
-            .select(
-                "id, username, password, role, active, "
-                "must_change_password, registered_at"
-            )
-            .order("id")
-            .execute()
-        )
-
-        return [
-            _user_tuple(row)
-            for row in _rows(response)
-        ]
-
-    except Exception as e:
-
-        print("get_all_users error:", e)
-        return []
+    return [
+        _user_tuple(row)
+        for row in _rows(result)
+    ]
 
 
-def deactivate_user(user_id):
-
-    try:
-
-        response = (
-            supabase
-            .table("users")
-            .select("role")
-            .eq("id", user_id)
-            .limit(1)
-            .execute()
-        )
-
-        row = _first(response)
-
-        if not row:
-            return False
-
-        # Main Admin cannot be disabled.
-        if row.get("role") == "main_admin":
-            return False
-
-        result = (
-            supabase
-            .table("users")
-            .update({"active": False})
-            .eq("id", user_id)
-            .execute()
-        )
-
-        return bool(result.data)
-
-    except Exception as e:
-
-        print("deactivate_user error:", e)
+def update_password(username, new_password):
+    if not username or not new_password:
         return False
 
+    hashed_password = generate_password_hash(new_password)
 
-def activate_user(user_id):
+    result = (
+        supabase
+        .table("users")
+        .update({
+            "password": hashed_password
+        })
+        .eq("username", username)
+        .execute()
+    )
 
-    try:
-
-        result = (
-            supabase
-            .table("users")
-            .update({"active": True})
-            .eq("id", user_id)
-            .execute()
-        )
-
-        return bool(result.data)
-
-    except Exception as e:
-
-        print("activate_user error:", e)
-        return False
+    return bool(getattr(result, "data", None))
 
 
-# =========================================================
+# ============================================================
 # ADMIN APPLICATIONS
-# =========================================================
+# ============================================================
 
-def save_admin_application(
-    username,
-    reason
-):
+def create_admin_application(username, reason=""):
+    username = username.strip()
 
-    try:
+    existing = (
+        supabase
+        .table("admin_applications")
+        .select("*")
+        .eq("username", username)
+        .eq("status", "Pending")
+        .limit(1)
+        .execute()
+    )
 
-        supabase.table("admin_applications").insert({
-            "username": username,
-            "reason": reason,
-            "status": "Pending",
-            "date": now()
-        }).execute()
-
-        return True
-
-    except Exception as e:
-
-        print("save_admin_application error:", e)
+    if _first(existing):
         return False
 
+    supabase.table("admin_applications").insert({
+        "username": username,
+        "reason": reason,
+        "status": "Pending"
+    }).execute()
 
-def get_pending_applications():
-
-    try:
-
-        response = (
-            supabase
-            .table("admin_applications")
-            .select("*")
-            .eq("status", "Pending")
-            .order("id", desc=True)
-            .execute()
-        )
-
-        rows = []
-
-        for row in _rows(response):
-
-            rows.append((
-                row.get("id"),
-                row.get("username"),
-                row.get("reason"),
-                row.get("status"),
-                row.get("date")
-            ))
-
-        return rows
-
-    except Exception as e:
-
-        print("get_pending_applications error:", e)
-        return []
+    return True
 
 
-def get_all_applications():
+def get_admin_applications():
+    result = (
+        supabase
+        .table("admin_applications")
+        .select("*")
+        .eq("status", "Pending")
+        .order("created_at", desc=True)
+        .execute()
+    )
 
-    try:
+    applications = []
 
-        response = (
-            supabase
-            .table("admin_applications")
-            .select("*")
-            .order("id", desc=True)
-            .execute()
-        )
+    for row in _rows(result):
+        applications.append((
+            row.get("id"),
+            row.get("username"),
+            row.get("reason"),
+            row.get("status"),
+            row.get("created_at")
+        ))
 
-        rows = []
-
-        for row in _rows(response):
-
-            rows.append((
-                row.get("id"),
-                row.get("username"),
-                row.get("reason"),
-                row.get("status"),
-                row.get("date")
-            ))
-
-        return rows
-
-    except Exception as e:
-
-        print("get_all_applications error:", e)
-        return []
+    return applications
 
 
-def approve_admin(
-    application_id
-):
+def get_admin_application(application_id):
+    result = (
+        supabase
+        .table("admin_applications")
+        .select("*")
+        .eq("id", application_id)
+        .limit(1)
+        .execute()
+    )
 
-    try:
+    row = _first(result)
 
-        response = (
-            supabase
-            .table("admin_applications")
-            .select("username")
-            .eq("id", application_id)
-            .limit(1)
-            .execute()
-        )
-
-        row = _first(response)
-
-        if not row:
-            return False
-
-        username = row.get("username")
-
-        # Promote only a student.
-        supabase.table("users").update({
-            "role": "admin"
-        }).eq(
-            "username", username
-        ).eq(
-            "role", "student"
-        ).execute()
-
-        supabase.table("admin_applications").update({
-            "status": "Approved"
-        }).eq(
-            "id", application_id
-        ).execute()
-
-        return True
-
-    except Exception as e:
-
-        print("approve_admin error:", e)
-        return False
-
-
-def reject_admin(
-    application_id
-):
-
-    try:
-
-        result = (
-            supabase
-            .table("admin_applications")
-            .update({
-                "status": "Rejected"
-            })
-            .eq("id", application_id)
-            .execute()
-        )
-
-        return bool(result.data)
-
-    except Exception as e:
-
-        print("reject_admin error:", e)
-        return False
-
-
-# =========================================================
-# REPORTS
-# =========================================================
-
-def save_report(
-    username,
-    category,
-    location,
-    message,
-    photo=""
-):
-
-    message = message.strip()
-
-    if not message:
+    if not row:
         return None
 
-    try:
+    return (
+        row.get("id"),
+        row.get("username"),
+        row.get("reason"),
+        row.get("status"),
+        row.get("created_at")
+    )
 
-        report_date = now()
 
-        response = supabase.table("reports").insert({
+def update_admin_application(application_id, status):
+    if status not in ["Approved", "Rejected"]:
+        return False
+
+    result = (
+        supabase
+        .table("admin_applications")
+        .update({
+            "status": status
+        })
+        .eq("id", application_id)
+        .execute()
+    )
+
+    return bool(getattr(result, "data", None))
+
+
+def approve_admin_application(application_id):
+    application = get_admin_application(application_id)
+
+    if not application:
+        return False
+
+    username = application[1]
+
+    update_admin_application(application_id, "Approved")
+
+    result = (
+        supabase
+        .table("users")
+        .update({
+            "role": "admin"
+        })
+        .eq("username", username)
+        .execute()
+    )
+
+    return bool(getattr(result, "data", None))
+
+
+def reject_admin_application(application_id):
+    return update_admin_application(
+        application_id,
+        "Rejected"
+    )
+
+
+# ============================================================
+# REPORT FUNCTIONS
+# ============================================================
+
+def save_report(username, category, location, message, photo=""):
+    """
+    Create a new report and its first conversation message.
+    """
+
+    result = (
+        supabase
+        .table("reports")
+        .insert({
             "username": username,
             "category": category,
             "location": location,
             "message": message,
             "status": "Pending",
-            "date": report_date,
             "admin_note": "",
-            "photo": photo
-        }).execute()
+            "photo": photo or ""
+        })
+        .execute()
+    )
 
-        row = _first(response)
+    report = _first(result)
 
-        if not row:
-            return None
-
-        report_id = row.get("id")
-
-        # -------------------------------------------------
-        # Find reporter role
-        # -------------------------------------------------
-
-        role_response = (
-            supabase
-            .table("users")
-            .select("role")
-            .eq("username", username)
-            .limit(1)
-            .execute()
-        )
-
-        role_row = _first(role_response)
-
-        role = (
-            role_row.get("role")
-            if role_row
-            else "student"
-        )
-
-        # -------------------------------------------------
-        # Original report message
-        # -------------------------------------------------
-
-        supabase.table("report_messages").insert({
-            "report_id": report_id,
-            "username": username,
-            "role": role,
-            "message": message,
-            "date": report_date
-        }).execute()
-
-        # -------------------------------------------------
-        # First photo
-        # -------------------------------------------------
-
-        if photo:
-
-            supabase.table("report_photos").insert({
-                "report_id": report_id,
-                "filename": photo,
-                "uploaded_at": report_date
-            }).execute()
-
-        return report_id
-
-    except Exception as e:
-
-        print("save_report error:", e)
+    if not report:
         return None
+
+    report_id = report.get("id")
+
+    # Initial report conversation message
+    supabase.table("report_messages").insert({
+        "report_id": report_id,
+        "username": username,
+        "role": "student",
+        "message": message
+    }).execute()
+
+    # Save first photo if supplied
+    if photo:
+        add_report_photo(
+            report_id,
+            photo
+        )
+
+    return report_id
 
 
 def get_report(report_id):
+    result = (
+        supabase
+        .table("reports")
+        .select("*")
+        .eq("id", report_id)
+        .limit(1)
+        .execute()
+    )
 
-    try:
-
-        response = (
-            supabase
-            .table("reports")
-            .select("*")
-            .eq("id", report_id)
-            .limit(1)
-            .execute()
-        )
-
-        return _report_tuple(_first(response))
-
-    except Exception as e:
-
-        print("get_report error:", e)
-        return None
+    return _report_tuple(_first(result))
 
 
 def get_all_reports():
+    result = (
+        supabase
+        .table("reports")
+        .select("*")
+        .order("date", desc=True)
+        .execute()
+    )
 
-    try:
-
-        response = (
-            supabase
-            .table("reports")
-            .select("*")
-            .order("id", desc=True)
-            .execute()
-        )
-
-        return [
-            _report_tuple(row)
-            for row in _rows(response)
-        ]
-
-    except Exception as e:
-
-        print("get_all_reports error:", e)
-        return []
+    return [
+        _report_tuple(row)
+        for row in _rows(result)
+    ]
 
 
 def get_user_reports(username):
+    result = (
+        supabase
+        .table("reports")
+        .select("*")
+        .eq("username", username)
+        .order("date", desc=True)
+        .execute()
+    )
 
-    try:
-
-        response = (
-            supabase
-            .table("reports")
-            .select("*")
-            .eq("username", username)
-            .order("id", desc=True)
-            .execute()
-        )
-
-        return [
-            _report_tuple(row)
-            for row in _rows(response)
-        ]
-
-    except Exception as e:
-
-        print("get_user_reports error:", e)
-        return []
+    return [
+        _report_tuple(row)
+        for row in _rows(result)
+    ]
 
 
-def update_report_status(
-    report_id,
-    status,
-    admin_note=""
-):
-
-    allowed_statuses = {
+def update_report_status(report_id, status, admin_note=""):
+    allowed_statuses = [
         "Pending",
         "Reviewed",
         "In Progress",
         "Resolved",
         "Unreasonable"
-    }
+    ]
 
     if status not in allowed_statuses:
         return False
 
-    try:
+    result = (
+        supabase
+        .table("reports")
+        .update({
+            "status": status,
+            "admin_note": admin_note
+        })
+        .eq("id", report_id)
+        .execute()
+    )
 
-        response = (
-            supabase
-            .table("reports")
-            .update({
-                "status": status,
-                "admin_note": admin_note
-            })
-            .eq("id", report_id)
-            .execute()
-        )
-
-        return bool(response.data)
-
-    except Exception as e:
-
-        print("update_report_status error:", e)
-        return False
+    return bool(getattr(result, "data", None))
 
 
 def mark_report_unreasonable(report_id):
-
-    try:
-
-        response = (
-            supabase
-            .table("reports")
-            .update({
-                "status": "Unreasonable"
-            })
-            .eq("id", report_id)
-            .execute()
-        )
-
-        return bool(response.data)
-
-    except Exception as e:
-
-        print("mark_report_unreasonable error:", e)
-        return False
+    return update_report_status(
+        report_id,
+        "Unreasonable",
+        "Sent to Main Admin for review"
+    )
 
 
-def get_unreasonable_reports():
-
-    try:
-
-        response = (
-            supabase
-            .table("reports")
-            .select("*")
-            .eq("status", "Unreasonable")
-            .order("id", desc=True)
-            .execute()
-        )
-
-        return [
-            _report_tuple(row)
-            for row in _rows(response)
-        ]
-
-    except Exception as e:
-
-        print("get_unreasonable_reports error:", e)
-        return []
-
-
-def delete_report(report_id):
-
-    try:
-
-        # Delete messages first.
-        supabase.table("report_messages").delete().eq(
-            "report_id", report_id
-        ).execute()
-
-        # Delete photo records.
-        supabase.table("report_photos").delete().eq(
-            "report_id", report_id
-        ).execute()
-
-        # Delete report.
-        response = (
-            supabase
-            .table("reports")
-            .delete()
-            .eq("id", report_id)
-            .execute()
-        )
-
-        return bool(response.data)
-
-    except Exception as e:
-
-        print("delete_report error:", e)
-        return False
-
-
-# =========================================================
+# ============================================================
 # REPORT PHOTOS
-# =========================================================
+# ============================================================
 
-def add_report_photo(
-    report_id,
-    filename
-):
-
+def add_report_photo(report_id, filename):
     if not filename:
         return False
 
-    try:
-
-        # Make sure report exists.
-        report_response = (
-            supabase
-            .table("reports")
-            .select("id")
-            .eq("id", report_id)
-            .limit(1)
-            .execute()
-        )
-
-        if not _first(report_response):
-            return False
-
-        supabase.table("report_photos").insert({
+    result = (
+        supabase
+        .table("report_photos")
+        .insert({
             "report_id": report_id,
-            "filename": filename,
-            "uploaded_at": now()
-        }).execute()
+            "filename": filename
+        })
+        .execute()
+    )
 
-        return True
-
-    except Exception as e:
-
-        print("add_report_photo error:", e)
-        return False
+    return bool(getattr(result, "data", None))
 
 
 def get_report_photos(report_id):
+    result = (
+        supabase
+        .table("report_photos")
+        .select("*")
+        .eq("report_id", report_id)
+        .order("uploaded_at", desc=False)
+        .execute()
+    )
 
-    try:
+    photos = []
 
-        response = (
-            supabase
-            .table("report_photos")
-            .select(
-                "id, report_id, filename, uploaded_at"
-            )
-            .eq("report_id", report_id)
-            .order("id")
-            .execute()
-        )
-
-        return [
-            (
-                row.get("id"),
-                row.get("report_id"),
-                row.get("filename"),
-                row.get("uploaded_at")
-            )
-            for row in _rows(response)
-        ]
-
-    except Exception as e:
-
-        print("get_report_photos error:", e)
-        return []
-
-
-def delete_report_photo(photo_id):
-
-    try:
-
-        response = (
-            supabase
-            .table("report_photos")
-            .select("report_id, filename")
-            .eq("id", photo_id)
-            .limit(1)
-            .execute()
-        )
-
-        row = _first(response)
-
-        if not row:
-            return None
-
-        supabase.table("report_photos").delete().eq(
-            "id", photo_id
-        ).execute()
-
-        return (
+    for row in _rows(result):
+        photos.append((
+            row.get("id"),
             row.get("report_id"),
-            row.get("filename")
-        )
+            row.get("filename"),
+            row.get("uploaded_at")
+        ))
 
-    except Exception as e:
-
-        print("delete_report_photo error:", e)
-        return None
+    return photos
 
 
-# =========================================================
+def delete_report_photos(report_id):
+    supabase.table("report_photos").delete().eq(
+        "report_id",
+        report_id
+    ).execute()
+
+
+# ============================================================
 # REPORT CONVERSATION
-# =========================================================
+# ============================================================
 
-def add_report_message(
-    report_id,
-    username,
-    role,
-    message
-):
-
-    message = message.strip()
-
-    if not message:
+def add_report_message(report_id, username, role, message):
+    if not message or not message.strip():
         return False
 
-    try:
-
-        report_response = (
-            supabase
-            .table("reports")
-            .select("id")
-            .eq("id", report_id)
-            .limit(1)
-            .execute()
-        )
-
-        if not _first(report_response):
-            return False
-
-        supabase.table("report_messages").insert({
+    result = (
+        supabase
+        .table("report_messages")
+        .insert({
             "report_id": report_id,
             "username": username,
             "role": role,
-            "message": message,
-            "date": now()
-        }).execute()
+            "message": message.strip()
+        })
+        .execute()
+    )
 
-        return True
-
-    except Exception as e:
-
-        print("add_report_message error:", e)
-        return False
+    return bool(getattr(result, "data", None))
 
 
 def get_report_messages(report_id):
+    result = (
+        supabase
+        .table("report_messages")
+        .select("*")
+        .eq("report_id", report_id)
+        .order("date", desc=False)
+        .execute()
+    )
 
-    try:
+    messages = []
 
-        response = (
-            supabase
-            .table("report_messages")
-            .select(
-                "id, report_id, username, role, message, date"
-            )
-            .eq("report_id", report_id)
-            .order("id")
-            .execute()
-        )
+    for row in _rows(result):
+        messages.append((
+            row.get("id"),
+            row.get("report_id"),
+            row.get("username"),
+            row.get("role"),
+            row.get("message"),
+            row.get("date")
+        ))
 
-        return [
-            (
-                row.get("id"),
-                row.get("report_id"),
-                row.get("username"),
-                row.get("role"),
-                row.get("message"),
-                row.get("date")
-            )
-            for row in _rows(response)
-        ]
-
-    except Exception as e:
-
-        print("get_report_messages error:", e)
-        return []
+    return messages
 
 
-# =========================================================
-# PASSWORD MANAGEMENT
-# =========================================================
+def delete_report_messages(report_id):
+    supabase.table("report_messages").delete().eq(
+        "report_id",
+        report_id
+    ).execute()
 
-def set_temporary_password(
-    user_id,
-    temporary_password
-):
 
-    if not temporary_password:
-        return None
+# ============================================================
+# DELETE REPORT
+# ============================================================
 
-    try:
+def delete_report(report_id):
+    """
+    Delete all database records belonging to a report.
 
-        response = (
-            supabase
-            .table("users")
-            .select("id, username, role")
-            .eq("id", user_id)
-            .limit(1)
-            .execute()
-        )
+    Physical uploaded files are handled by app.py because
+    database.py should not need to know the Flask upload path.
+    """
 
-        row = _first(response)
+    delete_report_messages(report_id)
+    delete_report_photos(report_id)
 
-        if not row:
-            return None
+    result = (
+        supabase
+        .table("reports")
+        .delete()
+        .eq("id", report_id)
+        .execute()
+    )
 
-        # -------------------------------------------------
-        # MAIN ADMIN PROTECTION
-        # -------------------------------------------------
+    return bool(getattr(result, "data", None))
 
-        if row.get("role") == "main_admin":
-            return "protected"
 
-        supabase.table("users").update({
-            "password": generate_password_hash(
-                temporary_password
-            ),
-            "must_change_password": True
-        }).eq(
-            "id", user_id
+# ============================================================
+# UNREASONABLE REPORTS
+# ============================================================
+
+def get_unreasonable_reports():
+    result = (
+        supabase
+        .table("reports")
+        .select("*")
+        .eq("status", "Unreasonable")
+        .order("date", desc=True)
+        .execute()
+    )
+
+    return [
+        _report_tuple(row)
+        for row in _rows(result)
+    ]
+
+
+# ============================================================
+# DELETE USER + ALL USER REPORTS
+# ============================================================
+
+def delete_user(user_id, upload_folder=None):
+    """
+    Delete a user and EVERYTHING belonging to that user.
+
+    Deletes:
+        - user's reports
+        - report messages
+        - report photo database records
+        - physical uploaded photos
+        - admin applications
+        - user account
+
+    Main Admin accounts are protected.
+    """
+
+    user_result = (
+        supabase
+        .table("users")
+        .select("*")
+        .eq("id", user_id)
+        .limit(1)
+        .execute()
+    )
+
+    user = _first(user_result)
+
+    if not user:
+        return "not_found"
+
+    username = user.get("username")
+    role = user.get("role")
+
+    # NEVER allow deletion of a Main Admin
+    if role == "main_admin":
+        return "protected"
+
+    # --------------------------------------------------------
+    # Find every report belonging to this user
+    # --------------------------------------------------------
+
+    reports_result = (
+        supabase
+        .table("reports")
+        .select("id")
+        .eq("username", username)
+        .execute()
+    )
+
+    report_rows = _rows(reports_result)
+
+    deleted_report_count = 0
+
+    # --------------------------------------------------------
+    # Delete every report and its related records
+    # --------------------------------------------------------
+
+    for report in report_rows:
+        report_id = report.get("id")
+
+        # Get photo filenames before deleting DB records
+        photos = get_report_photos(report_id)
+
+        if upload_folder:
+            for photo in photos:
+                filename = photo[2]
+
+                if not filename:
+                    continue
+
+                file_path = os.path.join(
+                    upload_folder,
+                    filename
+                )
+
+                try:
+                    if os.path.isfile(file_path):
+                        os.remove(file_path)
+                except OSError:
+                    pass
+
+        delete_report_messages(report_id)
+        delete_report_photos(report_id)
+
+        supabase.table("reports").delete().eq(
+            "id",
+            report_id
         ).execute()
 
-        return row.get("username")
+        deleted_report_count += 1
 
-    except Exception as e:
+    # --------------------------------------------------------
+    # Delete admin applications
+    # --------------------------------------------------------
 
-        print("set_temporary_password error:", e)
-        return None
+    supabase.table("admin_applications").delete().eq(
+        "username",
+        username
+    ).execute()
 
+    # --------------------------------------------------------
+    # Delete user account
+    # --------------------------------------------------------
 
-def set_permanent_password(
-    user_id,
-    new_password
-):
+    supabase.table("users").delete().eq(
+        "id",
+        user_id
+    ).execute()
 
-    if not new_password:
-        return None
-
-    try:
-
-        response = (
-            supabase
-            .table("users")
-            .select("id, username, role")
-            .eq("id", user_id)
-            .eq("active", True)
-            .limit(1)
-            .execute()
-        )
-
-        row = _first(response)
-
-        if not row:
-            return None
-
-        # -------------------------------------------------
-        # MAIN ADMIN PROTECTION
-        # -------------------------------------------------
-
-        if row.get("role") == "main_admin":
-            return "protected"
-
-        supabase.table("users").update({
-            "password": generate_password_hash(
-                new_password
-            ),
-            "must_change_password": False
-        }).eq(
-            "id", user_id
-        ).execute()
-
-        return row.get("username")
-
-    except Exception as e:
-
-        print("set_permanent_password error:", e)
-        return None
+    return {
+        "username": username,
+        "report_count": deleted_report_count
+    }
 
 
-def change_password(
-    username,
-    new_password
-):
-
-    if not new_password:
-        return False
-
-    try:
-
-        response = (
-            supabase
-            .table("users")
-            .select("role")
-            .eq("username", username)
-            .eq("active", True)
-            .limit(1)
-            .execute()
-        )
-
-        row = _first(response)
-
-        if not row:
-            return False
-
-        # -------------------------------------------------
-        # MAIN ADMINS CANNOT BE CHANGED THROUGH THIS ROUTE.
-        # -------------------------------------------------
-
-        if row.get("role") == "main_admin":
-            return False
-
-        supabase.table("users").update({
-            "password": generate_password_hash(
-                new_password
-            ),
-            "must_change_password": False
-        }).eq(
-            "username", username
-        ).execute()
-
-        return True
-
-    except Exception as e:
-
-        print("change_password error:", e)
-        return False
-
-
-def must_change_password(username):
-
-    try:
-
-        response = (
-            supabase
-            .table("users")
-            .select("must_change_password")
-            .eq("username", username)
-            .eq("active", True)
-            .limit(1)
-            .execute()
-        )
-
-        row = _first(response)
-
-        return bool(
-            row and row.get("must_change_password")
-        )
-
-    except Exception as e:
-
-        print("must_change_password error:", e)
-        return False
-
-
-# =========================================================
+# ============================================================
 # REPORT STATISTICS
-# =========================================================
+# ============================================================
 
-def get_report_stats():
+def get_report_stats(username=None):
+    if username:
+        reports = get_user_reports(username)
+    else:
+        reports = get_all_reports()
 
-    try:
+    total = len(reports)
+    pending = 0
+    reviewed = 0
+    in_progress = 0
+    resolved = 0
+    unreasonable = 0
 
-        response = (
-            supabase
-            .table("reports")
-            .select("status")
-            .execute()
-        )
+    for report in reports:
+        status = report[5]
 
-        rows = _rows(response)
+        if status == "Pending":
+            pending += 1
+        elif status == "Reviewed":
+            reviewed += 1
+        elif status == "In Progress":
+            in_progress += 1
+        elif status == "Resolved":
+            resolved += 1
+        elif status == "Unreasonable":
+            unreasonable += 1
 
-        total = len(rows)
-
-        pending = sum(
-            1 for row in rows
-            if row.get("status") == "Pending"
-        )
-
-        reviewed = sum(
-            1 for row in rows
-            if row.get("status") == "Reviewed"
-        )
-
-        in_progress = sum(
-            1 for row in rows
-            if row.get("status") == "In Progress"
-        )
-
-        resolved = sum(
-            1 for row in rows
-            if row.get("status") == "Resolved"
-        )
-
-        unreasonable = sum(
-            1 for row in rows
-            if row.get("status") == "Unreasonable"
-        )
-
-        return {
-            "total": total,
-            "pending": pending,
-            "reviewed": reviewed,
-            "in_progress": in_progress,
-            "resolved": resolved,
-            "unreasonable": unreasonable
-        }
-
-    except Exception as e:
-
-        print("get_report_stats error:", e)
-
-        return {
-            "total": 0,
-            "pending": 0,
-            "reviewed": 0,
-            "in_progress": 0,
-            "resolved": 0,
-            "unreasonable": 0
-        }
+    return {
+        "total": total,
+        "pending": pending,
+        "reviewed": reviewed,
+        "in_progress": in_progress,
+        "resolved": resolved,
+        "unreasonable": unreasonable
+    }
