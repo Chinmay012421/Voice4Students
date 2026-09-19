@@ -6,399 +6,495 @@ User Management — SchoolVoice
 
 {% block content %}
 
-<div class="section-title">
+<div class="users-page">
 
-    <div>
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
 
-        <p class="eyebrow">
-            Main Admin
-        </p>
-
-        <h1>
-            User Management
-        </h1>
-
-        <p class="muted">
-            Manage SchoolVoice student and admin accounts.
-        </p>
-
-    </div>
-
-</div>
-
-
-{% if error %}
-
-<div class="alert error">
-    {{ error }}
-</div>
-
-{% endif %}
-
-
-{% if message %}
-
-<div class="alert success">
-    {{ message }}
-</div>
-
-{% endif %}
-
-
-<div class="panel user-management-panel">
-
-    <div class="user-management-heading">
+    <div class="users-header">
 
         <div>
+            <div class="eyebrow">
+                MAIN ADMIN
+            </div>
 
-            <h2>
-                Accounts
-            </h2>
+            <h1>User Management</h1>
 
             <p class="muted">
-
-                Showing
-
-                <strong>
-                    {{ users|length }}
-                </strong>
-
-                account{% if users|length != 1 %}s{% endif %}
-
+                Manage student and administrator accounts.
             </p>
+        </div>
+
+        <div class="users-summary">
+
+            <div class="summary-card">
+                <span>Total Users</span>
+                <strong>{{ users|length }}</strong>
+            </div>
 
         </div>
 
     </div>
 
 
-    <form
-        method="get"
-        action="/users"
-        class="user-filters"
-    >
+    <!-- =====================================================
+         FLASH MESSAGES
+    ====================================================== -->
 
-        <div class="filter-field">
+    {% if error %}
 
-            <label for="user-search">
-                Search users
-            </label>
-
-            <input
-                id="user-search"
-                type="text"
-                name="search"
-                value="{{ search }}"
-                placeholder="Search by username..."
-            >
-
+        <div class="users-alert users-alert-error">
+            <span>⚠</span>
+            <div>{{ error }}</div>
         </div>
 
+    {% endif %}
 
-        <div class="filter-field">
 
-            <label for="user-role">
-                Role
-            </label>
+    {% if success %}
 
-            <select
-                id="user-role"
-                name="role"
-            >
-
-                <option
-                    value=""
-                    {% if not selected_role %}
-                        selected
-                    {% endif %}
-                >
-                    All Users
-                </option>
-
-                <option
-                    value="student"
-                    {% if selected_role == "student" %}
-                        selected
-                    {% endif %}
-                >
-                    Students
-                </option>
-
-                <option
-                    value="admin"
-                    {% if selected_role == "admin" %}
-                        selected
-                    {% endif %}
-                >
-                    Admins
-                </option>
-
-            </select>
-
+        <div class="users-alert users-alert-success">
+            <span>✓</span>
+            <div>{{ success }}</div>
         </div>
 
+    {% endif %}
 
-        <div class="user-filter-buttons">
+
+    <!-- =====================================================
+         SEARCH / FILTER
+    ====================================================== -->
+
+    <div class="users-filter-panel">
+
+        <form
+            method="GET"
+            action="/users"
+            class="users-search-form"
+        >
+
+            <div class="users-search-box">
+
+                <span class="search-icon">⌕</span>
+
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ search or '' }}"
+                    placeholder="Search users by username..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+            <div class="users-role-filter">
+
+                <select name="role">
+
+                    <option
+                        value=""
+                        {% if not selected_role %}
+                        selected
+                        {% endif %}
+                    >
+                        All Roles
+                    </option>
+
+                    <option
+                        value="student"
+                        {% if selected_role == "student" %}
+                        selected
+                        {% endif %}
+                    >
+                        Students
+                    </option>
+
+                    <option
+                        value="admin"
+                        {% if selected_role == "admin" %}
+                        selected
+                        {% endif %}
+                    >
+                        Admins
+                    </option>
+
+                    <option
+                        value="main_admin"
+                        {% if selected_role == "main_admin" %}
+                        selected
+                        {% endif %}
+                    >
+                        Main Admins
+                    </option>
+
+                </select>
+
+            </div>
+
 
             <button
                 type="submit"
-                class="btn primary"
+                class="users-search-button"
             >
                 Search
             </button>
 
-            <a
-                href="/users"
-                class="btn secondary"
-            >
-                Clear
-            </a>
 
-        </div>
+            {% if search or selected_role %}
 
-    </form>
-
-</div>
-
-
-{% if users %}
-
-<div class="users-grid">
-
-    {% for user in users %}
-
-    <div class="user-card">
-
-        <div class="user-card-top">
-
-            <div class="user-avatar">
-                {{ user[1][0]|upper }}
-            </div>
-
-
-            <div class="user-main-info">
-
-                <h2>
-                    {{ user[1] }}
-                </h2>
-
-
-                {% if user[3] == "main_admin" %}
-
-                <span class="user-role main-admin">
-                    MAIN ADMIN
-                </span>
-
-                {% elif user[3] == "admin" %}
-
-                <span class="user-role admin">
-                    ADMIN
-                </span>
-
-                {% else %}
-
-                <span class="user-role student">
-                    STUDENT
-                </span>
-
-                {% endif %}
-
-            </div>
-
-        </div>
-
-
-        <div class="user-info-grid">
-
-            <div class="user-info-item">
-
-                <span>
-                    User ID
-                </span>
-
-                <strong>
-                    #{{ user[0] }}
-                </strong>
-
-            </div>
-
-
-            <div class="user-info-item">
-
-                <span>
-                    Account type
-                </span>
-
-                <strong>
-
-                    {% if user[3] == "main_admin" %}
-
-                        Main Admin
-
-                    {% elif user[3] == "admin" %}
-
-                        Admin
-
-                    {% else %}
-
-                        Student
-
-                    {% endif %}
-
-                </strong>
-
-            </div>
-
-
-            <div class="user-info-item">
-
-                <span>
-                    Password status
-                </span>
-
-                <strong>
-
-                    {% if user[5] == 1 %}
-
-                        Temporary password
-
-                    {% else %}
-
-                        Normal
-
-                    {% endif %}
-
-                </strong>
-
-            </div>
-
-        </div>
-
-
-        {% if user[3] == "main_admin" %}
-
-        <div class="protected-user">
-
-            <div class="protected-icon">
-                🛡️
-            </div>
-
-            <div>
-
-                <strong>
-                    Main Admin account
-                </strong>
-
-                <p>
-                    Password management is protected.
-                </p>
-
-            </div>
-
-        </div>
-
-        {% else %}
-
-        <div class="password-management">
-
-            <div class="password-heading">
-
-                <strong>
-                    Password Management
-                </strong>
-
-                <span>
-                    Main Admin only
-                </span>
-
-            </div>
-
-
-            <form
-                method="post"
-                action="/change-user-password/{{ user[0] }}"
-                class="password-form"
-            >
-
-                <input
-                    type="password"
-                    name="new_password"
-                    placeholder="New password"
-                    minlength="8"
-                    required
+                <a
+                    href="/users"
+                    class="users-clear-button"
                 >
+                    Clear
+                </a>
 
-                <input
-                    type="password"
-                    name="confirm_password"
-                    placeholder="Confirm password"
-                    minlength="8"
-                    required
-                >
+            {% endif %}
 
-                <button
-                    type="submit"
-                    class="small-btn"
-                    onclick="return confirm('Permanently change this user password?')"
-                >
-                    Change Password
-                </button>
+        </form>
 
-            </form>
+    </div>
 
 
-            <form
-                method="post"
-                action="/reset-password/{{ user[0] }}"
-                class="temporary-reset-form"
-            >
+    <!-- =====================================================
+         USER COUNT
+    ====================================================== -->
 
-                <button
-                    type="submit"
-                    class="small-btn reset-btn"
-                    onclick="return confirm('Generate a temporary password for this user?')"
-                >
-                    Generate Temporary Password
-                </button>
+    <div class="users-results-bar">
 
-            </form>
+        <div>
+
+            <strong>
+                {{ users|length }}
+            </strong>
+
+            {% if users|length == 1 %}
+                user found
+            {% else %}
+                users found
+            {% endif %}
 
         </div>
+
+        {% if search %}
+
+            <span>
+                Search:
+                <strong>"{{ search }}"</strong>
+            </span>
 
         {% endif %}
 
     </div>
 
-    {% endfor %}
+
+    <!-- =====================================================
+         USER LIST
+    ====================================================== -->
+
+    {% if users %}
+
+        <div class="users-list">
+
+            {% for user in users %}
+
+                {% set user_id = user[0] %}
+                {% set username = user[1] %}
+                {% set user_role = user[3] %}
+                {% set active = user[4] %}
+                {% set must_change = user[5] %}
+                {% set registered_at = user[6] %}
+
+                <div class="user-card">
+
+                    <!-- -------------------------------------
+                         USER INFORMATION
+                    -------------------------------------- -->
+
+                    <div class="user-main">
+
+                        <div class="user-avatar">
+
+                            {{ username[:1]|upper }}
+
+                        </div>
+
+
+                        <div class="user-information">
+
+                            <div class="user-name-row">
+
+                                <h2>
+                                    {{ username }}
+                                </h2>
+
+
+                                {% if user_role == "main_admin" %}
+
+                                    <span class="user-role role-main-admin">
+                                        Main Admin
+                                    </span>
+
+                                {% elif user_role == "admin" %}
+
+                                    <span class="user-role role-admin">
+                                        Admin
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="user-role role-student">
+                                        Student
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="user-details-grid">
+
+                                <div class="user-detail">
+
+                                    <span class="detail-label">
+                                        USER ID
+                                    </span>
+
+                                    <strong>
+                                        #{{ user_id }}
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="user-detail">
+
+                                    <span class="detail-label">
+                                        ACCOUNT STATUS
+                                    </span>
+
+                                    {% if active %}
+
+                                        <strong class="account-active">
+                                            ● Active
+                                        </strong>
+
+                                    {% else %}
+
+                                        <strong class="account-inactive">
+                                            ● Inactive
+                                        </strong>
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <div class="user-detail">
+
+                                    <span class="detail-label">
+                                        REGISTERED
+                                    </span>
+
+                                    <strong>
+                                        {{ registered_at }}
+                                    </strong>
+
+                                </div>
+
+
+                                <div class="user-detail">
+
+                                    <span class="detail-label">
+                                        PASSWORD
+                                    </span>
+
+                                    {% if must_change %}
+
+                                        <strong class="password-warning">
+                                            Change required
+                                        </strong>
+
+                                    {% else %}
+
+                                        <strong class="password-ok">
+                                            Set
+                                        </strong>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- -------------------------------------
+                         ACTIONS
+                    -------------------------------------- -->
+
+                    <div class="user-actions">
+
+                        {% if user_role == "main_admin" %}
+
+                            <div class="protected-account">
+
+                                <span class="lock-icon">
+                                    🔒
+                                </span>
+
+                                <div>
+                                    <strong>
+                                        Protected Account
+                                    </strong>
+
+                                    <small>
+                                        Main Admin cannot be
+                                        deleted or reset here.
+                                    </small>
+                                </div>
+
+                            </div>
+
+                        {% else %}
+
+                            <!-- Temporary password -->
+
+                            <form
+                                method="POST"
+                                action="/reset-password/{{ user_id }}"
+                                onsubmit="return confirm(
+                                    'Generate a temporary password for {{ username }}?'
+                                );"
+                            >
+
+                                <button
+                                    type="submit"
+                                    class="user-action-button password-button"
+                                >
+                                    🔑 Temporary Password
+                                </button>
+
+                            </form>
+
+
+                            <!-- Permanent password -->
+
+                            <details class="password-details">
+
+                                <summary>
+                                    Change Password
+                                </summary>
+
+                                <form
+                                    method="POST"
+                                    action="/change-user-password/{{ user_id }}"
+                                    class="admin-password-form"
+                                >
+
+                                    <input
+                                        type="password"
+                                        name="new_password"
+                                        placeholder="New password"
+                                        minlength="8"
+                                        required
+                                    >
+
+                                    <input
+                                        type="password"
+                                        name="confirm_password"
+                                        placeholder="Confirm password"
+                                        minlength="8"
+                                        required
+                                    >
+
+                                    <button
+                                        type="submit"
+                                        class="user-action-button change-password-button"
+                                    >
+                                        Save Password
+                                    </button>
+
+                                </form>
+
+                            </details>
+
+
+                            <!-- Delete -->
+
+                            <form
+                                method="POST"
+                                action="/delete-user/{{ user_id }}"
+                                onsubmit="return confirm(
+                                    'WARNING: Delete {{ username }} and all reports belonging to this user? This cannot be undone.'
+                                );"
+                            >
+
+                                <button
+                                    type="submit"
+                                    class="user-action-button delete-user-button"
+                                >
+                                    🗑 Delete User
+                                </button>
+
+                            </form>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <!-- =================================================
+             EMPTY STATE
+        ================================================== -->
+
+        <div class="users-empty">
+
+            <div class="empty-icon">
+                👤
+            </div>
+
+            <h2>
+                No users found
+            </h2>
+
+            {% if search or selected_role %}
+
+                <p>
+                    No users match your current search or filter.
+                </p>
+
+                <a
+                    href="/users"
+                    class="users-clear-button"
+                >
+                    Clear Filters
+                </a>
+
+            {% else %}
+
+                <p>
+                    There are currently no users to display.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    {% endif %}
 
 </div>
-
-
-{% else %}
-
-<div class="empty">
-
-    <div class="empty-icon">
-        👤
-    </div>
-
-    <h2>
-        No users found
-    </h2>
-
-    <p class="muted">
-        No accounts match your current search or filter.
-    </p>
-
-    <a
-        href="/users"
-        class="btn secondary"
-    >
-        Clear Filters
-    </a>
-
-</div>
-
-{% endif %}
 
 {% endblock %}
