@@ -10,19 +10,12 @@
         content="width=device-width, initial-scale=1"
     >
 
-    <meta
-        name="theme-color"
-        content="#172033"
-    >
-
     <title>
         {% block title %}SchoolVoice{% endblock %}
     </title>
 
 
-    <!-- =========================
-         FAVICON
-    ========================== -->
+    <!-- FAVICON -->
 
     <link
         rel="icon"
@@ -31,7 +24,6 @@
         href="{{ url_for('static', filename='images/favicon.png') }}"
     >
 
-
     <link
         rel="shortcut icon"
         type="image/png"
@@ -39,9 +31,7 @@
     >
 
 
-    <!-- =========================
-         MAIN CSS
-    ========================== -->
+    <!-- MAIN CSS -->
 
     <link
         rel="stylesheet"
@@ -49,7 +39,508 @@
     >
 
 
-    {% block head %}{% endblock %}
+    <!-- =====================================================
+         STABLE HEADER / FOOTER UI
+    ====================================================== -->
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+
+        body {
+            min-height: 100vh;
+
+            display: flex;
+            flex-direction: column;
+        }
+
+
+        /* =================================================
+           HEADER
+        ================================================= */
+
+        .topbar {
+            min-height: 76px;
+
+            background: rgba(
+                255,
+                255,
+                255,
+                0.96
+            );
+
+            border-bottom: 1px solid #e1e7ee;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 8px 6%;
+
+            position: sticky;
+            top: 0;
+
+            z-index: 1000;
+
+            box-shadow:
+                0 3px 15px rgba(
+                    23,
+                    32,
+                    51,
+                    0.06
+                );
+
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+
+        /* =================================================
+           BRAND
+        ================================================= */
+
+        .brand {
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+
+            text-decoration: none;
+
+            white-space: nowrap;
+
+            min-width: 0;
+        }
+
+
+        .top-kv-logo {
+            width: 150px;
+            height: 70px;
+
+            object-fit: contain;
+            object-position: center;
+
+            display: block;
+
+            flex-shrink: 0;
+        }
+
+
+        .school-name {
+            color: #172033;
+
+            font-size: 22px;
+            font-weight: 800;
+
+            letter-spacing: -0.5px;
+
+            line-height: 1.15;
+
+            white-space: nowrap;
+        }
+
+
+        /* =================================================
+           NAVIGATION
+        ================================================= */
+
+        .topbar nav {
+            display: flex;
+            align-items: center;
+
+            gap: 22px;
+
+            font-size: 14px;
+            font-weight: 650;
+
+            flex-shrink: 0;
+        }
+
+
+        .topbar nav a {
+            color: #344054;
+
+            text-decoration: none;
+
+            transition:
+                color 0.18s ease,
+                background 0.18s ease;
+        }
+
+
+        .topbar nav a:hover {
+            color: #176fb3;
+        }
+
+
+        /* =================================================
+           NAV BUTTON
+        ================================================= */
+
+        .nav-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            min-height: 40px;
+
+            padding: 9px 17px;
+
+            background: #176fb3;
+
+            color: #ffffff !important;
+
+            border-radius: 9px;
+
+            box-shadow:
+                0 4px 12px rgba(
+                    23,
+                    111,
+                    179,
+                    0.18
+                );
+        }
+
+
+        .nav-button:hover {
+            background: #0d5b96;
+
+            color: #ffffff !important;
+        }
+
+
+        /* =================================================
+           MAIN PAGE
+        ================================================= */
+
+        .page {
+            width: min(
+                1180px,
+                calc(100% - 40px)
+            );
+
+            margin: 0 auto;
+
+            padding: 42px 0 60px;
+
+            flex: 1;
+        }
+
+
+        /* =================================================
+           FOOTER
+        ================================================= */
+
+        .school-footer {
+            position: relative;
+
+            width: 100%;
+
+            min-height: 130px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 20px 40px;
+
+            border-top: 1px solid #e1e7ee;
+
+            color: #687587;
+
+            font-size: 12px;
+
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.97
+                );
+
+            box-shadow:
+                0 -3px 15px rgba(
+                    23,
+                    32,
+                    51,
+                    0.04
+                );
+        }
+
+
+        .footer-text {
+            text-align: center;
+
+            padding: 0 190px;
+
+            line-height: 1.6;
+
+            max-width: 900px;
+        }
+
+
+        /* =================================================
+           FOOTER KVS LOGO
+        ================================================= */
+
+        .bottom-kv-logo {
+            position: absolute;
+
+            left: 35px;
+            bottom: 15px;
+
+            width: 150px;
+            height: 70px;
+
+            object-fit: contain;
+            object-position: center;
+
+            display: block;
+        }
+
+
+        /* =================================================
+           PM SHRI LOGO
+        ================================================= */
+
+        .pm-shri-logo {
+            position: absolute;
+
+            right: 35px;
+            bottom: 15px;
+
+            width: 150px;
+            height: 70px;
+
+            object-fit: contain;
+            object-position: center;
+
+            display: block;
+        }
+
+
+        /* =================================================
+           TABLET
+        ================================================= */
+
+        @media (max-width: 1000px) {
+
+            .topbar {
+                padding: 8px 25px;
+            }
+
+
+            .top-kv-logo {
+                width: 115px;
+                height: 62px;
+            }
+
+
+            .school-name {
+                font-size: 18px;
+            }
+
+
+            .topbar nav {
+                gap: 13px;
+            }
+
+        }
+
+
+        /* =================================================
+           MOBILE
+        ================================================= */
+
+        @media (max-width: 800px) {
+
+            .topbar {
+                padding: 7px 20px;
+
+                min-height: 70px;
+            }
+
+
+            .brand {
+                gap: 8px;
+            }
+
+
+            .top-kv-logo {
+                width: 80px;
+                height: 55px;
+            }
+
+
+            .school-name {
+                font-size: 16px;
+
+                white-space: normal;
+
+                line-height: 1.1;
+
+                max-width: 190px;
+            }
+
+
+            .topbar nav {
+                gap: 10px;
+            }
+
+
+            /*
+             * On smaller screens hide secondary
+             * navigation links and keep the main
+             * button visible.
+             */
+
+            .topbar nav a:not(.nav-button) {
+                display: none;
+            }
+
+
+            .page {
+                width: calc(100% - 30px);
+
+                padding-top: 28px;
+            }
+
+
+            /* Footer */
+
+            .school-footer {
+                min-height: 165px;
+
+                padding: 90px 20px 20px;
+            }
+
+
+            .bottom-kv-logo {
+                width: 80px;
+                height: 55px;
+
+                left: 20px;
+
+                top: 15px;
+                bottom: auto;
+            }
+
+
+            .pm-shri-logo {
+                width: 105px;
+                height: 55px;
+
+                right: 20px;
+
+                top: 15px;
+                bottom: auto;
+            }
+
+
+            .footer-text {
+                padding: 0;
+
+                max-width: 300px;
+            }
+
+        }
+
+
+        /* =================================================
+           SMALL PHONES
+        ================================================= */
+
+        @media (max-width: 600px) {
+
+            .topbar {
+                padding: 7px 15px;
+            }
+
+
+            .top-kv-logo {
+                width: 70px;
+                height: 52px;
+            }
+
+
+            .school-name {
+                font-size: 14px;
+
+                max-width: 170px;
+            }
+
+
+            .brand {
+                gap: 7px;
+            }
+
+
+            .school-footer {
+                min-height: 165px;
+            }
+
+
+            .bottom-kv-logo {
+                width: 75px;
+                height: 52px;
+
+                left: 15px;
+            }
+
+
+            .pm-shri-logo {
+                width: 95px;
+                height: 52px;
+
+                right: 15px;
+            }
+
+        }
+
+
+        /* =================================================
+           VERY SMALL PHONES
+        ================================================= */
+
+        @media (max-width: 380px) {
+
+            .top-kv-logo {
+                width: 60px;
+                height: 48px;
+            }
+
+
+            .school-name {
+                font-size: 12px;
+
+                max-width: 145px;
+            }
+
+
+            .bottom-kv-logo {
+                width: 68px;
+                height: 48px;
+            }
+
+
+            .pm-shri-logo {
+                width: 85px;
+                height: 48px;
+            }
+
+        }
+
+    </style>
 
 </head>
 
@@ -57,209 +548,92 @@
 <body>
 
 
-<!-- =====================================================
-     HEADER
-====================================================== -->
+    <!-- =================================================
+         HEADER
+    ================================================= -->
 
-<header class="topbar">
-
-    <div class="topbar-inner">
-
-
-        <!-- =========================
-             BRAND
-        ========================== -->
+    <header class="topbar">
 
         <a
-            href="/"
             class="brand"
-            aria-label="SchoolVoice Home"
+            href="/"
         >
 
             <img
-                src="{{ url_for('static', filename='images/kv-logo.png') }}"
+                src="{{ url_for(
+                    'static',
+                    filename='images/kv-logo.png'
+                ) }}"
                 alt="Kendriya Vidyalaya Logo"
                 class="top-kv-logo"
             >
 
 
-            <div class="brand-text">
-
-                <span class="school-name">
-                    Kendriya Vidyalaya Andrews Ganj
-                </span>
-
-                <span class="brand-product">
-                    SchoolVoice
-                </span>
-
-            </div>
+            <span class="school-name">
+                Kendriya Vidyalaya Andrews Ganj
+            </span>
 
         </a>
 
 
-        <!-- =========================
-             MOBILE MENU BUTTON
-        ========================== -->
+        <nav>
 
-        <button
-            type="button"
-            class="mobile-menu-toggle"
-            id="mobileMenuToggle"
-            aria-label="Open navigation menu"
-            aria-expanded="false"
-            aria-controls="mainNavigation"
-        >
-
-            <span></span>
-            <span></span>
-            <span></span>
-
-        </button>
-
-
-        <!-- =========================
-             NAVIGATION
-        ========================== -->
-
-        <nav
-            class="main-navigation"
-            id="mainNavigation"
-            aria-label="Main navigation"
-        >
 
             {% if session.get('username') %}
 
 
-                <!-- =====================================
-                     COMMON LOGGED-IN NAVIGATION
-                ====================================== -->
+                <!-- Dashboard -->
 
-                <a
-                    href="/dashboard"
-                    class="nav-link"
-                >
-                    <span class="nav-icon">⌂</span>
+                <a href="/dashboard">
                     Dashboard
                 </a>
 
 
-                <!-- =====================================
-                     STUDENT ONLY
-                ====================================== -->
+                <!-- Student only -->
 
                 {% if session.get('role') == 'student' %}
 
-                    <a
-                        href="/my-reports"
-                        class="nav-link"
-                    >
-                        <span class="nav-icon">▤</span>
+                    <a href="/my-reports">
                         My Reports
                     </a>
 
                 {% endif %}
 
 
-                <!-- =====================================
-                     ADMIN + MAIN ADMIN
-                ====================================== -->
+                <!-- Admin + Main Admin -->
 
-                {% if session.get('role') in ['admin', 'main_admin'] %}
+                {% if session.get('role') in [
+                    'admin',
+                    'main_admin'
+                ] %}
 
-                    <a
-                        href="/reports"
-                        class="nav-link"
-                    >
-                        <span class="nav-icon">▤</span>
+                    <a href="/reports">
                         All Reports
                     </a>
 
                 {% endif %}
 
 
-                <!-- =====================================
-                     MAIN ADMIN ONLY
-                ====================================== -->
+                <!-- Main Admin -->
 
                 {% if session.get('role') == 'main_admin' %}
 
-                    <a
-                        href="/users"
-                        class="nav-link"
-                    >
-                        <span class="nav-icon">♙</span>
+                    <a href="/users">
                         Users
                     </a>
 
-
-                    <a
-                        href="/admin-applications"
-                        class="nav-link"
-                    >
-                        <span class="nav-icon">✓</span>
+                    <a href="/admin-applications">
                         Applications
                     </a>
 
                 {% endif %}
 
 
-                <!-- =====================================
-                     USER ACCOUNT
-                ====================================== -->
-
-                <div class="nav-divider"></div>
-
-
-                <div class="nav-user">
-
-                    <div class="nav-user-avatar">
-                        {{ session.get('username', 'U')[0]|upper }}
-                    </div>
-
-
-                    <div class="nav-user-details">
-
-                        <strong>
-                            {{ session.get('username') }}
-                        </strong>
-
-                        <span>
-
-                            {% if session.get('role') == 'main_admin' %}
-
-                                Main Admin
-
-                            {% elif session.get('role') == 'admin' %}
-
-                                Admin
-
-                            {% else %}
-
-                                Student
-
-                            {% endif %}
-
-                        </span>
-
-                    </div>
-
-                </div>
-
+                <!-- Logout -->
 
                 <a
-                    href="/change-password"
-                    class="nav-account"
-                    title="Change password"
-                    aria-label="Change password"
-                >
-                    ⚙
-                </a>
-
-
-                <a
+                    class="nav-button"
                     href="/logout"
-                    class="nav-button logout-button"
                 >
                     Logout
                 </a>
@@ -268,29 +642,16 @@
             {% else %}
 
 
-                <!-- =====================================
-                     LOGGED OUT
-                ====================================== -->
+                <!-- Logged out -->
 
-                <a
-                    href="/"
-                    class="nav-link"
-                >
-                    Home
-                </a>
-
-
-                <a
-                    href="/login"
-                    class="nav-link"
-                >
+                <a href="/login">
                     Login
                 </a>
 
 
                 <a
-                    href="/register"
                     class="nav-button"
+                    href="/register"
                 >
                     Register
                 </a>
@@ -300,371 +661,61 @@
 
         </nav>
 
-    </div>
-
-</header>
+    </header>
 
 
-<!-- =====================================================
-     FLASH MESSAGES
-====================================================== -->
+    <!-- =================================================
+         MAIN CONTENT
+    ================================================== -->
 
-{% with messages = get_flashed_messages(with_categories=true) %}
+    <main class="page">
 
-    {% if messages %}
+        {% block content %}{% endblock %}
 
-        <div class="flash-wrapper">
-
-            {% for category, message in messages %}
-
-                <div
-                    class="flash-message
-                    {% if category == 'error' %}
-                        flash-error
-                    {% elif category == 'success' %}
-                        flash-success
-                    {% elif category == 'warning' %}
-                        flash-warning
-                    {% else %}
-                        flash-info
-                    {% endif %}"
-                    role="alert"
-                >
-
-                    <span class="flash-message-icon">
-
-                        {% if category == 'success' %}
-                            ✓
-                        {% elif category == 'error' %}
-                            !
-                        {% elif category == 'warning' %}
-                            ⚠
-                        {% else %}
-                            i
-                        {% endif %}
-
-                    </span>
+    </main>
 
 
-                    <span class="flash-message-text">
-                        {{ message }}
-                    </span>
+    <!-- =================================================
+         FOOTER
+    ================================================== -->
+
+    <footer class="school-footer">
 
 
-                    <button
-                        type="button"
-                        class="flash-close"
-                        aria-label="Close notification"
-                        onclick="this.parentElement.remove()"
-                    >
-                        ×
-                    </button>
-
-                </div>
-
-            {% endfor %}
-
-        </div>
-
-    {% endif %}
-
-{% endwith %}
+        <img
+            src="{{ url_for(
+                'static',
+                filename='images/kv-logo.png'
+            ) }}"
+            alt="Kendriya Vidyalaya Logo"
+            class="bottom-kv-logo"
+        >
 
 
-<!-- =====================================================
-     MAIN CONTENT
-====================================================== -->
-
-<main class="page">
-
-    {% block content %}{% endblock %}
-
-</main>
-
-
-<!-- =====================================================
-     FOOTER
-====================================================== -->
-
-<footer class="school-footer">
-
-    <div class="footer-inner">
-
-
-        <!-- KVS LOGO -->
-
-        <div class="footer-logo footer-logo-left">
-
-            <img
-                src="{{ url_for('static', filename='images/kv-logo.png') }}"
-                alt="Kendriya Vidyalaya Logo"
-                class="bottom-kv-logo"
-            >
-
-        </div>
-
-
-        <!-- FOOTER CONTENT -->
-
-        <div class="footer-content">
+        <div class="footer-text">
 
             <strong>
                 SchoolVoice
             </strong>
 
-            <span>
-                A student reporting platform for
-                Kendriya Vidyalaya Andrews Ganj.
-            </span>
+            <br>
 
-            <small>
-                Speak up. Report responsibly. Improve together.
-            </small>
+            Make your school better,
+            one report at a time.
 
         </div>
 
 
-        <!-- PM SHRI LOGO -->
-
-        <div class="footer-logo footer-logo-right">
-
-            <img
-                src="{{ url_for('static', filename='images/pm-shri-logo.png') }}"
-                alt="PM SHRI Logo"
-                class="pm-shri-logo"
-            >
-
-        </div>
-
-    </div>
-
-</footer>
-
-
-<!-- =====================================================
-     JAVASCRIPT
-====================================================== -->
-
-<script>
-
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
-
-
-        /* =============================================
-           MOBILE NAVIGATION
-        ============================================== */
-
-        const menuButton =
-            document.getElementById(
-                "mobileMenuToggle"
-            );
-
-        const navigation =
-            document.getElementById(
-                "mainNavigation"
-            );
-
-
-        if (menuButton && navigation) {
-
-            menuButton.addEventListener(
-                "click",
-                function () {
-
-                    const isOpen =
-                        navigation.classList.toggle(
-                            "mobile-navigation-open"
-                        );
-
-
-                    menuButton.classList.toggle(
-                        "menu-open",
-                        isOpen
-                    );
-
-
-                    menuButton.setAttribute(
-                        "aria-expanded",
-                        isOpen
-                            ? "true"
-                            : "false"
-                    );
-
-                }
-            );
-
-
-            /*
-             * Close mobile menu after
-             * selecting a navigation link.
-             */
-
-            navigation
-                .querySelectorAll("a")
-                .forEach(
-                    function (link) {
-
-                        link.addEventListener(
-                            "click",
-                            function () {
-
-                                navigation
-                                    .classList
-                                    .remove(
-                                        "mobile-navigation-open"
-                                    );
-
-                                menuButton
-                                    .classList
-                                    .remove(
-                                        "menu-open"
-                                    );
-
-                                menuButton
-                                    .setAttribute(
-                                        "aria-expanded",
-                                        "false"
-                                    );
-
-                            }
-                        );
-
-                    }
-                );
-
-        }
-
-
-        /* =============================================
-           FLASH MESSAGE AUTO CLOSE
-        ============================================== */
-
-        document
-            .querySelectorAll(
-                ".flash-message"
-            )
-            .forEach(
-                function (message) {
-
-                    setTimeout(
-                        function () {
-
-                            if (
-                                message &&
-                                message.parentElement
-                            ) {
-
-                                message.classList.add(
-                                    "flash-hiding"
-                                );
-
-
-                                setTimeout(
-                                    function () {
-
-                                        if (
-                                            message &&
-                                            message.parentElement
-                                        ) {
-
-                                            message.remove();
-
-                                        }
-
-                                    },
-                                    300
-                                );
-
-                            }
-
-                        },
-                        5000
-                    );
-
-                }
-            );
-
-
-        /* =============================================
-           PASSWORD SHOW / HIDE
-        ============================================== */
-
-        document
-            .querySelectorAll(
-                ".password-toggle"
-            )
-            .forEach(
-                function (button) {
-
-                    button.addEventListener(
-                        "click",
-                        function () {
-
-                            const target =
-                                button.getAttribute(
-                                    "data-target"
-                                );
-
-                            const input =
-                                document.getElementById(
-                                    target
-                                );
-
-
-                            if (!input) {
-                                return;
-                            }
-
-
-                            if (
-                                input.type ===
-                                "password"
-                            ) {
-
-                                input.type =
-                                    "text";
-
-                                button.textContent =
-                                    "Hide";
-
-                                button.setAttribute(
-                                    "aria-label",
-                                    "Hide password"
-                                );
-
-                            }
-
-                            else {
-
-                                input.type =
-                                    "password";
-
-                                button.textContent =
-                                    "Show";
-
-                                button.setAttribute(
-                                    "aria-label",
-                                    "Show password"
-                                );
-
-                            }
-
-                        }
-                    );
-
-                }
-            );
-
-
-    }
-);
-
-</script>
-
-
-{% block scripts %}{% endblock %}
+        <img
+            src="{{ url_for(
+                'static',
+                filename='images/pm-shri-logo.png'
+            ) }}"
+            alt="PM SHRI Logo"
+            class="pm-shri-logo"
+        >
+
+    </footer>
 
 
 </body>
