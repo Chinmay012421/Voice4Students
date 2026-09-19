@@ -2729,6 +2729,48 @@ textarea:focus-visible {
     }
 
 }
+
+/* =========================================================
+   EMPTY REPORTS BOX
+   ========================================================= */
+
+.empty-state {
+    background: #ffffff;
+    border: 1px solid #e1e7ee;
+    border-radius: 14px;
+
+    padding: 45px 30px;
+
+    text-align: center;
+
+    box-shadow:
+        0 5px 18px rgba(23, 32, 51, 0.08);
+
+    max-width: 700px;
+    margin: 25px auto;
+}
+
+
+.empty-state .empty-icon {
+    font-size: 38px;
+    margin-bottom: 12px;
+}
+
+
+.empty-state h2 {
+    margin: 0 0 8px;
+
+    color: #172033;
+
+    font-size: 22px;
+}
+
+
+.empty-state p {
+    margin: 0 0 20px;
+
+    color: #687587;
+}
 /* =========================================================
    END
    ========================================================= */
