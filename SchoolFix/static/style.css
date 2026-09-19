@@ -2087,3 +2087,432 @@ textarea:focus-visible {
     }
 
 }
+
+
+
+/* =========================================================
+   HOME PAGE — WHITE CONTENT BOXES
+   ========================================================= */
+
+/*
+   These styles are intentionally scoped to the home page
+   elements so the logged-in dashboard stays unchanged.
+*/
+
+
+/* ---------------------------------------------------------
+   HOME HERO / MAIN CONTENT
+--------------------------------------------------------- */
+
+.home-hero,
+.hero,
+.home-content,
+.home-section {
+    position: relative;
+
+    background: rgba(255, 255, 255, 0.94);
+
+    border: 1px solid rgba(218, 226, 235, 0.95);
+
+    border-radius: 18px;
+
+    padding: 32px;
+
+    box-shadow:
+        0 12px 35px rgba(23, 32, 51, 0.10);
+
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+
+/* ---------------------------------------------------------
+   HOME FEATURE CARDS
+--------------------------------------------------------- */
+
+.features,
+.features-grid,
+.feature-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 18px;
+
+    margin-top: 28px;
+}
+
+
+.feature,
+.feature-card,
+.feature-item {
+    position: relative;
+
+    padding: 22px;
+
+    background: rgba(255, 255, 255, 0.97);
+
+    border: 1px solid #dce5ed;
+
+    border-radius: 14px;
+
+    box-shadow:
+        0 6px 20px rgba(23, 32, 51, 0.07);
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        border-color 0.18s ease;
+}
+
+
+.feature:hover,
+.feature-card:hover,
+.feature-item:hover {
+    transform: translateY(-3px);
+
+    border-color: #b9d5e8;
+
+    box-shadow:
+        0 12px 28px rgba(23, 32, 51, 0.11);
+}
+
+
+.feature h3,
+.feature-card h3,
+.feature-item h3 {
+    margin-bottom: 7px;
+
+    color: #172033;
+
+    font-size: 17px;
+}
+
+
+.feature p,
+.feature-card p,
+.feature-item p {
+    margin-bottom: 0;
+
+    color: #68788d;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+}
+
+
+/* ---------------------------------------------------------
+   HOME FEATURE ICON
+--------------------------------------------------------- */
+
+.feature-icon,
+.feature-card-icon,
+.feature-item-icon {
+    width: 44px;
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 13px;
+
+    border-radius: 10px;
+
+    background: #eaf4fc;
+
+    color: #176fb3;
+
+    font-size: 21px;
+}
+
+
+/* ---------------------------------------------------------
+   HOME LINKS
+--------------------------------------------------------- */
+
+.home-links,
+.home-actions,
+.hero-actions,
+.home-buttons {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin-top: 24px;
+}
+
+
+.home-links a,
+.home-actions a,
+.hero-actions a,
+.home-buttons a {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 46px;
+
+    padding: 10px 20px;
+
+    background: #ffffff;
+
+    border: 1px solid #d7e1ea;
+
+    border-radius: 10px;
+
+    color: #172033;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    text-decoration: none;
+
+    box-shadow:
+        0 5px 16px rgba(23, 32, 51, 0.07);
+
+    transition:
+        transform 0.18s ease,
+        background 0.18s ease,
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+
+.home-links a:hover,
+.home-actions a:hover,
+.hero-actions a:hover,
+.home-buttons a:hover {
+    transform: translateY(-2px);
+
+    background: #ffffff;
+
+    border-color: #a9cbe3;
+
+    box-shadow:
+        0 9px 22px rgba(23, 32, 51, 0.10);
+}
+
+
+/* ---------------------------------------------------------
+   LOGIN BUTTON ON HOME PAGE
+--------------------------------------------------------- */
+
+.home-login,
+.login-button,
+a[href="/login"] {
+    background: #ffffff;
+
+    border: 1px solid #d5e0e9;
+
+    border-radius: 10px;
+
+    padding: 10px 20px;
+
+    color: #172033;
+
+    font-weight: 700;
+
+    box-shadow:
+        0 5px 16px rgba(23, 32, 51, 0.07);
+}
+
+
+/*
+   Keep the navbar Login looking like a normal nav item
+   while giving the HOME PAGE login links a white box.
+
+   The selector below only affects links inside the page.
+*/
+
+.page a[href="/login"] {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 44px;
+
+    padding: 9px 19px;
+
+    background: #ffffff;
+
+    border: 1px solid #d5e0e9;
+
+    border-radius: 10px;
+
+    box-shadow:
+        0 5px 16px rgba(23, 32, 51, 0.08);
+}
+
+
+/* ---------------------------------------------------------
+   HOME REGISTER BUTTON
+--------------------------------------------------------- */
+
+.home-register,
+.register-button,
+.page a[href="/register"] {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 44px;
+
+    padding: 9px 20px;
+
+    background: #176fb3;
+
+    border: 1px solid #176fb3;
+
+    border-radius: 10px;
+
+    color: #ffffff !important;
+
+    font-weight: 750;
+
+    box-shadow:
+        0 6px 17px rgba(23, 111, 179, 0.20);
+}
+
+
+.home-register:hover,
+.register-button:hover,
+.page a[href="/register"]:hover {
+    background: #0d5b96;
+
+    border-color: #0d5b96;
+
+    color: #ffffff !important;
+}
+
+
+/* ---------------------------------------------------------
+   HOME TEXT BOX
+--------------------------------------------------------- */
+
+.home-text,
+.hero-text,
+.home-description {
+    max-width: 720px;
+
+    padding: 22px 24px;
+
+    background: rgba(255, 255, 255, 0.94);
+
+    border: 1px solid #dce5ed;
+
+    border-radius: 14px;
+
+    box-shadow:
+        0 8px 25px rgba(23, 32, 51, 0.08);
+}
+
+
+.home-text p,
+.hero-text p,
+.home-description p {
+    color: #63748a;
+}
+
+
+/* ---------------------------------------------------------
+   HOME SECTION HEADINGS
+--------------------------------------------------------- */
+
+.home-heading,
+.features-heading,
+.section-heading {
+    display: inline-block;
+
+    padding: 13px 18px;
+
+    margin-bottom: 18px;
+
+    background: rgba(255, 255, 255, 0.95);
+
+    border: 1px solid #dce5ed;
+
+    border-radius: 10px;
+
+    box-shadow:
+        0 5px 18px rgba(23, 32, 51, 0.07);
+}
+
+
+.home-heading h1,
+.home-heading h2,
+.features-heading h2,
+.section-heading h2 {
+    margin: 0;
+}
+
+
+/* =========================================================
+   MOBILE HOME PAGE
+   ========================================================= */
+
+@media (max-width: 800px) {
+
+    .home-hero,
+    .hero,
+    .home-content,
+    .home-section {
+        padding: 22px;
+    }
+
+
+    .features,
+    .features-grid,
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .home-links,
+    .home-actions,
+    .hero-actions,
+    .home-buttons {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+
+    .home-links a,
+    .home-actions a,
+    .hero-actions a,
+    .home-buttons a {
+        width: 100%;
+    }
+
+}
+
+
+@media (max-width: 500px) {
+
+    .home-hero,
+    .hero,
+    .home-content,
+    .home-section {
+        padding: 18px;
+
+        border-radius: 14px;
+    }
+
+
+    .feature,
+    .feature-card,
+    .feature-item {
+        padding: 18px;
+    }
+
+}
