@@ -67,12 +67,14 @@ body::before {
 
     z-index: -2;
 
-    background-image:
-        linear-gradient(
-            rgba(238, 244, 248, 0.90),
-            rgba(238, 244, 248, 0.94)
-        ),
-        var(--school-background);
+    background-image: var(--school-background);
+
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+
+    pointer-events: none;
+}
 
     background-position: center;
     background-size: cover;
