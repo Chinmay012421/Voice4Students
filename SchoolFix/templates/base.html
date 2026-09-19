@@ -40,7 +40,7 @@
 
 
     <!-- =====================================================
-         STABLE HEADER / FOOTER UI
+         HEADER / FOOTER UI
     ====================================================== -->
 
     <style>
@@ -117,8 +117,6 @@
 
             text-decoration: none;
 
-            white-space: nowrap;
-
             min-width: 0;
         }
 
@@ -133,6 +131,36 @@
             display: block;
 
             flex-shrink: 0;
+        }
+
+
+        /* =================================================
+           WEBSITE + SCHOOL NAME
+        ================================================= */
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+
+            justify-content: center;
+
+            min-width: 0;
+        }
+
+
+        .website-name {
+            color: #176fb3;
+
+            font-size: 14px;
+            font-weight: 850;
+
+            letter-spacing: 2px;
+
+            text-transform: uppercase;
+
+            line-height: 1;
+
+            margin-bottom: 5px;
         }
 
 
@@ -189,6 +217,7 @@
 
         .nav-button {
             display: inline-flex;
+
             align-items: center;
             justify-content: center;
 
@@ -346,6 +375,12 @@
             }
 
 
+            .website-name {
+                font-size: 12px;
+                letter-spacing: 1.6px;
+            }
+
+
             .school-name {
                 font-size: 18px;
             }
@@ -379,6 +414,20 @@
             .top-kv-logo {
                 width: 80px;
                 height: 55px;
+            }
+
+
+            .brand-text {
+                max-width: 190px;
+            }
+
+
+            .website-name {
+                font-size: 10px;
+
+                letter-spacing: 1.4px;
+
+                margin-bottom: 3px;
             }
 
 
@@ -473,6 +522,20 @@
             }
 
 
+            .brand-text {
+                max-width: 170px;
+            }
+
+
+            .website-name {
+                font-size: 9px;
+
+                letter-spacing: 1.2px;
+
+                margin-bottom: 3px;
+            }
+
+
             .school-name {
                 font-size: 14px;
 
@@ -517,6 +580,20 @@
             .top-kv-logo {
                 width: 60px;
                 height: 48px;
+            }
+
+
+            .brand-text {
+                max-width: 145px;
+            }
+
+
+            .website-name {
+                font-size: 8px;
+
+                letter-spacing: 1px;
+
+                margin-bottom: 2px;
             }
 
 
@@ -569,9 +646,22 @@
             >
 
 
-            <span class="school-name">
-                Kendriya Vidyalaya Andrews Ganj
-            </span>
+            <div class="brand-text">
+
+                <!-- WEBSITE NAME -->
+
+                <span class="website-name">
+                    School Voice
+                </span>
+
+
+                <!-- SCHOOL NAME -->
+
+                <span class="school-name">
+                    Kendriya Vidyalaya Andrews Ganj
+                </span>
+
+            </div>
 
         </a>
 
@@ -677,7 +767,7 @@
 
     <!-- =================================================
          FOOTER
-    ================================================== -->
+    ================================================= -->
 
     <footer class="school-footer">
 
@@ -695,7 +785,7 @@
         <div class="footer-text">
 
             <strong>
-                SchoolVoice
+                School Voice
             </strong>
 
             <br>
