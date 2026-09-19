@@ -1,84 +1,67 @@
 import os
-import secrets
-import string
-import sqlite3
+import uuid
 
 from flask import (
     Flask,
+    render_template,
     request,
     redirect,
     session,
-    render_template
+    flash
 )
-
 from werkzeug.utils import secure_filename
 
 from database import (
     init_db,
+    create_user,
+    authenticate_user,
     get_user,
-    must_change_password,
-    save_user,
-    delete_user,
-    save_admin_application,
-    get_pending_applications,
-    approve_admin,
-    reject_admin,
+    get_user_by_username,
+    get_all_users,
+    update_password,
+
+    create_admin_application,
+    get_admin_applications,
+    get_admin_application,
+    approve_admin_application,
+    reject_admin_application,
+
     save_report,
+    get_report,
     get_all_reports,
     get_user_reports,
-    get_report,
     update_report_status,
-    delete_report,
+    mark_report_unreasonable,
     get_unreasonable_reports,
-    get_report_stats,
-    change_password,
-    set_temporary_password,
-    set_permanent_password,
-    get_all_users,
+
     add_report_photo,
     get_report_photos,
+
     add_report_message,
-    get_report_messages
+    get_report_messages,
+
+    delete_report,
+    delete_user,
+
+    get_report_stats
 )
 
 
-# =========================================================
-# APP
-# =========================================================
+# ============================================================
+# FLASK APP
+# ============================================================
 
 app = Flask(__name__)
 
 app.secret_key = os.environ.get(
     "SECRET_KEY",
-    "schoolvoice-development-key"
+    "schoolvoice-development-secret-key"
 )
 
 
-# =========================================================
-# DATABASE CONNECTION
-# =========================================================
-
-DATABASE = os.path.join(
-    app.root_path,
-    "schoolfix.db"
-)
-
-
-def connect():
-    """
-    Create a SQLite database connection.
-
-    This function is used by routes that need direct
-    database access, such as deleting users.
-    """
-    conn = sqlite3.connect(DATABASE)
-
-    return conn
-
-
-# =========================================================
+# ============================================================
 # UPLOAD SETTINGS
-# =========================================================
+# ============================================================
 
 UPLOAD_FOLDER = os.path.join(
     app.root_path,
@@ -91,6 +74,8 @@ os.makedirs(
     exist_ok=True
 )
 
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
 ALLOWED_EXTENSIONS = {
     "png",
     "jpg",
@@ -98,236 +83,101 @@ ALLOWED_EXTENSIONS = {
     "webp"
 }
 
-MAX_PHOTOS_PER_REPORT = 5
-
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-
-app.config["MAX_CONTENT_LENGTH"] = (
-    20 * 1024 * 1024
-)
+app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024
 
 
-# =========================================================
+# ============================================================
 # DATABASE INITIALIZATION
-# =========================================================
+# ============================================================
 
-init_db()
+try:
+    init_db()
+except Exception as e:
+    print("Database initialization warning:", e)
 
 
-# =========================================================
-# LOGIN HELPERS
-# =========================================================
+# ============================================================
+# HELPERS
+# ============================================================
 
-def logged_in():
+def allowed_file(filename):
+    if not filename:
+        return False
+
+    return (
+        "." in filename
+        and filename.rsplit(".", 1)[1].lower()
+        in ALLOWED_EXTENSIONS
+    )
+
+
+def current_username():
+    return session.get("username")
+
+
+def current_role():
+    return session.get("role")
+
+
+def is_logged_in():
     return "username" in session
+
+
+def is_admin():
+    return session.get("role") in [
+        "admin",
+        "main_admin"
+    ]
 
 
 def is_main_admin():
     return session.get("role") == "main_admin"
 
 
-def is_admin():
-    return session.get("role") in (
-        "admin",
-        "main_admin"
-    )
-
-
-# =========================================================
-# FILE HELPERS
-# =========================================================
-
-def allowed_file(filename):
-
-    if not filename:
-        return False
-
-    if "." not in filename:
-        return False
-
-    extension = filename.rsplit(
-        ".",
-        1
-    )[1].lower()
-
-    return extension in ALLOWED_EXTENSIONS
-
-
 def delete_report_files(report_id):
     """
-    Delete all physical photo files belonging to a report.
+    Delete physical photo files belonging to a report.
     """
 
-    try:
-        photos = get_report_photos(report_id)
-
-    except Exception:
-
-        app.logger.exception(
-            "Unable to get report photos."
-        )
-
-        return
+    photos = get_report_photos(report_id)
 
     for photo in photos:
-
-        try:
-
-            # report_photos structure:
-            # id, report_id, filename, uploaded_at
-
-            filename = photo[2]
-
-        except (IndexError, TypeError):
-
-            continue
+        filename = photo[2]
 
         if not filename:
             continue
 
-        file_path = os.path.join(
+        path = os.path.join(
             app.config["UPLOAD_FOLDER"],
             filename
         )
 
         try:
-
-            if os.path.isfile(file_path):
-
-                os.remove(file_path)
-
+            if os.path.isfile(path):
+                os.remove(path)
         except OSError:
-
-            app.logger.warning(
-                "Could not delete photo file: %s",
-                file_path
-            )
+            pass
 
 
-# =========================================================
+# ============================================================
 # HOME
-# =========================================================
+# ============================================================
 
 @app.route("/")
 def home():
+    if is_logged_in():
+        return redirect("/dashboard")
 
-    return render_template(
-        "index.html"
-    )
-
-
-# =========================================================
-# LOGIN
-# =========================================================
-
-@app.route(
-    "/login",
-    methods=["GET", "POST"]
-)
-def login():
-
-    if logged_in():
-
-        return redirect(
-            "/dashboard"
-        )
-
-    if request.method == "POST":
-
-        username = request.form.get(
-            "username",
-            ""
-        ).strip()
-
-        password = request.form.get(
-            "password",
-            ""
-        )
-
-        if not username or not password:
-
-            return render_template(
-                "login.html",
-                error=(
-                    "Please enter both "
-                    "username and password."
-                )
-            )
-
-        user = get_user(
-            username,
-            password
-        )
-
-        if user:
-
-            session.clear()
-
-            # users table:
-            #
-            # 0 = id
-            # 1 = username
-            # 2 = password hash
-            # 3 = role
-            # 4 = active
-            # 5 = must_change_password
-            # 6 = registered_at
-
-            session["username"] = user[1]
-            session["role"] = user[3]
-
-            if must_change_password(
-                user[1]
-            ):
-
-                return redirect(
-                    "/change-password"
-                )
-
-            return redirect(
-                "/dashboard"
-            )
-
-        return render_template(
-            "login.html",
-            error=(
-                "Invalid username or password."
-            )
-        )
-
-    return render_template(
-        "login.html"
-    )
+    return render_template("home.html")
 
 
-# =========================================================
-# LOGOUT
-# =========================================================
-
-@app.route("/logout")
-def logout():
-
-    session.clear()
-
-    return redirect("/")
-
-
-# =========================================================
+# ============================================================
 # REGISTER
-# =========================================================
+# ============================================================
 
-@app.route(
-    "/register",
-    methods=["GET", "POST"]
-)
+@app.route("/register", methods=["GET", "POST"])
 def register():
 
-    if logged_in():
-
-        return redirect(
-            "/dashboard"
-        )
-
     if request.method == "POST":
 
         username = request.form.get(
@@ -340,982 +190,338 @@ def register():
             ""
         )
 
-        if not username or not password:
-
-            return render_template(
-                "register.html",
-                error=(
-                    "Please fill all fields."
-                )
-            )
-
-        if len(username) < 3:
-
-            return render_template(
-                "register.html",
-                error=(
-                    "Username must be at least "
-                    "3 characters."
-                )
-            )
-
-        if len(password) < 8:
-
-            return render_template(
-                "register.html",
-                error=(
-                    "Password must be at least "
-                    "8 characters."
-                )
-            )
-
-        try:
-
-            success = save_user(
-                username,
-                password,
-                "student"
-            )
-
-            if not success:
-
-                return render_template(
-                    "register.html",
-                    error=(
-                        "Username already exists."
-                    )
-                )
-
-            return render_template(
-                "login.html",
-                message=(
-                    "Registration successful. "
-                    "Please log in as a student."
-                )
-            )
-
-        except Exception:
-
-            app.logger.exception(
-                "Registration error"
-            )
-
-            return render_template(
-                "register.html",
-                error=(
-                    "Registration failed. "
-                    "Username may already exist."
-                )
-            )
-
-    return render_template(
-        "register.html"
-    )
-
-
-# =========================================================
-# CHANGE OWN PASSWORD
-# =========================================================
-
-@app.route(
-    "/change-password",
-    methods=["GET", "POST"]
-)
-def change_password_route():
-
-    if not logged_in():
-
-        return redirect("/login")
-
-    if request.method == "POST":
-
-        new_password = request.form.get(
-            "new_password",
-            ""
-        )
-
-        confirm = request.form.get(
+        confirm_password = request.form.get(
             "confirm_password",
             ""
         )
 
-        if len(new_password) < 8:
-
-            return render_template(
-                "change_password.html",
-                error=(
-                    "Password must be at least "
-                    "8 characters."
-                )
+        if not username or not password:
+            flash(
+                "Username and password are required.",
+                "error"
             )
+            return redirect("/register")
 
-        if new_password != confirm:
-
-            return render_template(
-                "change_password.html",
-                error=(
-                    "Passwords do not match."
-                )
+        if password != confirm_password:
+            flash(
+                "Passwords do not match.",
+                "error"
             )
+            return redirect("/register")
 
-        success = change_password(
-            session["username"],
-            new_password
+        success = create_user(
+            username,
+            password,
+            "student"
         )
 
         if not success:
-
-            return render_template(
-                "change_password.html",
-                error=(
-                    "Unable to change password."
-                )
+            flash(
+                "That username already exists.",
+                "error"
             )
+            return redirect("/register")
 
-        return redirect(
-            "/dashboard"
+        flash(
+            "Account created successfully. You can now log in.",
+            "success"
         )
 
-    return render_template(
-        "change_password.html"
-    )
+        return redirect("/login")
+
+    return render_template("register.html")
 
 
-# =========================================================
-# USERS
-# =========================================================
+# ============================================================
+# LOGIN
+# ============================================================
 
-@app.route("/users")
-def users():
+@app.route("/login", methods=["GET", "POST"])
+def login():
 
-    if not is_main_admin():
+    if request.method == "POST":
 
-        return redirect(
-            "/dashboard"
-        )
-
-    all_users = get_all_users()
-
-    search = request.args.get(
-        "search",
-        ""
-    ).strip().lower()
-
-    role = request.args.get(
-        "role",
-        ""
-    ).strip()
-
-    filtered_users = []
-
-    for user in all_users:
-
-        username = str(
-            user[1] or ""
-        ).lower()
-
-        user_role = str(
-            user[3] or ""
-        )
-
-        if search and search not in username:
-
-            continue
-
-        if (
-            role == "student"
-            and user_role != "student"
-        ):
-
-            continue
-
-        if (
-            role == "admin"
-            and user_role not in (
-                "admin",
-                "main_admin"
-            )
-        ):
-
-            continue
-
-        if (
-            role == "main_admin"
-            and user_role != "main_admin"
-        ):
-
-            continue
-
-        filtered_users.append(
-            user
-        )
-
-    return render_template(
-        "users.html",
-        users=filtered_users,
-        search=request.args.get(
-            "search",
+        username = request.form.get(
+            "username",
             ""
-        ),
-        selected_role=role
-    )
+        ).strip()
 
-
-# =========================================================
-# DELETE USER
-# =========================================================
-
-@app.route(
-    "/delete-user/<int:user_id>",
-    methods=["POST"]
-)
-def delete_user_route(user_id):
-
-    if not is_main_admin():
-
-        return redirect(
-            "/dashboard"
+        password = request.form.get(
+            "password",
+            ""
         )
 
-    conn = connect()
-
-    try:
-
-        user = conn.execute(
-            """
-            SELECT
-                id,
-                username,
-                role
-            FROM users
-            WHERE id=?
-            """,
-            (user_id,)
-        ).fetchone()
+        user = authenticate_user(
+            username,
+            password
+        )
 
         if not user:
-
-            return render_template(
-                "users.html",
-                users=get_all_users(),
-                error="User not found."
+            flash(
+                "Invalid username or password.",
+                "error"
             )
+            return redirect("/login")
 
-        username = user[1]
-        role = user[2]
+        session.clear()
 
-        # Main Admin accounts can NEVER be deleted.
-        if role == "main_admin":
+        session["user_id"] = user[0]
+        session["username"] = user[1]
+        session["role"] = user[3]
 
-            return render_template(
-                "users.html",
-                users=get_all_users(),
-                error=(
-                    "Main Admin accounts "
-                    "cannot be deleted."
-                )
-            )
+        return redirect("/dashboard")
 
-        # Find all reports belonging to this user.
-        report_rows = conn.execute(
-            """
-            SELECT id
-            FROM reports
-            WHERE username=?
-            """,
-            (username,)
-        ).fetchall()
+    return render_template("login.html")
 
-        report_ids = [
-            row[0]
-            for row in report_rows
-        ]
 
-        # Delete physical photo files.
-        for report_id in report_ids:
+# ============================================================
+# LOGOUT
+# ============================================================
 
-            try:
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/")
 
-                photo_rows = conn.execute(
-                    """
-                    SELECT filename
-                    FROM report_photos
-                    WHERE report_id=?
-                    """,
-                    (report_id,)
-                ).fetchall()
 
-                for photo_row in photo_rows:
-
-                    filename = photo_row[0]
-
-                    if not filename:
-                        continue
-
-                    file_path = os.path.join(
-                        app.config["UPLOAD_FOLDER"],
-                        filename
-                    )
-
-                    try:
-
-                        if os.path.isfile(file_path):
-
-                            os.remove(file_path)
-
-                    except OSError:
-
-                        app.logger.warning(
-                            "Could not delete file: %s",
-                            file_path
-                        )
-
-            except Exception:
-
-                app.logger.exception(
-                    "Error deleting report files."
-                )
-
-        # Delete report messages.
-        for report_id in report_ids:
-
-            conn.execute(
-                """
-                DELETE FROM report_messages
-                WHERE report_id=?
-                """,
-                (report_id,)
-            )
-
-            conn.execute(
-                """
-                DELETE FROM report_photos
-                WHERE report_id=?
-                """,
-                (report_id,)
-            )
-
-        # Delete reports.
-        conn.execute(
-            """
-            DELETE FROM reports
-            WHERE username=?
-            """,
-            (username,)
-        )
-
-        # Delete admin applications.
-        conn.execute(
-            """
-            DELETE FROM admin_applications
-            WHERE username=?
-            """,
-            (username,)
-        )
-
-        # Finally delete the account.
-        conn.execute(
-            """
-            DELETE FROM users
-            WHERE id=?
-            AND role!='main_admin'
-            """,
-            (user_id,)
-        )
-
-        conn.commit()
-
-        return render_template(
-            "users.html",
-            users=get_all_users(),
-            success=(
-                f"User '{username}' and "
-                f"their reports were deleted."
-            )
-        )
-
-    except Exception:
-
-        conn.rollback()
-
-        app.logger.exception(
-            "Error deleting user."
-        )
-
-        return render_template(
-            "users.html",
-            users=get_all_users(),
-            error=(
-                "Unable to delete this user."
-            )
-        )
-
-    finally:
-
-        conn.close()
-
-
-# =========================================================
-# TEMPORARY PASSWORD
-# =========================================================
-
-@app.route(
-    "/reset-password/<int:user_id>",
-    methods=["POST"]
-)
-def reset_password(user_id):
-
-    if not is_main_admin():
-
-        return redirect(
-            "/dashboard"
-        )
-
-    alphabet = (
-        string.ascii_letters
-        + string.digits
-    )
-
-    temporary_password = "".join(
-        secrets.choice(alphabet)
-        for _ in range(14)
-    )
-
-    result = set_temporary_password(
-        user_id,
-        temporary_password
-    )
-
-    if result == "protected":
-
-        return render_template(
-            "users.html",
-            users=get_all_users(),
-            error=(
-                "Main Admin passwords cannot "
-                "be reset from this screen."
-            )
-        )
-
-    if result is None:
-
-        return render_template(
-            "users.html",
-            users=get_all_users(),
-            error="User not found."
-        )
-
-    return render_template(
-        "reset_password.html",
-        username=result,
-        temporary_password=temporary_password
-    )
-
-
-# =========================================================
-# PERMANENT USER PASSWORD
-# =========================================================
-
-@app.route(
-    "/change-user-password/<int:user_id>",
-    methods=["POST"]
-)
-def change_user_password(user_id):
-
-    if not is_main_admin():
-
-        return redirect(
-            "/dashboard"
-        )
-
-    new_password = request.form.get(
-        "new_password",
-        ""
-    )
-
-    confirm_password = request.form.get(
-        "confirm_password",
-        ""
-    )
-
-    if len(new_password) < 8:
-
-        return render_template(
-            "users.html",
-            users=get_all_users(),
-            error=(
-                "Password must be at least "
-                "8 characters."
-            )
-        )
-
-    if new_password != confirm_password:
-
-        return render_template(
-            "users.html",
-            users=get_all_users(),
-            error=(
-                "Passwords do not match."
-            )
-        )
-
-    result = set_permanent_password(
-        user_id,
-        new_password
-    )
-
-    if result == "protected":
-
-        return render_template(
-            "users.html",
-            users=get_all_users(),
-            error=(
-                "Main Admin passwords cannot "
-                "be changed from this screen."
-            )
-        )
-
-    if result is None:
-
-        return render_template(
-            "users.html",
-            users=get_all_users(),
-            error=(
-                "User not found or inactive."
-            )
-        )
-
-    return render_template(
-        "users.html",
-        users=get_all_users(),
-        success=(
-            f"Password permanently changed "
-            f"for {result}."
-        )
-    )
-
-
-# =========================================================
+# ============================================================
 # DASHBOARD
-# =========================================================
+# ============================================================
 
 @app.route("/dashboard")
 def dashboard():
 
-    if not logged_in():
+    if not is_logged_in():
+        return redirect("/login")
 
-        return redirect(
-            "/login"
-        )
+    username = current_username()
 
-    stats = None
+    if is_admin():
 
-    if is_main_admin():
+        reports = get_all_reports()
 
         stats = get_report_stats()
 
+        return render_template(
+            "dashboard.html",
+            reports=reports,
+            stats=stats
+        )
+
+    reports = get_user_reports(username)
+
+    stats = get_report_stats(username)
+
     return render_template(
         "dashboard.html",
-        username=session["username"],
-        role=session["role"],
+        reports=reports,
         stats=stats
     )
 
 
-# =========================================================
-# ADMIN APPLICATION
-# =========================================================
+# ============================================================
+# SUBMIT REPORT
+# ============================================================
 
-@app.route(
-    "/apply-admin",
-    methods=["GET", "POST"]
-)
-def apply_admin():
+@app.route("/submit-report", methods=["GET", "POST"])
+def submit_report():
 
-    if (
-        not logged_in()
-        or session.get("role") != "student"
-    ):
+    if not is_logged_in():
+        return redirect("/login")
 
-        return redirect(
-            "/login"
-        )
+    if is_admin():
+        return redirect("/dashboard")
 
     if request.method == "POST":
 
-        reason = request.form.get(
-            "reason",
+        category = request.form.get(
+            "category",
             ""
         ).strip()
 
-        if not reason:
+        location = request.form.get(
+            "location",
+            ""
+        ).strip()
 
-            return render_template(
-                "apply_admin.html",
-                error=(
-                    "Please give a reason "
-                    "for your application."
+        message = request.form.get(
+            "message",
+            ""
+        ).strip()
+
+        if not category or not message:
+            flash(
+                "Please fill in all required fields.",
+                "error"
+            )
+            return redirect("/submit-report")
+
+        photos = request.files.getlist(
+            "photos"
+        )
+
+        valid_photos = []
+
+        for photo in photos:
+
+            if not photo or not photo.filename:
+                continue
+
+            if not allowed_file(photo.filename):
+                flash(
+                    "Only PNG, JPG, JPEG and WEBP images are allowed.",
+                    "error"
                 )
+                return redirect("/submit-report")
+
+            valid_photos.append(photo)
+
+        if len(valid_photos) > 5:
+            flash(
+                "You can upload a maximum of 5 photos.",
+                "error"
             )
+            return redirect("/submit-report")
 
-        try:
-
-            save_admin_application(
-                session["username"],
-                reason
-            )
-
-        except Exception:
-
-            app.logger.exception(
-                "Admin application error."
-            )
-
-            return render_template(
-                "apply_admin.html",
-                error=(
-                    "Unable to send your application."
-                )
-            )
-
-        return render_template(
-            "apply_admin.html",
-            message=(
-                "Application sent to Main Admin."
-            )
-        )
-
-    return render_template(
-        "apply_admin.html"
-    )
-
-
-# =========================================================
-# ADMIN APPLICATIONS
-# =========================================================
-
-@app.route("/admin-applications")
-def admin_applications():
-
-    if not is_main_admin():
-
-        return redirect(
-            "/dashboard"
-        )
-
-    return render_template(
-        "admin_applications.html",
-        applications=get_pending_applications()
-    )
-
-
-@app.route(
-    "/approve-admin/<int:application_id>"
-)
-def approve_admin_route(application_id):
-
-    if not is_main_admin():
-
-        return redirect(
-            "/dashboard"
-        )
-
-    approve_admin(
-        application_id
-    )
-
-    return redirect(
-        "/admin-applications"
-    )
-
-
-@app.route(
-    "/reject-admin/<int:application_id>"
-)
-def reject_admin_route(application_id):
-
-    if not is_main_admin():
-
-        return redirect(
-            "/dashboard"
-        )
-
-    reject_admin(
-        application_id
-    )
-
-    return redirect(
-        "/admin-applications"
-    )
-
-
-# =========================================================
-# SUBMIT REPORT + MULTIPLE PHOTOS
-# =========================================================
-
-@app.route(
-    "/submit-report",
-    methods=["POST"]
-)
-def submit_report():
-
-    if (
-        not logged_in()
-        or session.get("role") != "student"
-    ):
-
-        return redirect(
-            "/login"
-        )
-
-    category = request.form.get(
-        "category",
-        "General"
-    ).strip()
-
-    location = request.form.get(
-        "location",
-        ""
-    ).strip()
-
-    message = request.form.get(
-        "message",
-        ""
-    ).strip()
-
-    if not category:
-
-        category = "General"
-
-    if not message:
-
-        return render_template(
-            "dashboard.html",
-            username=session["username"],
-            role=session["role"],
-            stats=None,
-            error=(
-                "Please describe the problem "
-                "before submitting."
-            )
-        )
-
-    photos = request.files.getlist(
-        "photos"
-    )
-
-    valid_photos = []
-
-    for photo in photos:
-
-        if not photo or not photo.filename:
-
-            continue
-
-        if not allowed_file(
-            photo.filename
-        ):
-
-            return render_template(
-                "dashboard.html",
-                username=session["username"],
-                role=session["role"],
-                stats=None,
-                error=(
-                    "Only PNG, JPG, JPEG "
-                    "and WEBP images are allowed."
-                )
-            )
-
-        valid_photos.append(
-            photo
-        )
-
-    if len(valid_photos) > MAX_PHOTOS_PER_REPORT:
-
-        return render_template(
-            "dashboard.html",
-            username=session["username"],
-            role=session["role"],
-            stats=None,
-            error=(
-                "You can attach a maximum "
-                "of 5 photos."
-            )
-        )
-
-    try:
+        # ----------------------------------------------------
+        # Create report
+        # ----------------------------------------------------
 
         report_id = save_report(
-            session["username"],
+            current_username(),
             category,
             location,
             message
         )
 
-    except Exception:
-
-        app.logger.exception(
-            "Unable to create report."
-        )
-
-        return render_template(
-            "dashboard.html",
-            username=session["username"],
-            role=session["role"],
-            stats=None,
-            error=(
-                "Unable to create the report."
+        if not report_id:
+            flash(
+                "Unable to submit the report.",
+                "error"
             )
-        )
+            return redirect("/submit-report")
 
-    if not report_id:
+        # ----------------------------------------------------
+        # Save uploaded photos
+        # ----------------------------------------------------
 
-        return render_template(
-            "dashboard.html",
-            username=session["username"],
-            role=session["role"],
-            stats=None,
-            error=(
-                "Unable to create the report."
-            )
-        )
-
-    # Save photos.
-    for photo in valid_photos:
-
-        try:
+        for photo in valid_photos:
 
             original_name = secure_filename(
                 photo.filename
             )
 
-            _, extension = os.path.splitext(
-                original_name
+            extension = ""
+
+            if "." in original_name:
+                extension = "." + original_name.rsplit(
+                    ".",
+                    1
+                )[1].lower()
+
+            unique_filename = (
+                uuid.uuid4().hex
+                + extension
             )
 
-            photo_name = (
-                secrets.token_hex(16)
-                + extension.lower()
-            )
-
-            photo_path = os.path.join(
+            file_path = os.path.join(
                 app.config["UPLOAD_FOLDER"],
-                photo_name
+                unique_filename
             )
 
-            photo.save(
-                photo_path
-            )
+            photo.save(file_path)
 
             add_report_photo(
                 report_id,
-                photo_name
+                unique_filename
             )
 
-        except Exception:
+        flash(
+            "Your report has been submitted successfully.",
+            "success"
+        )
 
-            app.logger.exception(
-                "Unable to save report photo."
-            )
+        return redirect(
+            f"/report/{report_id}"
+        )
 
-    return redirect(
-        f"/report/{report_id}"
+    return render_template(
+        "submit_report.html"
     )
 
 
-# =========================================================
+# ============================================================
 # MY REPORTS
-# =========================================================
+# ============================================================
 
 @app.route("/my-reports")
 def my_reports():
 
-    if not logged_in():
+    if not is_logged_in():
+        return redirect("/login")
 
-        return redirect(
-            "/login"
-        )
-
-    # Admins do NOT use Own Reports.
-    if session.get("role") != "student":
-
-        return redirect(
-            "/reports"
-        )
+    if is_admin():
+        return redirect("/reports")
 
     reports = get_user_reports(
-        session["username"]
+        current_username()
     )
 
     return render_template(
         "my_reports.html",
-        reports=reports,
-        role=session["role"]
+        reports=reports
     )
 
 
-# =========================================================
+# ============================================================
 # ALL REPORTS
-# =========================================================
+# ============================================================
 
 @app.route("/reports")
 def reports():
 
-    if not logged_in():
-
-        return redirect(
-            "/login"
-        )
-
     if not is_admin():
+        return redirect("/dashboard")
 
-        return redirect(
-            "/dashboard"
-        )
-
-    all_reports = get_all_reports()
+    reports = get_all_reports()
 
     return render_template(
         "reports.html",
-        reports=all_reports,
-        role=session["role"]
+        reports=reports
     )
 
 
-# =========================================================
-# REPORT DETAIL
-# =========================================================
+# ============================================================
+# VIEW REPORT
+# ============================================================
 
-@app.route(
-    "/report/<int:report_id>"
-)
+@app.route("/report/<int:report_id>")
 def report_detail(report_id):
 
-    if not logged_in():
+    if not is_logged_in():
+        return redirect("/login")
 
-        return redirect(
-            "/login"
-        )
-
-    report = get_report(
-        report_id
-    )
+    report = get_report(report_id)
 
     if not report:
-
-        return redirect(
-            "/dashboard"
+        flash(
+            "Report not found.",
+            "error"
         )
+        return redirect("/dashboard")
 
-    # Students can ONLY view their own report.
-    if session.get("role") == "student":
+    # --------------------------------------------------------
+    # Students can ONLY open their own reports
+    # --------------------------------------------------------
 
-        if report[1] != session["username"]:
+    if not is_admin():
 
-            return redirect(
-                "/dashboard"
+        if report[1] != current_username():
+            flash(
+                "You do not have permission to view this report.",
+                "error"
             )
+            return redirect("/my-reports")
 
     photos = get_report_photos(
         report_id
@@ -1329,15 +535,13 @@ def report_detail(report_id):
         "report_detail.html",
         report=report,
         photos=photos,
-        messages=messages,
-        username=session["username"],
-        role=session["role"]
+        messages=messages
     )
 
 
-# =========================================================
-# REPORT CONVERSATION
-# =========================================================
+# ============================================================
+# REPORT MESSAGE / CONVERSATION
+# ============================================================
 
 @app.route(
     "/report/<int:report_id>/message",
@@ -1345,30 +549,22 @@ def report_detail(report_id):
 )
 def report_message(report_id):
 
-    if not logged_in():
+    if not is_logged_in():
+        return redirect("/login")
 
-        return redirect(
-            "/login"
-        )
-
-    report = get_report(
-        report_id
-    )
+    report = get_report(report_id)
 
     if not report:
+        return redirect("/dashboard")
 
-        return redirect(
-            "/dashboard"
-        )
+    # --------------------------------------------------------
+    # Students can only message on their own reports
+    # --------------------------------------------------------
 
-    # Students can only message on their own reports.
-    if session.get("role") == "student":
+    if not is_admin():
 
-        if report[1] != session["username"]:
-
-            return redirect(
-                "/dashboard"
-            )
+        if report[1] != current_username():
+            return redirect("/dashboard")
 
     message = request.form.get(
         "message",
@@ -1377,29 +573,21 @@ def report_message(report_id):
 
     if message:
 
-        try:
-
-            add_report_message(
-                report_id,
-                session["username"],
-                session["role"],
-                message
-            )
-
-        except Exception:
-
-            app.logger.exception(
-                "Unable to add report message."
-            )
+        add_report_message(
+            report_id,
+            current_username(),
+            current_role(),
+            message
+        )
 
     return redirect(
         f"/report/{report_id}"
     )
 
 
-# =========================================================
+# ============================================================
 # UPDATE REPORT
-# =========================================================
+# ============================================================
 
 @app.route(
     "/update-report/<int:report_id>",
@@ -1408,63 +596,70 @@ def report_message(report_id):
 def update_report(report_id):
 
     if not is_admin():
+        return redirect("/dashboard")
 
-        return redirect(
-            "/dashboard"
-        )
+    report = get_report(report_id)
+
+    if not report:
+        return redirect("/reports")
 
     status = request.form.get(
         "status",
         "Pending"
     )
 
-    allowed_statuses = {
-        "Pending",
-        "In Progress",
-        "Reviewed",
-        "Resolved"
-    }
-
-    if status not in allowed_statuses:
-
-        status = "Pending"
-
-    note = request.form.get(
+    admin_note = request.form.get(
         "admin_note",
         ""
     ).strip()
 
-    update_report_status(
+    success = update_report_status(
         report_id,
         status,
-        note
+        admin_note
     )
+
+    if success:
+        flash(
+            "Report updated successfully.",
+            "success"
+        )
+    else:
+        flash(
+            "Unable to update report.",
+            "error"
+        )
 
     return redirect(
         f"/report/{report_id}"
     )
 
 
-# =========================================================
-# MARK REPORT UNREASONABLE
-# =========================================================
+# ============================================================
+# MARK UNREASONABLE
+# ============================================================
 
 @app.route(
     "/unreasonable/<int:report_id>",
-    methods=["POST", "GET"]
+    methods=["POST"]
 )
 def unreasonable(report_id):
 
     if not is_admin():
+        return redirect("/dashboard")
 
-        return redirect(
-            "/dashboard"
-        )
+    report = get_report(report_id)
 
-    update_report_status(
-        report_id,
-        "Unreasonable",
-        "Sent to Main Admin for review"
+    if not report:
+        return redirect("/reports")
+
+    mark_report_unreasonable(
+        report_id
+    )
+
+    flash(
+        "Report marked as unreasonable and sent to Main Admin review.",
+        "success"
     )
 
     return redirect(
@@ -1472,56 +667,65 @@ def unreasonable(report_id):
     )
 
 
-# =========================================================
+# ============================================================
 # UNREASONABLE REPORTS
-# =========================================================
+# ============================================================
 
 @app.route("/unreasonable-reports")
 def unreasonable_reports():
 
     if not is_main_admin():
+        return redirect("/dashboard")
 
-        return redirect(
-            "/dashboard"
-        )
+    reports = get_unreasonable_reports()
 
     return render_template(
         "unreasonable_reports.html",
-        reports=get_unreasonable_reports()
+        reports=reports
     )
 
 
-# =========================================================
+# ============================================================
 # DELETE REPORT
-# =========================================================
+# ============================================================
 
 @app.route(
     "/delete-report/<int:report_id>",
-    methods=["POST", "GET"]
+    methods=["POST"]
 )
 def delete_report_route(report_id):
 
     if not is_main_admin():
+        return redirect("/dashboard")
 
-        return redirect(
-            "/dashboard"
+    report = get_report(report_id)
+
+    if not report:
+        flash(
+            "Report not found.",
+            "error"
         )
+        return redirect("/unreasonable-reports")
 
-    # Delete physical photo files first.
+    # Delete physical images first
     delete_report_files(
         report_id
     )
 
-    try:
+    # Delete Supabase records
+    success = delete_report(
+        report_id
+    )
 
-        delete_report(
-            report_id
+    if success:
+        flash(
+            "Report deleted successfully.",
+            "success"
         )
-
-    except Exception:
-
-        app.logger.exception(
-            "Unable to delete report."
+    else:
+        flash(
+            "Unable to delete report.",
+            "error"
         )
 
     return redirect(
@@ -1529,155 +733,365 @@ def delete_report_route(report_id):
     )
 
 
-# =========================================================
-# MAIN ADMIN CHECK
-# =========================================================
-#
-# This route DOES NOT show passwords.
-#
-# It only confirms that Main Admin accounts exist.
-#
-# You can remove this route later if you don't need it.
-# =========================================================
+# ============================================================
+# USERS
+# ============================================================
 
-@app.route("/check-main-admins")
-def check_main_admins():
+@app.route("/users")
+def users():
 
     if not is_main_admin():
+        return redirect("/dashboard")
 
-        return redirect(
-            "/dashboard"
-        )
+    all_users = get_all_users()
 
-    conn = connect()
+    return render_template(
+        "users.html",
+        users=all_users
+    )
+
+
+# ============================================================
+# DELETE USER
+# ============================================================
+
+@app.route(
+    "/delete-user/<int:user_id>",
+    methods=["POST"]
+)
+def delete_user_route(user_id):
+
+    if not is_main_admin():
+        return redirect("/dashboard")
 
     try:
 
-        rows = conn.execute(
-            """
-            SELECT
-                id,
-                username,
-                role,
-                active,
-                must_change_password
-            FROM users
-            WHERE role='main_admin'
-            ORDER BY id ASC
-            """
-        ).fetchall()
+        result = delete_user(
+            user_id,
+            app.config["UPLOAD_FOLDER"]
+        )
 
-    finally:
+        # Main Admin protection
+        if result == "protected":
 
-        conn.close()
+            flash(
+                "Main Admin accounts cannot be deleted.",
+                "error"
+            )
 
-    accounts = []
+            return redirect("/users")
 
-    for row in rows:
+        # User does not exist
+        if result == "not_found":
 
-        accounts.append({
-            "id": row[0],
-            "username": row[1],
-            "role": row[2],
-            "active": bool(row[3]),
-            "must_change_password": bool(row[4])
-        })
+            flash(
+                "User not found.",
+                "error"
+            )
 
-    return {
-        "main_admin_count": len(accounts),
-        "accounts": accounts
-    }
+            return redirect("/users")
+
+        # Successful deletion
+        if result:
+
+            flash(
+                f"User '{result['username']}' and "
+                f"{result['report_count']} report(s) were deleted.",
+                "success"
+            )
+
+            return redirect("/users")
+
+        flash(
+            "Unable to delete user.",
+            "error"
+        )
+
+        return redirect("/users")
+
+    except Exception:
+
+        app.logger.exception(
+            "Error deleting user"
+        )
+
+        flash(
+            "An error occurred while deleting the user.",
+            "error"
+        )
+
+        return redirect("/users")
 
 
-# =========================================================
-# ERROR HANDLER - FILE TOO LARGE
-# =========================================================
+# ============================================================
+# ADMIN APPLICATIONS
+# ============================================================
+
+@app.route("/admin-applications")
+def admin_applications():
+
+    if not is_main_admin():
+        return redirect("/dashboard")
+
+    applications = get_admin_applications()
+
+    return render_template(
+        "admin_applications.html",
+        applications=applications
+    )
+
+
+# ============================================================
+# APPLY FOR ADMIN
+# ============================================================
+
+@app.route(
+    "/apply-admin",
+    methods=["GET", "POST"]
+)
+def apply_admin():
+
+    if not is_logged_in():
+        return redirect("/login")
+
+    if current_role() != "student":
+        return redirect("/dashboard")
+
+    if request.method == "POST":
+
+        reason = request.form.get(
+            "reason",
+            ""
+        ).strip()
+
+        success = create_admin_application(
+            current_username(),
+            reason
+        )
+
+        if success:
+
+            flash(
+                "Your admin application has been submitted.",
+                "success"
+            )
+
+        else:
+
+            flash(
+                "You already have a pending admin application.",
+                "error"
+            )
+
+        return redirect("/dashboard")
+
+    return render_template(
+        "apply_admin.html"
+    )
+
+
+# ============================================================
+# APPROVE ADMIN APPLICATION
+# ============================================================
+
+@app.route(
+    "/approve-admin/<int:application_id>",
+    methods=["POST"]
+)
+def approve_admin(application_id):
+
+    if not is_main_admin():
+        return redirect("/dashboard")
+
+    success = approve_admin_application(
+        application_id
+    )
+
+    if success:
+
+        flash(
+            "Admin application approved.",
+            "success"
+        )
+
+    else:
+
+        flash(
+            "Unable to approve application.",
+            "error"
+        )
+
+    return redirect(
+        "/admin-applications"
+    )
+
+
+# ============================================================
+# REJECT ADMIN APPLICATION
+# ============================================================
+
+@app.route(
+    "/reject-admin/<int:application_id>",
+    methods=["POST"]
+)
+def reject_admin(application_id):
+
+    if not is_main_admin():
+        return redirect("/dashboard")
+
+    success = reject_admin_application(
+        application_id
+    )
+
+    if success:
+
+        flash(
+            "Admin application rejected.",
+            "success"
+        )
+
+    else:
+
+        flash(
+            "Unable to reject application.",
+            "error"
+        )
+
+    return redirect(
+        "/admin-applications"
+    )
+
+
+# ============================================================
+# CHANGE PASSWORD
+# ============================================================
+
+@app.route(
+    "/change-password",
+    methods=["GET", "POST"]
+)
+def change_password():
+
+    if not is_logged_in():
+        return redirect("/login")
+
+    if request.method == "POST":
+
+        new_password = request.form.get(
+            "new_password",
+            ""
+        )
+
+        confirm_password = request.form.get(
+            "confirm_password",
+            ""
+        )
+
+        if not new_password:
+
+            flash(
+                "Password cannot be empty.",
+                "error"
+            )
+
+            return redirect(
+                "/change-password"
+            )
+
+        if new_password != confirm_password:
+
+            flash(
+                "Passwords do not match.",
+                "error"
+            )
+
+            return redirect(
+                "/change-password"
+            )
+
+        success = update_password(
+            current_username(),
+            new_password
+        )
+
+        if success:
+
+            flash(
+                "Password changed successfully.",
+                "success"
+            )
+
+            return redirect(
+                "/dashboard"
+            )
+
+        flash(
+            "Unable to change password.",
+            "error"
+        )
+
+    return render_template(
+        "change_password.html"
+    )
+
+
+# ============================================================
+# 404
+# ============================================================
+
+@app.errorhandler(404)
+def page_not_found(error):
+
+    if is_logged_in():
+        return redirect("/dashboard")
+
+    return redirect("/")
+
+
+# ============================================================
+# FILE TOO LARGE
+# ============================================================
 
 @app.errorhandler(413)
 def file_too_large(error):
 
-    if logged_in():
-
-        return render_template(
-            "dashboard.html",
-            username=session.get(
-                "username",
-                ""
-            ),
-            role=session.get(
-                "role",
-                "student"
-            ),
-            stats=(
-                get_report_stats()
-                if is_main_admin()
-                else None
-            ),
-            error=(
-                "The uploaded files are too large. "
-                "Maximum total size is 20 MB."
-            )
-        ), 413
+    flash(
+        "The uploaded files are too large. Maximum total size is 20 MB.",
+        "error"
+    )
 
     return redirect(
-        "/login"
+        "/submit-report"
     )
 
 
-# =========================================================
-# GENERAL SERVER ERROR
-# =========================================================
+# ============================================================
+# SERVER ERROR
+# ============================================================
 
 @app.errorhandler(500)
-def internal_server_error(error):
+def server_error(error):
 
     app.logger.exception(
-        "Internal server error."
+        "Internal server error"
     )
 
-    if logged_in():
+    if is_logged_in():
 
         return render_template(
-            "dashboard.html",
-            username=session.get(
-                "username",
-                ""
-            ),
-            role=session.get(
-                "role",
-                "student"
-            ),
-            stats=(
-                get_report_stats()
-                if is_main_admin()
-                else None
-            ),
-            error=(
-                "Something went wrong on the server. "
-                "Please try again."
-            )
+            "error.html",
+            message="Something went wrong. Please try again."
         ), 500
 
-    return render_template(
-        "login.html",
-        error=(
-            "Something went wrong on the server."
-        )
-    ), 500
+    return (
+        "Internal server error.",
+        500
+    )
 
 
-# =========================================================
-# RUN LOCALLY
-# =========================================================
-#
-# IMPORTANT FOR RENDER:
-#
-# Render should use:
-#
-# gunicorn --bind 0.0.0.0:$PORT app:app
-#
-# Do NOT use "python app.py" as the Render start command.
-# =========================================================
+# ============================================================
+# RUN
+# ============================================================
 
 if __name__ == "__main__":
 
