@@ -1,491 +1,672 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
+
+    <meta charset="utf-8">
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0"
+        content="width=device-width, initial-scale=1"
     >
 
     <meta
-        name="description"
-        content="SchoolVoice - A safe and simple platform for students to report school issues."
+        name="theme-color"
+        content="#172033"
     >
 
     <title>
         {% block title %}SchoolVoice{% endblock %}
     </title>
 
-    <!-- Main stylesheet -->
+
+    <!-- =========================
+         FAVICON
+    ========================== -->
+
+    <link
+        rel="icon"
+        type="image/png"
+        sizes="512x512"
+        href="{{ url_for('static', filename='images/favicon.png') }}"
+    >
+
+
+    <link
+        rel="shortcut icon"
+        type="image/png"
+        href="{{ url_for('static', filename='images/favicon.png') }}"
+    >
+
+
+    <!-- =========================
+         MAIN CSS
+    ========================== -->
+
     <link
         rel="stylesheet"
         href="{{ url_for('static', filename='style.css') }}"
     >
 
+
     {% block head %}{% endblock %}
+
 </head>
+
 
 <body>
 
-    <!-- =========================
-         NAVIGATION BAR
-    ========================== -->
-    <header class="site-header">
 
-        <nav class="navbar">
+<!-- =====================================================
+     HEADER
+====================================================== -->
 
-            <div class="nav-container">
+<header class="topbar">
 
-                <!-- Logo -->
-                <a href="/dashboard" class="brand">
-
-                    <div class="brand-icon">
-                        ✓
-                    </div>
-
-                    <div class="brand-text">
-                        <span class="brand-name">
-                            SchoolVoice
-                        </span>
-
-                        <span class="brand-subtitle">
-                            Speak. Report. Improve.
-                        </span>
-                    </div>
-
-                </a>
+    <div class="topbar-inner">
 
 
-                <!-- Mobile menu button -->
-                <button
-                    type="button"
-                    class="mobile-menu-btn"
-                    id="mobileMenuBtn"
-                    aria-label="Open navigation menu"
-                    aria-expanded="false"
-                >
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
+        <!-- =========================
+             BRAND
+        ========================== -->
+
+        <a
+            href="/"
+            class="brand"
+            aria-label="SchoolVoice Home"
+        >
+
+            <img
+                src="{{ url_for('static', filename='images/kv-logo.png') }}"
+                alt="Kendriya Vidyalaya Logo"
+                class="top-kv-logo"
+            >
 
 
-                <!-- Navigation -->
-                <div class="nav-menu" id="navMenu">
+            <div class="brand-text">
 
-                    {% if session.get('username') %}
+                <span class="school-name">
+                    Kendriya Vidyalaya Andrews Ganj
+                </span>
 
-                        <!-- Student navigation -->
-                        {% if session.get('role') == 'student' %}
-
-                            <a
-                                href="/dashboard"
-                                class="nav-link"
-                            >
-                                Dashboard
-                            </a>
-
-                            <a
-                                href="/submit-report"
-                                class="nav-link nav-report"
-                            >
-                                <span>＋</span>
-                                New Report
-                            </a>
-
-                            <a
-                                href="/my-reports"
-                                class="nav-link"
-                            >
-                                My Reports
-                            </a>
-
-                        {% endif %}
-
-
-                        <!-- Admin navigation -->
-                        {% if session.get('role') in ['admin', 'main_admin'] %}
-
-                            <a
-                                href="/dashboard"
-                                class="nav-link"
-                            >
-                                Dashboard
-                            </a>
-
-                            <a
-                                href="/reports"
-                                class="nav-link"
-                            >
-                                All Reports
-                            </a>
-
-                        {% endif %}
-
-
-                        <!-- Main admin only -->
-                        {% if session.get('role') == 'main_admin' %}
-
-                            <a
-                                href="/users"
-                                class="nav-link"
-                            >
-                                Users
-                            </a>
-
-                            <a
-                                href="/admin-applications"
-                                class="nav-link"
-                            >
-                                Applications
-                            </a>
-
-                        {% endif %}
-
-
-                        <!-- User menu -->
-                        <div class="nav-user">
-
-                            <div class="user-avatar">
-                                {{ session.get('username', 'U')[0]|upper }}
-                            </div>
-
-                            <div class="user-info">
-
-                                <span class="user-name">
-                                    {{ session.get('username') }}
-                                </span>
-
-                                <span class="user-role">
-                                    {% if session.get('role') == 'main_admin' %}
-                                        Main Admin
-                                    {% elif session.get('role') == 'admin' %}
-                                        Admin
-                                    {% else %}
-                                        Student
-                                    {% endif %}
-                                </span>
-
-                            </div>
-
-                            <a
-                                href="/change-password"
-                                class="nav-account-link"
-                                title="Change password"
-                            >
-                                ⚙
-                            </a>
-
-                            <a
-                                href="/logout"
-                                class="logout-btn"
-                            >
-                                Logout
-                            </a>
-
-                        </div>
-
-                    {% else %}
-
-                        <!-- Logged-out navigation -->
-
-                        <a
-                            href="/"
-                            class="nav-link"
-                        >
-                            Home
-                        </a>
-
-                        <a
-                            href="/login"
-                            class="nav-link"
-                        >
-                            Login
-                        </a>
-
-                        <a
-                            href="/register"
-                            class="nav-link nav-register"
-                        >
-                            Register
-                        </a>
-
-                    {% endif %}
-
-                </div>
+                <span class="brand-product">
+                    SchoolVoice
+                </span>
 
             </div>
 
-        </nav>
-
-    </header>
+        </a>
 
 
-    <!-- =========================
-         FLASH MESSAGES
-    ========================== -->
+        <!-- =========================
+             MOBILE MENU BUTTON
+        ========================== -->
 
-    <section class="flash-container">
+        <button
+            type="button"
+            class="mobile-menu-toggle"
+            id="mobileMenuToggle"
+            aria-label="Open navigation menu"
+            aria-expanded="false"
+            aria-controls="mainNavigation"
+        >
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
+            <span></span>
+            <span></span>
+            <span></span>
 
-            {% if messages %}
+        </button>
 
-                {% for category, message in messages %}
 
-                    <div
-                        class="flash-message
-                        {% if category == 'error' %}
-                            flash-error
-                        {% elif category == 'success' %}
-                            flash-success
-                        {% elif category == 'warning' %}
-                            flash-warning
-                        {% else %}
-                            flash-info
-                        {% endif %}"
-                        role="alert"
+        <!-- =========================
+             NAVIGATION
+        ========================== -->
+
+        <nav
+            class="main-navigation"
+            id="mainNavigation"
+            aria-label="Main navigation"
+        >
+
+            {% if session.get('username') %}
+
+
+                <!-- =====================================
+                     COMMON LOGGED-IN NAVIGATION
+                ====================================== -->
+
+                <a
+                    href="/dashboard"
+                    class="nav-link"
+                >
+                    <span class="nav-icon">⌂</span>
+                    Dashboard
+                </a>
+
+
+                <!-- =====================================
+                     STUDENT ONLY
+                ====================================== -->
+
+                {% if session.get('role') == 'student' %}
+
+                    <a
+                        href="/my-reports"
+                        class="nav-link"
                     >
+                        <span class="nav-icon">▤</span>
+                        My Reports
+                    </a>
 
-                        <span class="flash-icon">
+                {% endif %}
 
-                            {% if category == 'success' %}
-                                ✓
-                            {% elif category == 'error' %}
-                                !
-                            {% elif category == 'warning' %}
-                                ⚠
+
+                <!-- =====================================
+                     ADMIN + MAIN ADMIN
+                ====================================== -->
+
+                {% if session.get('role') in ['admin', 'main_admin'] %}
+
+                    <a
+                        href="/reports"
+                        class="nav-link"
+                    >
+                        <span class="nav-icon">▤</span>
+                        All Reports
+                    </a>
+
+                {% endif %}
+
+
+                <!-- =====================================
+                     MAIN ADMIN ONLY
+                ====================================== -->
+
+                {% if session.get('role') == 'main_admin' %}
+
+                    <a
+                        href="/users"
+                        class="nav-link"
+                    >
+                        <span class="nav-icon">♙</span>
+                        Users
+                    </a>
+
+
+                    <a
+                        href="/admin-applications"
+                        class="nav-link"
+                    >
+                        <span class="nav-icon">✓</span>
+                        Applications
+                    </a>
+
+                {% endif %}
+
+
+                <!-- =====================================
+                     USER ACCOUNT
+                ====================================== -->
+
+                <div class="nav-divider"></div>
+
+
+                <div class="nav-user">
+
+                    <div class="nav-user-avatar">
+                        {{ session.get('username', 'U')[0]|upper }}
+                    </div>
+
+
+                    <div class="nav-user-details">
+
+                        <strong>
+                            {{ session.get('username') }}
+                        </strong>
+
+                        <span>
+
+                            {% if session.get('role') == 'main_admin' %}
+
+                                Main Admin
+
+                            {% elif session.get('role') == 'admin' %}
+
+                                Admin
+
                             {% else %}
-                                i
+
+                                Student
+
                             {% endif %}
 
                         </span>
 
-                        <span class="flash-text">
-                            {{ message }}
-                        </span>
-
-                        <button
-                            type="button"
-                            class="flash-close"
-                            onclick="this.parentElement.remove()"
-                            aria-label="Close message"
-                        >
-                            ×
-                        </button>
-
                     </div>
 
-                {% endfor %}
+                </div>
+
+
+                <a
+                    href="/change-password"
+                    class="nav-account"
+                    title="Change password"
+                    aria-label="Change password"
+                >
+                    ⚙
+                </a>
+
+
+                <a
+                    href="/logout"
+                    class="nav-button logout-button"
+                >
+                    Logout
+                </a>
+
+
+            {% else %}
+
+
+                <!-- =====================================
+                     LOGGED OUT
+                ====================================== -->
+
+                <a
+                    href="/"
+                    class="nav-link"
+                >
+                    Home
+                </a>
+
+
+                <a
+                    href="/login"
+                    class="nav-link"
+                >
+                    Login
+                </a>
+
+
+                <a
+                    href="/register"
+                    class="nav-button"
+                >
+                    Register
+                </a>
+
 
             {% endif %}
 
-        {% endwith %}
+        </nav>
 
-    </section>
+    </div>
 
-
-    <!-- =========================
-         MAIN CONTENT
-    ========================== -->
-
-    <main class="main-content">
-
-        {% block content %}{% endblock %}
-
-    </main>
+</header>
 
 
-    <!-- =========================
-         FOOTER
-    ========================== -->
+<!-- =====================================================
+     FLASH MESSAGES
+====================================================== -->
 
-    <footer class="site-footer">
+{% with messages = get_flashed_messages(with_categories=true) %}
 
-        <div class="footer-container">
+    {% if messages %}
 
-            <div class="footer-brand">
+        <div class="flash-wrapper">
 
-                <div class="footer-logo">
-                    ✓
-                </div>
+            {% for category, message in messages %}
 
-                <div>
+                <div
+                    class="flash-message
+                    {% if category == 'error' %}
+                        flash-error
+                    {% elif category == 'success' %}
+                        flash-success
+                    {% elif category == 'warning' %}
+                        flash-warning
+                    {% else %}
+                        flash-info
+                    {% endif %}"
+                    role="alert"
+                >
 
-                    <strong>
-                        SchoolVoice
-                    </strong>
+                    <span class="flash-message-icon">
 
-                    <span>
-                        Making schools better together.
+                        {% if category == 'success' %}
+                            ✓
+                        {% elif category == 'error' %}
+                            !
+                        {% elif category == 'warning' %}
+                            ⚠
+                        {% else %}
+                            i
+                        {% endif %}
+
                     </span>
 
+
+                    <span class="flash-message-text">
+                        {{ message }}
+                    </span>
+
+
+                    <button
+                        type="button"
+                        class="flash-close"
+                        aria-label="Close notification"
+                        onclick="this.parentElement.remove()"
+                    >
+                        ×
+                    </button>
+
                 </div>
 
-            </div>
-
-
-            <div class="footer-info">
-
-                <span>
-                    © {{ current_year if current_year else 2026 }} SchoolVoice
-                </span>
-
-                <span class="footer-dot">
-                    •
-                </span>
-
-                <span>
-                    Student Reporting Platform
-                </span>
-
-            </div>
+            {% endfor %}
 
         </div>
 
-    </footer>
+    {% endif %}
+
+{% endwith %}
 
 
-    <!-- =========================
-         JAVASCRIPT
-    ========================== -->
+<!-- =====================================================
+     MAIN CONTENT
+====================================================== -->
 
-    <script>
+<main class="page">
 
-        /*
-         * Mobile navigation
-         */
+    {% block content %}{% endblock %}
 
-        const mobileMenuBtn =
-            document.getElementById("mobileMenuBtn");
-
-        const navMenu =
-            document.getElementById("navMenu");
+</main>
 
 
-        if (mobileMenuBtn && navMenu) {
+<!-- =====================================================
+     FOOTER
+====================================================== -->
 
-            mobileMenuBtn.addEventListener("click", function () {
+<footer class="school-footer">
 
-                navMenu.classList.toggle("mobile-open");
+    <div class="footer-inner">
 
-                const isOpen =
-                    navMenu.classList.contains("mobile-open");
 
-                mobileMenuBtn.setAttribute(
-                    "aria-expanded",
-                    isOpen ? "true" : "false"
-                );
+        <!-- KVS LOGO -->
 
-            });
+        <div class="footer-logo footer-logo-left">
+
+            <img
+                src="{{ url_for('static', filename='images/kv-logo.png') }}"
+                alt="Kendriya Vidyalaya Logo"
+                class="bottom-kv-logo"
+            >
+
+        </div>
+
+
+        <!-- FOOTER CONTENT -->
+
+        <div class="footer-content">
+
+            <strong>
+                SchoolVoice
+            </strong>
+
+            <span>
+                A student reporting platform for
+                Kendriya Vidyalaya Andrews Ganj.
+            </span>
+
+            <small>
+                Speak up. Report responsibly. Improve together.
+            </small>
+
+        </div>
+
+
+        <!-- PM SHRI LOGO -->
+
+        <div class="footer-logo footer-logo-right">
+
+            <img
+                src="{{ url_for('static', filename='images/pm-shri-logo.png') }}"
+                alt="PM SHRI Logo"
+                class="pm-shri-logo"
+            >
+
+        </div>
+
+    </div>
+
+</footer>
+
+
+<!-- =====================================================
+     JAVASCRIPT
+====================================================== -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        /* =============================================
+           MOBILE NAVIGATION
+        ============================================== */
+
+        const menuButton =
+            document.getElementById(
+                "mobileMenuToggle"
+            );
+
+        const navigation =
+            document.getElementById(
+                "mainNavigation"
+            );
+
+
+        if (menuButton && navigation) {
+
+            menuButton.addEventListener(
+                "click",
+                function () {
+
+                    const isOpen =
+                        navigation.classList.toggle(
+                            "mobile-navigation-open"
+                        );
+
+
+                    menuButton.classList.toggle(
+                        "menu-open",
+                        isOpen
+                    );
+
+
+                    menuButton.setAttribute(
+                        "aria-expanded",
+                        isOpen
+                            ? "true"
+                            : "false"
+                    );
+
+                }
+            );
 
 
             /*
              * Close mobile menu after
-             * clicking a navigation link.
+             * selecting a navigation link.
              */
 
-            navMenu.querySelectorAll("a").forEach(function (link) {
+            navigation
+                .querySelectorAll("a")
+                .forEach(
+                    function (link) {
 
-                link.addEventListener("click", function () {
+                        link.addEventListener(
+                            "click",
+                            function () {
 
-                    navMenu.classList.remove("mobile-open");
+                                navigation
+                                    .classList
+                                    .remove(
+                                        "mobile-navigation-open"
+                                    );
 
-                    mobileMenuBtn.setAttribute(
-                        "aria-expanded",
-                        "false"
-                    );
+                                menuButton
+                                    .classList
+                                    .remove(
+                                        "menu-open"
+                                    );
 
-                });
+                                menuButton
+                                    .setAttribute(
+                                        "aria-expanded",
+                                        "false"
+                                    );
 
-            });
+                            }
+                        );
+
+                    }
+                );
 
         }
 
 
-        /*
-         * Automatically hide flash messages
-         * after a few seconds.
-         */
+        /* =============================================
+           FLASH MESSAGE AUTO CLOSE
+        ============================================== */
 
         document
-            .querySelectorAll(".flash-message")
-            .forEach(function (message) {
+            .querySelectorAll(
+                ".flash-message"
+            )
+            .forEach(
+                function (message) {
 
-                setTimeout(function () {
+                    setTimeout(
+                        function () {
 
-                    message.style.opacity = "0";
-                    message.style.transform = "translateY(-8px)";
+                            if (
+                                message &&
+                                message.parentElement
+                            ) {
 
-                    setTimeout(function () {
-
-                        message.remove();
-
-                    }, 300);
-
-                }, 5000);
-
-            });
+                                message.classList.add(
+                                    "flash-hiding"
+                                );
 
 
-        /*
-         * Password show/hide buttons.
-         *
-         * This works with any password input
-         * that has a button using:
-         *
-         * class="password-toggle"
-         */
+                                setTimeout(
+                                    function () {
+
+                                        if (
+                                            message &&
+                                            message.parentElement
+                                        ) {
+
+                                            message.remove();
+
+                                        }
+
+                                    },
+                                    300
+                                );
+
+                            }
+
+                        },
+                        5000
+                    );
+
+                }
+            );
+
+
+        /* =============================================
+           PASSWORD SHOW / HIDE
+        ============================================== */
 
         document
-            .querySelectorAll(".password-toggle")
-            .forEach(function (button) {
+            .querySelectorAll(
+                ".password-toggle"
+            )
+            .forEach(
+                function (button) {
 
-                button.addEventListener("click", function () {
+                    button.addEventListener(
+                        "click",
+                        function () {
 
-                    const targetId =
-                        button.getAttribute("data-target");
+                            const target =
+                                button.getAttribute(
+                                    "data-target"
+                                );
 
-                    const input =
-                        document.getElementById(targetId);
-
-                    if (!input) {
-                        return;
-                    }
-
-                    if (input.type === "password") {
-
-                        input.type = "text";
-
-                        button.textContent = "Hide";
-
-                        button.setAttribute(
-                            "aria-label",
-                            "Hide password"
-                        );
-
-                    } else {
-
-                        input.type = "password";
-
-                        button.textContent = "Show";
-
-                        button.setAttribute(
-                            "aria-label",
-                            "Show password"
-                        );
-
-                    }
-
-                });
-
-            });
-
-    </script>
+                            const input =
+                                document.getElementById(
+                                    target
+                                );
 
 
-    {% block scripts %}{% endblock %}
+                            if (!input) {
+                                return;
+                            }
+
+
+                            if (
+                                input.type ===
+                                "password"
+                            ) {
+
+                                input.type =
+                                    "text";
+
+                                button.textContent =
+                                    "Hide";
+
+                                button.setAttribute(
+                                    "aria-label",
+                                    "Hide password"
+                                );
+
+                            }
+
+                            else {
+
+                                input.type =
+                                    "password";
+
+                                button.textContent =
+                                    "Show";
+
+                                button.setAttribute(
+                                    "aria-label",
+                                    "Show password"
+                                );
+
+                            }
+
+                        }
+                    );
+
+                }
+            );
+
+
+    }
+);
+
+</script>
+
+
+{% block scripts %}{% endblock %}
+
 
 </body>
+
 </html>
