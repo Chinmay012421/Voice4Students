@@ -2409,6 +2409,326 @@ textarea:focus-visible {
     font-weight: 800;
     color: #172033;
 }
+
+
+/* =========================================================
+   COMPACT REPORT TABS
+   ========================================================= */
+
+.compact-reports-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+
+.compact-report-tab {
+    width: 100%;
+
+    display: grid;
+    grid-template-columns: 85px minmax(0, 1fr) auto;
+
+    align-items: center;
+
+    gap: 18px;
+
+    padding: 14px 17px;
+
+    background: rgba(255, 255, 255, 0.96);
+
+    border: 1px solid #e1e7ee;
+
+    border-radius: 10px;
+
+    text-decoration: none;
+
+    color: inherit;
+
+    box-shadow:
+        0 2px 8px rgba(23, 32, 51, 0.04);
+
+    transition:
+        transform 0.16s ease,
+        box-shadow 0.16s ease,
+        border-color 0.16s ease,
+        background 0.16s ease;
+}
+
+
+.compact-report-tab:hover {
+    transform: translateY(-1px);
+
+    border-color: #b8d2e8;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 6px 18px rgba(23, 32, 51, 0.09);
+}
+
+
+/* REPORT NUMBER */
+
+.compact-report-number {
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+
+    min-width: 0;
+}
+
+
+.compact-report-number span {
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: 1px;
+
+    color: #8a96a6;
+}
+
+
+.compact-report-number strong {
+    margin-top: 3px;
+
+    font-size: 17px;
+
+    font-weight: 800;
+
+    color: #176fb3;
+}
+
+
+/* REPORT INFORMATION */
+
+.compact-report-info {
+    min-width: 0;
+}
+
+
+.compact-report-title-row {
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    min-width: 0;
+}
+
+
+.compact-report-title-row h2 {
+    margin: 0;
+
+    min-width: 0;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    font-size: 15px;
+
+    font-weight: 750;
+
+    color: #172033;
+}
+
+
+.compact-category {
+    flex-shrink: 0;
+
+    font-size: 10px;
+
+    padding: 4px 8px;
+}
+
+
+.compact-report-meta {
+    display: flex;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 5px 13px;
+
+    margin-top: 5px;
+
+    font-size: 11px;
+
+    color: #7a8697;
+}
+
+
+.compact-report-meta strong {
+    color: #4b5565;
+
+    font-weight: 700;
+}
+
+
+/* RIGHT SIDE */
+
+.compact-report-right {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-end;
+
+    gap: 13px;
+
+    flex-shrink: 0;
+}
+
+
+.compact-report-right .status {
+    white-space: nowrap;
+
+    font-size: 11px;
+}
+
+
+.compact-open {
+    font-size: 12px;
+
+    font-weight: 750;
+
+    color: #176fb3;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   MOBILE REPORT TABS
+   ========================================================= */
+
+@media (max-width: 800px) {
+
+    .compact-report-tab {
+        grid-template-columns: 58px minmax(0, 1fr) auto;
+
+        gap: 11px;
+
+        padding: 12px;
+    }
+
+
+    .compact-report-number strong {
+        font-size: 15px;
+    }
+
+
+    .compact-report-title-row {
+        display: block;
+    }
+
+
+    .compact-report-title-row h2 {
+        font-size: 14px;
+
+        margin-bottom: 5px;
+    }
+
+
+    .compact-category {
+        display: inline-flex;
+    }
+
+
+    .compact-report-meta {
+        display: block;
+
+        line-height: 1.6;
+
+        margin-top: 3px;
+    }
+
+
+    .compact-report-meta span {
+        display: block;
+    }
+
+
+    .compact-report-right {
+        flex-direction: column;
+
+        align-items: flex-end;
+
+        gap: 6px;
+    }
+
+
+    .compact-report-right .status {
+        font-size: 10px;
+    }
+
+
+    .compact-open {
+        font-size: 11px;
+    }
+
+}
+
+
+@media (max-width: 520px) {
+
+    .compact-report-tab {
+        grid-template-columns: 1fr auto;
+
+        gap: 8px;
+    }
+
+
+    .compact-report-number {
+        grid-column: 1 / -1;
+
+        flex-direction: row;
+
+        align-items: baseline;
+
+        gap: 6px;
+
+        padding-bottom: 2px;
+
+        border-bottom: 1px solid #edf0f4;
+    }
+
+
+    .compact-report-number span {
+        font-size: 8px;
+    }
+
+
+    .compact-report-number strong {
+        font-size: 14px;
+    }
+
+
+    .compact-report-info {
+        grid-column: 1;
+    }
+
+
+    .compact-report-right {
+        grid-column: 2;
+        grid-row: 2;
+
+        align-self: center;
+    }
+
+
+    .compact-report-title-row h2 {
+        max-width: 100%;
+    }
+
+}
 /* =========================================================
    END
    ========================================================= */
