@@ -8,6 +8,7 @@ Report #{{ report[0] }} — SchoolVoice
 
 <div class="report-detail">
 
+    <!-- Back -->
     <a
         href="{% if role in ['admin', 'main_admin'] %}/reports{% else %}/my-reports{% endif %}"
         class="back-link"
@@ -16,78 +17,100 @@ Report #{{ report[0] }} — SchoolVoice
     </a>
 
 
-    <div class="report-detail-header">
+    <!-- =====================================================
+         REPORT HEADER
+         ===================================================== -->
 
-        <div>
+    <div class="report-header panel">
 
-            <span class="tag">
+        <div class="report-header-main">
+
+            <div class="report-category">
                 {{ report[2] }}
-            </span>
+            </div>
 
             <h1>
-                {{ report[4] }}
+                Report #{{ report[0] }}
             </h1>
 
-            <p class="muted">
+            <div class="report-meta">
 
-                Report #{{ report[0] }}
+                <span>
+                    👤 {{ report[1] }}
+                </span>
 
-                • {{ report[6] }}
-
-                {% if report[3] %}
-                    • {{ report[3] }}
+                {% if report[6] %}
+                <span>
+                    📅 {{ report[6] }}
+                </span>
                 {% endif %}
 
-            </p>
+                {% if report[3] %}
+                <span>
+                    📍 {{ report[3] }}
+                </span>
+                {% endif %}
+
+            </div>
 
         </div>
 
 
-        <span class="status {{ report[5]|lower|replace(' ','-') }}">
-            {{ report[5] }}
-        </span>
+        <!-- Status -->
+        <div class="report-header-status">
+
+            <span
+                class="status status-{{ report[5]|lower|replace(' ', '-') }}"
+            >
+                {{ report[5] }}
+            </span>
+
+        </div>
 
     </div>
 
+
+    <!-- =====================================================
+         REPORT MESSAGE
+         ===================================================== -->
+
+    <div class="panel">
+
+        <div class="panel-title">
+            Report Description
+        </div>
+
+        <div class="report-message">
+            {{ report[4] }}
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         PHOTOS
+         ===================================================== -->
 
     {% if photos %}
 
     <div class="panel">
 
-        <div class="panel-heading">
-
-            <div>
-
-                <p class="eyebrow">
-                    Evidence
-                </p>
-
-                <h2>
-                    Attached Photos
-                </h2>
-
-            </div>
-
-            <span class="photo-count-badge">
-                {{ photos|length }} / 5
-            </span>
-
+        <div class="panel-title">
+            Attached Photos
         </div>
-
 
         <div class="photo-gallery">
 
             {% for photo in photos %}
 
             <a
-                href="{{ photo[2] }}"
+                href="{{ url_for('static', filename='uploads/' ~ photo[2]) }}"
                 target="_blank"
-                rel="noopener noreferrer"
                 class="gallery-photo"
             >
 
                 <img
-                    src="{{ photo[2] }}"
+                    src="{{ url_for('static', filename='uploads/' ~ photo[2]) }}"
                     alt="Photo attached to report"
                     loading="lazy"
                 >
@@ -103,68 +126,46 @@ Report #{{ report[0] }} — SchoolVoice
     {% endif %}
 
 
-    <div class="conversation-panel">
+    <!-- =====================================================
+         REPORT CONVERSATION
+         ===================================================== -->
 
-        <div class="panel-heading">
+    <div class="panel">
 
-            <div>
-
-                <p class="eyebrow">
-                    Communication
-                </p>
-
-                <h2>
-                    Report Conversation
-                </h2>
-
-            </div>
-
-            <span class="conversation-count">
-                {{ messages|length }}
-                message{% if messages|length != 1 %}s{% endif %}
-            </span>
-
+        <div class="panel-title">
+            Conversation
         </div>
 
 
-        <div class="messages">
+        {% if messages %}
 
-            {% for msg in messages %}
+        <div class="conversation">
 
-            <div class="
-                message
-                {% if msg[3] in ['admin', 'main_admin'] %}
-                    message-admin
+            {% for message in messages %}
+
+            <div
+                class="conversation-message
+                {% if message[3] in ['admin', 'main_admin'] %}
+                    admin-message
                 {% else %}
-                    message-student
-                {% endif %}
-            ">
+                    student-message
+                {% endif %}"
+            >
 
-                <div class="message-meta">
+                <div class="conversation-top">
 
                     <strong>
-                        {{ msg[2] }}
+                        {{ message[2] }}
                     </strong>
 
                     <span>
-
-                        {% if msg[3] == "main_admin" %}
-                            Main Admin
-                        {% elif msg[3] == "admin" %}
-                            Admin
-                        {% else %}
-                            Student
-                        {% endif %}
-
-                        • {{ msg[5] }}
-
+                        {{ message[5] }}
                     </span>
 
                 </div>
 
-
-                <div class="message-body">
-                    {{ msg[4] }}
+                <div class="conversation-text">
+                    {{ message[4] }}
                 </div>
 
             </div>
@@ -173,30 +174,41 @@ Report #{{ report[0] }} — SchoolVoice
 
         </div>
 
+        {% else %}
+
+        <div class="empty">
+            <div class="empty-icon">💬</div>
+
+            <h2>
+                No conversation yet
+            </h2>
+
+            <p>
+                Send a message below to start a conversation.
+            </p>
+        </div>
+
+        {% endif %}
+
+
+        <!-- Send Message -->
 
         <form
             method="post"
             action="/report/{{ report[0] }}/message"
-            class="conversation-form"
+            class="message-form"
         >
 
-            <label>
-                Reply
-
-                <textarea
-                    name="message"
-                    rows="4"
-                    maxlength="2000"
-                    placeholder="Write a message..."
-                    required
-                ></textarea>
-
-            </label>
-
+            <textarea
+                name="message"
+                rows="4"
+                placeholder="Write a message..."
+                required
+            ></textarea>
 
             <button
                 type="submit"
-                class="btn primary"
+                class="btn"
             >
                 Send Message
             </button>
@@ -206,24 +218,16 @@ Report #{{ report[0] }} — SchoolVoice
     </div>
 
 
+    <!-- =====================================================
+         ADMIN CONTROLS
+         ===================================================== -->
+
     {% if role in ['admin', 'main_admin'] %}
 
-    <div class="panel admin-report-controls">
+    <div class="panel admin-controls">
 
-        <div class="panel-heading">
-
-            <div>
-
-                <p class="eyebrow">
-                    Admin controls
-                </p>
-
-                <h2>
-                    Update Report
-                </h2>
-
-            </div>
-
+        <div class="panel-title">
+            Admin Controls
         </div>
 
 
@@ -232,69 +236,81 @@ Report #{{ report[0] }} — SchoolVoice
             action="/update-report/{{ report[0] }}"
         >
 
-            <label>
+            <!-- Status -->
 
-                Status
+            <div class="form-group">
 
-                <select name="status">
+                <label for="status">
+                    Report Status
+                </label>
+
+                <select
+                    id="status"
+                    name="status"
+                    required
+                >
 
                     <option
                         value="Pending"
-                        {% if report[5] == "Pending" %}
-                            selected
-                        {% endif %}
+                        {% if report[5] == "Pending" %}selected{% endif %}
                     >
                         Pending
                     </option>
 
                     <option
-                        value="In Progress"
-                        {% if report[5] == "In Progress" %}
-                            selected
-                        {% endif %}
-                    >
-                        In Progress
-                    </option>
-
-                    <option
                         value="Reviewed"
-                        {% if report[5] == "Reviewed" %}
-                            selected
-                        {% endif %}
+                        {% if report[5] == "Reviewed" %}selected{% endif %}
                     >
                         Reviewed
                     </option>
 
                     <option
+                        value="In Progress"
+                        {% if report[5] == "In Progress" %}selected{% endif %}
+                    >
+                        In Progress
+                    </option>
+
+                    <option
                         value="Resolved"
-                        {% if report[5] == "Resolved" %}
-                            selected
-                        {% endif %}
+                        {% if report[5] == "Resolved" %}selected{% endif %}
                     >
                         Resolved
                     </option>
 
+                    <option
+                        value="Unreasonable"
+                        {% if report[5] == "Unreasonable" %}selected{% endif %}
+                    >
+                        Unreasonable
+                    </option>
+
                 </select>
 
-            </label>
+            </div>
 
 
-            <label>
+            <!-- Admin Note -->
 
-                Admin Note
+            <div class="form-group">
+
+                <label for="admin_note">
+                    Admin Note
+                </label>
 
                 <textarea
+                    id="admin_note"
                     name="admin_note"
-                    rows="3"
-                    placeholder="Optional note..."
-                >{{ report[7] }}</textarea>
+                    rows="4"
+                    placeholder="Add an internal note about this report..."
+                >{{ report[7] or '' }}</textarea>
 
-            </label>
+            </div>
 
 
             <button
                 type="submit"
-                class="btn primary"
+                class="btn"
             >
                 Save Changes
             </button>
@@ -302,30 +318,83 @@ Report #{{ report[0] }} — SchoolVoice
         </form>
 
 
-        <div class="danger-zone">
+        <!-- =================================================
+             DANGER / MODERATION
+             ================================================= -->
 
-            <div>
+        <div class="admin-danger-zone">
 
-                <strong>
-                    Unreasonable report
-                </strong>
-
-                <p>
-                    Send this report to Main Admin for review.
-                </p>
-
+            <div class="danger-title">
+                Report Moderation
             </div>
 
+            <p>
+                If this report is unreasonable or does not contain
+                a valid school-related concern, you can send it to
+                Main Admin for review.
+            </p>
 
-            <a
-                href="/unreasonable/{{ report[0] }}"
-                class="small-btn bad"
-                onclick="return confirm('Mark this report as unreasonable?')"
+
+            <form
+                method="post"
+                action="/unreasonable/{{ report[0] }}"
+                class="unreasonable-form"
+                onsubmit="return confirm('Are you sure you want to mark this report as unreasonable?')"
             >
-                Mark Unreasonable
-            </a>
+
+                <button
+                    type="submit"
+                    class="small-btn unreasonable-btn"
+                    {% if report[5] == "Unreasonable" %}disabled{% endif %}
+                >
+                    {% if report[5] == "Unreasonable" %}
+                        Already Marked Unreasonable
+                    {% else %}
+                        Mark Unreasonable
+                    {% endif %}
+                </button>
+
+            </form>
 
         </div>
+
+    </div>
+
+    {% endif %}
+
+
+    <!-- =====================================================
+         MAIN ADMIN DELETE REPORT
+         ===================================================== -->
+
+    {% if role == 'main_admin' %}
+
+    <div class="panel admin-delete-panel">
+
+        <div class="panel-title">
+            Main Admin
+        </div>
+
+        <p>
+            This section is only available to the Main Admin.
+            Deleting this report permanently removes the report,
+            its conversation and its photo records.
+        </p>
+
+        <form
+            method="post"
+            action="/delete-report/{{ report[0] }}"
+            onsubmit="return confirm('Are you sure you want to permanently delete this report?')"
+        >
+
+            <button
+                type="submit"
+                class="small-btn delete-btn"
+            >
+                Delete Report Permanently
+            </button>
+
+        </form>
 
     </div>
 
