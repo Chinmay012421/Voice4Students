@@ -1,594 +1,491 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="SchoolVoice - A safe and simple platform for students to report school issues."
     >
 
     <title>
-        {% block title %}
-        SchoolVoice
-        {% endblock %}
+        {% block title %}SchoolVoice{% endblock %}
     </title>
 
-
-    <link
-        rel="icon"
-        type="image/png"
-        sizes="512x512"
-        href="{{ url_for('static', filename='images/favicon.png') }}"
-    >
-
-
-    <link
-        rel="shortcut icon"
-        type="image/png"
-        href="{{ url_for('static', filename='images/favicon.png') }}"
-    >
-
-
+    <!-- Main stylesheet -->
     <link
         rel="stylesheet"
         href="{{ url_for('static', filename='style.css') }}"
     >
 
-
-    <style>
-
-        /* =================================================
-           HEADER
-           ================================================= */
-
-        .topbar {
-            position: sticky;
-
-            top: 0;
-
-            z-index: 1000;
-
-            min-height: 76px;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: space-between;
-
-            gap: 24px;
-
-            padding: 10px
-                max(20px, calc((100vw - 1180px) / 2));
-
-            background:
-                rgba(255, 255, 255, 0.96);
-
-            border-bottom:
-                1px solid #e4e8f0;
-
-            box-shadow:
-                0 4px 20px
-                rgba(15, 23, 42, 0.05);
-
-            backdrop-filter:
-                blur(12px);
-        }
-
-
-        /* =================================================
-           BRAND
-           ================================================= */
-
-        .brand {
-            display: flex;
-
-            align-items: center;
-
-            gap: 12px;
-
-            min-width: 0;
-
-            color: #172033;
-
-            text-decoration: none;
-        }
-
-
-        .top-kv-logo {
-            width: 82px;
-
-            height: 56px;
-
-            flex: 0 0 auto;
-
-            object-fit: contain;
-
-            display: block;
-        }
-
-
-        .school-name {
-            max-width: 360px;
-
-            color: #172033;
-
-            font-size: 18px;
-
-            font-weight: 850;
-
-            line-height: 1.2;
-
-            overflow-wrap: anywhere;
-        }
-
-
-        /* =================================================
-           NAVIGATION
-           ================================================= */
-
-        .topbar nav {
-            display: flex;
-
-            align-items: center;
-
-            justify-content: flex-end;
-
-            gap: 6px;
-
-            flex-wrap: wrap;
-        }
-
-
-        .topbar nav a {
-            display: inline-flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            min-height: 38px;
-
-            padding: 8px 12px;
-
-            border-radius: 9px;
-
-            color: #536078;
-
-            font-size: 13px;
-
-            font-weight: 750;
-
-            text-decoration: none;
-
-            white-space: nowrap;
-
-            transition:
-                color 0.18s ease,
-                background 0.18s ease;
-        }
-
-
-        .topbar nav a:hover {
-            color: #3730a3;
-
-            background: #eef2ff;
-        }
-
-
-        .topbar nav a.nav-button {
-            margin-left: 4px;
-
-            padding-left: 15px;
-
-            padding-right: 15px;
-
-            background: #172033;
-
-            color: #ffffff !important;
-        }
-
-
-        .topbar nav a.nav-button:hover {
-            background: #4f46e5;
-
-            color: #ffffff !important;
-        }
-
-
-        /* =================================================
-           FOOTER
-           ================================================= */
-
-        .school-footer {
-            position: relative;
-
-            min-height: 150px;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            padding: 30px 180px;
-
-            border-top:
-                1px solid #e4e8f0;
-
-            background: #ffffff;
-
-            color: #7a8498;
-
-            font-size: 13px;
-        }
-
-
-        .footer-text {
-            max-width: 500px;
-
-            text-align: center;
-
-            line-height: 1.6;
-        }
-
-
-        .bottom-kv-logo {
-            position: absolute;
-
-            left: 35px;
-
-            bottom: 20px;
-
-            width: 105px;
-
-            height: 60px;
-
-            object-fit: contain;
-        }
-
-
-        .pm-shri-logo {
-            position: absolute;
-
-            right: 35px;
-
-            bottom: 20px;
-
-            width: 125px;
-
-            height: 60px;
-
-            object-fit: contain;
-        }
-
-
-        /* =================================================
-           TABLET
-           ================================================= */
-
-        @media (max-width: 1050px) {
-
-            .topbar {
-                padding-left: 20px;
-
-                padding-right: 20px;
-            }
-
-
-            .school-name {
-                max-width: 270px;
-
-                font-size: 16px;
-            }
-
-
-            .topbar nav {
-                gap: 3px;
-            }
-
-
-            .topbar nav a {
-                padding-left: 9px;
-
-                padding-right: 9px;
-            }
-
-        }
-
-
-        /* =================================================
-           MOBILE
-           ================================================= */
-
-        @media (max-width: 800px) {
-
-            .topbar {
-                position: relative;
-
-                align-items: flex-start;
-
-                flex-direction: column;
-
-                gap: 10px;
-
-                padding: 12px 16px;
-            }
-
-
-            .brand {
-                width: 100%;
-            }
-
-
-            .top-kv-logo {
-                width: 72px;
-
-                height: 50px;
-            }
-
-
-            .school-name {
-                max-width: none;
-
-                font-size: 15px;
-            }
-
-
-            .topbar nav {
-                width: 100%;
-
-                justify-content: flex-start;
-
-                overflow-x: auto;
-
-                flex-wrap: nowrap;
-
-                padding-bottom: 2px;
-
-                scrollbar-width: thin;
-            }
-
-
-            .topbar nav a {
-                flex: 0 0 auto;
-            }
-
-
-            .topbar nav a.nav-button {
-                margin-left: 0;
-            }
-
-
-            .school-footer {
-                min-height: 175px;
-
-                padding:
-                    90px 20px 25px;
-            }
-
-
-            .bottom-kv-logo {
-                left: 18px;
-
-                top: 18px;
-
-                bottom: auto;
-
-                width: 80px;
-
-                height: 50px;
-            }
-
-
-            .pm-shri-logo {
-                right: 18px;
-
-                top: 18px;
-
-                bottom: auto;
-
-                width: 95px;
-
-                height: 50px;
-            }
-
-        }
-
-
-        /* =================================================
-           SMALL PHONES
-           ================================================= */
-
-        @media (max-width: 480px) {
-
-            .topbar {
-                padding:
-                    10px 12px;
-            }
-
-
-            .top-kv-logo {
-                width: 62px;
-
-                height: 46px;
-            }
-
-
-            .school-name {
-                font-size: 13px;
-            }
-
-
-            .topbar nav a {
-                min-height: 36px;
-
-                padding:
-                    7px 10px;
-
-                font-size: 12px;
-            }
-
-
-            .school-footer {
-                padding-left: 15px;
-
-                padding-right: 15px;
-            }
-
-
-            .bottom-kv-logo {
-                left: 12px;
-
-                width: 70px;
-            }
-
-
-            .pm-shri-logo {
-                right: 12px;
-
-                width: 85px;
-            }
-
-        }
-
-    </style>
-
+    {% block head %}{% endblock %}
 </head>
-
 
 <body>
 
+    <!-- =========================
+         NAVIGATION BAR
+    ========================== -->
+    <header class="site-header">
 
-<header class="topbar">
+        <nav class="navbar">
 
+            <div class="nav-container">
 
-    <a
-        href="/"
-        class="brand"
-    >
+                <!-- Logo -->
+                <a href="/dashboard" class="brand">
 
-        <img
-            src="{{ url_for('static', filename='images/kv-logo.png') }}"
-            alt="Kendriya Vidyalaya Logo"
-            class="top-kv-logo"
-        >
+                    <div class="brand-icon">
+                        ✓
+                    </div>
 
+                    <div class="brand-text">
+                        <span class="brand-name">
+                            SchoolVoice
+                        </span>
 
-        <span class="school-name">
-            Kendriya Vidyalaya Andrews Ganj
-        </span>
+                        <span class="brand-subtitle">
+                            Speak. Report. Improve.
+                        </span>
+                    </div>
 
-    </a>
-
-
-    <nav>
-
-        {% if session.get('username') %}
-
-            <a href="/dashboard">
-                Dashboard
-            </a>
-
-
-            {% if session.get('role') == 'student' %}
-
-                <a href="/my-reports">
-                    My Reports
                 </a>
+
+
+                <!-- Mobile menu button -->
+                <button
+                    type="button"
+                    class="mobile-menu-btn"
+                    id="mobileMenuBtn"
+                    aria-label="Open navigation menu"
+                    aria-expanded="false"
+                >
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+
+
+                <!-- Navigation -->
+                <div class="nav-menu" id="navMenu">
+
+                    {% if session.get('username') %}
+
+                        <!-- Student navigation -->
+                        {% if session.get('role') == 'student' %}
+
+                            <a
+                                href="/dashboard"
+                                class="nav-link"
+                            >
+                                Dashboard
+                            </a>
+
+                            <a
+                                href="/submit-report"
+                                class="nav-link nav-report"
+                            >
+                                <span>＋</span>
+                                New Report
+                            </a>
+
+                            <a
+                                href="/my-reports"
+                                class="nav-link"
+                            >
+                                My Reports
+                            </a>
+
+                        {% endif %}
+
+
+                        <!-- Admin navigation -->
+                        {% if session.get('role') in ['admin', 'main_admin'] %}
+
+                            <a
+                                href="/dashboard"
+                                class="nav-link"
+                            >
+                                Dashboard
+                            </a>
+
+                            <a
+                                href="/reports"
+                                class="nav-link"
+                            >
+                                All Reports
+                            </a>
+
+                        {% endif %}
+
+
+                        <!-- Main admin only -->
+                        {% if session.get('role') == 'main_admin' %}
+
+                            <a
+                                href="/users"
+                                class="nav-link"
+                            >
+                                Users
+                            </a>
+
+                            <a
+                                href="/admin-applications"
+                                class="nav-link"
+                            >
+                                Applications
+                            </a>
+
+                        {% endif %}
+
+
+                        <!-- User menu -->
+                        <div class="nav-user">
+
+                            <div class="user-avatar">
+                                {{ session.get('username', 'U')[0]|upper }}
+                            </div>
+
+                            <div class="user-info">
+
+                                <span class="user-name">
+                                    {{ session.get('username') }}
+                                </span>
+
+                                <span class="user-role">
+                                    {% if session.get('role') == 'main_admin' %}
+                                        Main Admin
+                                    {% elif session.get('role') == 'admin' %}
+                                        Admin
+                                    {% else %}
+                                        Student
+                                    {% endif %}
+                                </span>
+
+                            </div>
+
+                            <a
+                                href="/change-password"
+                                class="nav-account-link"
+                                title="Change password"
+                            >
+                                ⚙
+                            </a>
+
+                            <a
+                                href="/logout"
+                                class="logout-btn"
+                            >
+                                Logout
+                            </a>
+
+                        </div>
+
+                    {% else %}
+
+                        <!-- Logged-out navigation -->
+
+                        <a
+                            href="/"
+                            class="nav-link"
+                        >
+                            Home
+                        </a>
+
+                        <a
+                            href="/login"
+                            class="nav-link"
+                        >
+                            Login
+                        </a>
+
+                        <a
+                            href="/register"
+                            class="nav-link nav-register"
+                        >
+                            Register
+                        </a>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </nav>
+
+    </header>
+
+
+    <!-- =========================
+         FLASH MESSAGES
+    ========================== -->
+
+    <section class="flash-container">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+
+            {% if messages %}
+
+                {% for category, message in messages %}
+
+                    <div
+                        class="flash-message
+                        {% if category == 'error' %}
+                            flash-error
+                        {% elif category == 'success' %}
+                            flash-success
+                        {% elif category == 'warning' %}
+                            flash-warning
+                        {% else %}
+                            flash-info
+                        {% endif %}"
+                        role="alert"
+                    >
+
+                        <span class="flash-icon">
+
+                            {% if category == 'success' %}
+                                ✓
+                            {% elif category == 'error' %}
+                                !
+                            {% elif category == 'warning' %}
+                                ⚠
+                            {% else %}
+                                i
+                            {% endif %}
+
+                        </span>
+
+                        <span class="flash-text">
+                            {{ message }}
+                        </span>
+
+                        <button
+                            type="button"
+                            class="flash-close"
+                            onclick="this.parentElement.remove()"
+                            aria-label="Close message"
+                        >
+                            ×
+                        </button>
+
+                    </div>
+
+                {% endfor %}
 
             {% endif %}
 
+        {% endwith %}
 
-            {% if session.get('role') in ['admin', 'main_admin'] %}
-
-                <a href="/reports">
-                    Reports
-                </a>
-
-            {% endif %}
+    </section>
 
 
-            {% if session.get('role') == 'main_admin' %}
+    <!-- =========================
+         MAIN CONTENT
+    ========================== -->
 
-                <a href="/admin-applications">
-                    Applications
-                </a>
+    <main class="main-content">
 
-                <a href="/users">
-                    Users
-                </a>
+        {% block content %}{% endblock %}
 
-            {% endif %}
+    </main>
 
 
-            <a
-                href="/logout"
-                class="nav-button"
-            >
-                Logout
-            </a>
+    <!-- =========================
+         FOOTER
+    ========================== -->
 
-        {% else %}
+    <footer class="site-footer">
 
-            <a href="/login">
-                Login
-            </a>
+        <div class="footer-container">
 
+            <div class="footer-brand">
 
-            <a
-                href="/register"
-                class="nav-button"
-            >
-                Register
-            </a>
+                <div class="footer-logo">
+                    ✓
+                </div>
 
-        {% endif %}
+                <div>
 
-    </nav>
+                    <strong>
+                        SchoolVoice
+                    </strong>
 
-</header>
+                    <span>
+                        Making schools better together.
+                    </span>
 
+                </div>
 
-<main class="page">
-
-    {% block content %}
-
-    {% endblock %}
-
-</main>
+            </div>
 
 
-<footer class="school-footer">
+            <div class="footer-info">
+
+                <span>
+                    © {{ current_year if current_year else 2026 }} SchoolVoice
+                </span>
+
+                <span class="footer-dot">
+                    •
+                </span>
+
+                <span>
+                    Student Reporting Platform
+                </span>
+
+            </div>
+
+        </div>
+
+    </footer>
 
 
-    <img
-        src="{{ url_for('static', filename='images/kv-logo.png') }}"
-        alt="Kendriya Vidyalaya Logo"
-        class="bottom-kv-logo"
-    >
+    <!-- =========================
+         JAVASCRIPT
+    ========================== -->
+
+    <script>
+
+        /*
+         * Mobile navigation
+         */
+
+        const mobileMenuBtn =
+            document.getElementById("mobileMenuBtn");
+
+        const navMenu =
+            document.getElementById("navMenu");
 
 
-    <div class="footer-text">
+        if (mobileMenuBtn && navMenu) {
 
-        SchoolVoice • Make your school better,
-        one report at a time.
+            mobileMenuBtn.addEventListener("click", function () {
 
-    </div>
+                navMenu.classList.toggle("mobile-open");
+
+                const isOpen =
+                    navMenu.classList.contains("mobile-open");
+
+                mobileMenuBtn.setAttribute(
+                    "aria-expanded",
+                    isOpen ? "true" : "false"
+                );
+
+            });
 
 
-    <img
-        src="{{ url_for('static', filename='images/pm-shri-logo.png') }}"
-        alt="PM SHRI Logo"
-        class="pm-shri-logo"
-    >
+            /*
+             * Close mobile menu after
+             * clicking a navigation link.
+             */
 
-</footer>
+            navMenu.querySelectorAll("a").forEach(function (link) {
 
+                link.addEventListener("click", function () {
+
+                    navMenu.classList.remove("mobile-open");
+
+                    mobileMenuBtn.setAttribute(
+                        "aria-expanded",
+                        "false"
+                    );
+
+                });
+
+            });
+
+        }
+
+
+        /*
+         * Automatically hide flash messages
+         * after a few seconds.
+         */
+
+        document
+            .querySelectorAll(".flash-message")
+            .forEach(function (message) {
+
+                setTimeout(function () {
+
+                    message.style.opacity = "0";
+                    message.style.transform = "translateY(-8px)";
+
+                    setTimeout(function () {
+
+                        message.remove();
+
+                    }, 300);
+
+                }, 5000);
+
+            });
+
+
+        /*
+         * Password show/hide buttons.
+         *
+         * This works with any password input
+         * that has a button using:
+         *
+         * class="password-toggle"
+         */
+
+        document
+            .querySelectorAll(".password-toggle")
+            .forEach(function (button) {
+
+                button.addEventListener("click", function () {
+
+                    const targetId =
+                        button.getAttribute("data-target");
+
+                    const input =
+                        document.getElementById(targetId);
+
+                    if (!input) {
+                        return;
+                    }
+
+                    if (input.type === "password") {
+
+                        input.type = "text";
+
+                        button.textContent = "Hide";
+
+                        button.setAttribute(
+                            "aria-label",
+                            "Hide password"
+                        );
+
+                    } else {
+
+                        input.type = "password";
+
+                        button.textContent = "Show";
+
+                        button.setAttribute(
+                            "aria-label",
+                            "Show password"
+                        );
+
+                    }
+
+                });
+
+            });
+
+    </script>
+
+
+    {% block scripts %}{% endblock %}
 
 </body>
-
 </html>
