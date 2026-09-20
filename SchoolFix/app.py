@@ -22,13 +22,13 @@ from werkzeug.utils import secure_filename
 SUPABASE_URL = "https://ywiliickclswcyrneivz.supabase.co"
 
 SUPABASE_SERVICE_KEY = os.environ.get(
-    "sb_secret_JAUzo1s47HEc6NmGs3OXLg_EQiEh7B2"
+    "sb_secret_viVDYBhZ6CrYyps_jsFL7A_S2G0rRxw"
 )
 
 # Support old Render variable name too
 if not SUPABASE_SERVICE_KEY:
     SUPABASE_SERVICE_KEY = os.environ.get(
-        "sb_secret_JAUzo1s47HEc6NmGs3OXLg_EQiEh7B2"
+        "sb_secret_viVDYBhZ6CrYyps_jsFL7A_S2G0rRxw"
     )
 
 # Give database.py the variables it expects
