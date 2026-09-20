@@ -9,12 +9,34 @@ from werkzeug.security import generate_password_hash, check_password_hash
 # SUPABASE CONNECTION
 # ============================================================
 
-SUPABASE_URL = os.environ.get("https://ywiliickclswcyrneivz.supabase.co")
-SUPABASE_SERVICE_KEY = os.environ.get("sb_secret_T197BTfYTcKxtfYmJIVOTw_xZB5pxUR")
+# IMPORTANT:
+# Replace the two values below with your NEW Supabase credentials.
+#
+# SUPABASE_URL must be your actual project URL, for example:
+# https://xxxxxxxxxxxx.supabase.co
+#
+# SUPABASE_SERVICE_KEY must be your NEW rotated Secret API key.
+#
+# Do NOT use the sb_publishable_... key as the URL.
 
-if not SUPABASE_URL or not SUPABASE_SERVICE_KEY:
+SUPABASE_URL = "sb_publishable_VREfT_KPGbGL-J94vGEPkQ_REnpHdGT"
+
+SUPABASE_SERVICE_KEY = "sb_secret_boozEmlN2pHYuq08Z8_o3Q_sTXOazJu"
+
+
+if not SUPABASE_URL:
     raise RuntimeError(
-        "SUPABASE_URL and SUPABASE_SERVICE_KEY environment variables are required."
+        "SUPABASE_URL is missing."
+    )
+
+if not SUPABASE_SERVICE_KEY:
+    raise RuntimeError(
+        "SUPABASE_SERVICE_KEY is missing."
+    )
+
+if not SUPABASE_URL.startswith("https://"):
+    raise RuntimeError(
+        "SUPABASE_URL is invalid. It must start with https://"
     )
 
 supabase: Client = create_client(
