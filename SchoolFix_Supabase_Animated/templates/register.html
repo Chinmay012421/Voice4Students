@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Register — SchoolFix{% endblock %}
+{% block content %}
+<div class="auth-wrap reveal">
+  <div class="auth-card">
+    <div class="eyebrow">JOIN SCHOOLFIX</div>
+    <h1>Create account</h1>
+    <form method="post">
+      <label>Username</label>
+      <input name="username" minlength="3" required>
+      <label>Password</label>
+      <div class="password-wrap"><input id="p1" type="password" name="password" minlength="6" required><button type="button" class="eye" onclick="togglePassword('p1',this)">Show</button></div>
+      <label>Confirm password</label>
+      <input type="password" name="confirm_password" minlength="6" required>
+      <button class="btn full" type="submit">Create Account</button>
+    </form>
+    <p class="center muted">Already registered? <a href="{{ url_for('login') }}">Login</a></p>
+  </div>
+</div>
+<script>function togglePassword(id,b){const x=document.getElementById(id);x.type=x.type==='password'?'text':'password';b.textContent=x.type==='password'?'Show':'Hide'}</script>
+{% endblock %}

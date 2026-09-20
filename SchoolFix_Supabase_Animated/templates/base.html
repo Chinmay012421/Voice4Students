@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}SchoolFix{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="bg-orb orb-a"></div>
+  <div class="bg-orb orb-b"></div>
+
+  <nav class="nav">
+    <a class="brand" href="{{ url_for('home') }}">
+      <span class="brand-mark">S</span>
+      <span>School<span>Fix</span></span>
+    </a>
+    <div class="nav-links">
+      {% if logged_in %}
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        {% if role in ['admin','main_admin'] %}
+          <a href="{{ url_for('reports') }}">Reports</a>
+        {% else %}
+          <a href="{{ url_for('my_reports') }}">My Reports</a>
+          <a href="{{ url_for('submit_report') }}">Report Issue</a>
+        {% endif %}
+        {% if role == 'main_admin' %}
+          <a href="{{ url_for('database_panel') }}">Database</a>
+        {% endif %}
+        <a class="nav-user" href="{{ url_for('change_password') }}">{{ current_user }}</a>
+        <a class="btn btn-small" href="{{ url_for('logout') }}">Logout</a>
+      {% else %}
+        <a href="{{ url_for('login') }}">Login</a>
+        <a class="btn btn-small" href="{{ url_for('register') }}">Register</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <main class="page">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-stack">
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>SchoolFix • A safer way to make your school heard.</footer>
+</body>
+</html>

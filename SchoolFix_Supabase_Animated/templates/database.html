@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Database Control — SchoolFix{% endblock %}
+{% block content %}
+<div class="section-head reveal"><div><div class="eyebrow">MAIN ADMIN ONLY</div><h1>Database control</h1><p class="muted">This page is a controlled management panel. It does not expose raw SQL or database credentials.</p></div></div>
+<div class="stats-grid">
+{% for key,label in [('total','Reports'),('pending','Pending'),('in_progress','In Progress'),('resolved','Resolved')] %}
+<div class="stat reveal"><span>{{ label }}</span><strong>{{ stats[key] }}</strong></div>
+{% endfor %}
+</div>
+<div class="quick-grid">
+<a class="quick reveal" href="{{ url_for('users') }}">Manage users →</a>
+<a class="quick reveal" href="{{ url_for('reports') }}">Manage reports →</a>
+<a class="quick reveal" href="{{ url_for('admin_applications') }}">Admin applications →</a>
+<a class="quick reveal" href="{{ url_for('unreasonable_reports') }}">Unreasonable reports →</a>
+</div>
+<div class="panel reveal"><h2>Database summary</h2><p><b>{{ users|length }}</b> users · <b>{{ reports|length }}</b> reports · <b>{{ applications|length }}</b> pending applications</p><p class="muted">The actual database is stored in Supabase, while this page provides Main Admin-only controls.</p></div>
+{% endblock %}
