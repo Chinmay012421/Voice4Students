@@ -12,6 +12,7 @@ from flask import (
     flash,
     abort,
 )
+
 from werkzeug.utils import secure_filename
 
 
@@ -19,23 +20,21 @@ from werkzeug.utils import secure_filename
 # SUPABASE CONFIGURATION
 # ============================================================
 
-SUPABASE_URL = "https://ywiliickclswcyrneivz.supabase.co"
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
 
 SUPABASE_SERVICE_KEY = os.environ.get(
-    "sb_secret_viVDYBhZ6CrYyps_jsFL7A_S2G0rRxw"
+    "SUPABASE_SERVICE_KEY"
 )
 
-# Support old Render variable name too
-if not SUPABASE_SERVICE_KEY:
-    SUPABASE_SERVICE_KEY = os.environ.get(
-        "sb_secret_viVDYBhZ6CrYyps_jsFL7A_S2G0rRxw"
+if not SUPABASE_URL:
+    raise RuntimeError(
+        "SUPABASE_URL environment variable is required."
     )
 
-# Give database.py the variables it expects
-os.environ["SUPABASE_URL"] = SUPABASE_URL
-
-if SUPABASE_SERVICE_KEY:
-    os.environ["SUPABASE_SERVICE_KEY"] = SUPABASE_SERVICE_KEY
+if not SUPABASE_SERVICE_KEY:
+    raise RuntimeError(
+        "SUPABASE_SERVICE_KEY environment variable is required."
+    )
 
 print(
     "SUPABASE_URL configured:",
@@ -46,11 +45,6 @@ print(
     "SUPABASE_SERVICE_KEY configured:",
     bool(SUPABASE_SERVICE_KEY)
 )
-
-if not SUPABASE_SERVICE_KEY:
-    raise RuntimeError(
-        "SUPABASE_SERVICE_KEY environment variable is required."
-    )
 
 
 # ============================================================
@@ -68,7 +62,7 @@ app = Flask(__name__)
 
 app.secret_key = os.environ.get(
     "FLASK_SECRET_KEY",
-    "schoolvoice-change-this-secret"
+    "schoolfix-change-this-secret"
 )
 
 app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024
@@ -106,6 +100,7 @@ MAX_PHOTOS = 5
 # ============================================================
 
 try:
+
     database.init_db()
 
     print(
@@ -372,11 +367,22 @@ def register():
                     "register.html"
                 )
 
-            database.create_user(
+            success = database.create_user(
                 username=username,
                 password=password,
                 role="student"
             )
+
+            if not success:
+
+                flash(
+                    "Unable to create account.",
+                    "error"
+                )
+
+                return render_template(
+                    "register.html"
+                )
 
             flash(
                 "Registration successful. You can now log in.",
@@ -515,6 +521,7 @@ def logout():
 def dashboard():
 
     role = session.get("role")
+    username = session.get("username")
 
     try:
 
@@ -527,16 +534,18 @@ def dashboard():
 
             return render_template(
                 "dashboard.html",
-                stats=stats
+                stats=stats,
+                reports=[]
             )
 
         reports = database.get_user_reports(
-            session["user_id"]
+            username
         )
 
         return render_template(
             "dashboard.html",
-            reports=reports
+            reports=reports,
+            stats={}
         )
 
     except Exception as e:
@@ -644,20 +653,34 @@ def submit_report():
                     "submit_report.html"
                 )
 
+        saved_files = []
+
         try:
 
+            # Save report first.
             report_id = database.save_report(
-                user_id=session["user_id"],
+                username=session["username"],
                 category=category,
                 location=location,
-                description=description
+                message=description,
+                photo=""
             )
 
+            if not report_id:
+
+                raise RuntimeError(
+                    "Report could not be created."
+                )
+
+            # Save uploaded photos.
             for file in selected_files:
 
                 original_name = secure_filename(
                     file.filename
                 )
+
+                if not original_name:
+                    continue
 
                 extension = ""
 
@@ -681,20 +704,20 @@ def submit_report():
 
                 file.save(filepath)
 
-                try:
+                saved_files.append(
+                    filepath
+                )
 
-                    database.add_report_photo(
-                        report_id=report_id,
-                        filename=filename
+                success = database.add_report_photo(
+                    report_id=report_id,
+                    filename=filename
+                )
+
+                if not success:
+
+                    raise RuntimeError(
+                        "Photo could not be saved."
                     )
-
-                except Exception:
-
-                    if os.path.exists(filepath):
-
-                        os.remove(filepath)
-
-                    raise
 
             flash(
                 "Your report has been submitted successfully.",
@@ -715,6 +738,17 @@ def submit_report():
                 e
             )
 
+            # Clean up physical files if database operation fails.
+            for filepath in saved_files:
+
+                try:
+
+                    if os.path.exists(filepath):
+                        os.remove(filepath)
+
+                except OSError:
+                    pass
+
             flash(
                 "Unable to submit your report.",
                 "error"
@@ -733,7 +767,6 @@ def submit_report():
 @login_required
 def my_reports():
 
-    # Admins should use All Reports.
     if session.get("role") in (
         "admin",
         "main_admin"
@@ -746,7 +779,7 @@ def my_reports():
     try:
 
         reports = database.get_user_reports(
-            session["user_id"]
+            session["username"]
         )
 
         return render_template(
@@ -822,30 +855,28 @@ def reports():
 @login_required
 def report_detail(report_id):
 
-    try:
+    report = database.get_report(
+        report_id
+    )
 
-        report = database.get_report(
-            report_id
-        )
+    if not report:
+        abort(404)
 
-        if not report:
-            abort(404)
+    role = session.get("role")
 
-        role = session.get(
-            "role"
-        )
+    # Students can ONLY see their own reports.
+    if role not in (
+        "admin",
+        "main_admin"
+    ):
 
-        # Students can only view their own reports.
-        if role not in (
-            "admin",
-            "main_admin"
+        if report[1] != session.get(
+            "username"
         ):
 
-            if report[1] != session.get(
-                "username"
-            ):
+            abort(403)
 
-                abort(403)
+    try:
 
         photos = database.get_report_photos(
             report_id
@@ -869,14 +900,6 @@ def report_detail(report_id):
             "Report detail error:",
             e
         )
-
-        if hasattr(e, "code"):
-
-            if e.code == 403:
-                raise
-
-            if e.code == 404:
-                raise
 
         flash(
             "Unable to load the report.",
@@ -918,36 +941,41 @@ def report_message(report_id):
             )
         )
 
-    try:
+    report = database.get_report(
+        report_id
+    )
 
-        report = database.get_report(
-            report_id
-        )
+    if not report:
+        abort(404)
 
-        if not report:
-            abort(404)
+    role = session.get("role")
 
-        role = session.get(
-            "role"
-        )
+    # Students can only message their own reports.
+    if role not in (
+        "admin",
+        "main_admin"
+    ):
 
-        # Students can only message on their own reports.
-        if role not in (
-            "admin",
-            "main_admin"
+        if report[1] != session.get(
+            "username"
         ):
 
-            if report[1] != session.get(
-                "username"
-            ):
+            abort(403)
 
-                abort(403)
+    try:
 
-        database.add_report_message(
+        success = database.add_report_message(
             report_id=report_id,
-            user_id=session["user_id"],
+            username=session["username"],
+            role=role,
             message=message
         )
+
+        if not success:
+
+            raise RuntimeError(
+                "Message could not be saved."
+            )
 
         flash(
             "Message sent.",
@@ -960,14 +988,6 @@ def report_message(report_id):
             "Message error:",
             e
         )
-
-        if hasattr(e, "code"):
-
-            if e.code in (
-                403,
-                404
-            ):
-                raise
 
         flash(
             "Unable to send message.",
@@ -1028,11 +1048,17 @@ def update_report(report_id):
 
     try:
 
-        database.update_report(
+        success = database.update_report(
             report_id=report_id,
             status=status,
             admin_note=admin_note
         )
+
+        if not success:
+
+            raise RuntimeError(
+                "Report was not updated."
+            )
 
         flash(
             "Report updated successfully.",
@@ -1073,9 +1099,15 @@ def mark_unreasonable(report_id):
 
     try:
 
-        database.mark_report_unreasonable(
+        success = database.mark_report_unreasonable(
             report_id
         )
+
+        if not success:
+
+            raise RuntimeError(
+                "Report was not updated."
+            )
 
         flash(
             "Report marked as unreasonable.",
@@ -1165,9 +1197,15 @@ def delete_report(report_id):
             report_id
         )
 
-        database.delete_report(
+        success = database.delete_report(
             report_id
         )
+
+        if not success:
+
+            raise RuntimeError(
+                "Report could not be deleted."
+            )
 
         flash(
             "Report permanently deleted.",
@@ -1175,9 +1213,7 @@ def delete_report(report_id):
         )
 
         return redirect(
-            url_for(
-                "unreasonable_reports"
-            )
+            url_for("reports")
         )
 
     except Exception as e:
@@ -1187,10 +1223,8 @@ def delete_report(report_id):
             e
         )
 
-        if hasattr(e, "code"):
-
-            if e.code == 404:
-                raise
+        if getattr(e, "code", None) == 404:
+            raise
 
         flash(
             "Unable to delete report.",
@@ -1283,7 +1317,6 @@ def delete_user(user_id):
                 url_for("users")
             )
 
-        # Never allow deleting another Main Admin.
         if user[3] == "main_admin":
 
             flash(
@@ -1295,17 +1328,33 @@ def delete_user(user_id):
                 url_for("users")
             )
 
-        database.delete_user(
+        result = database.delete_user(
             user_id,
             upload_folder=app.config[
                 "UPLOAD_FOLDER"
             ]
         )
 
-        flash(
-            "User and associated reports deleted successfully.",
-            "success"
-        )
+        if result == "protected":
+
+            flash(
+                "Main Admin accounts cannot be deleted.",
+                "error"
+            )
+
+        elif result == "not_found":
+
+            flash(
+                "User not found.",
+                "error"
+            )
+
+        else:
+
+            flash(
+                "User and associated reports deleted successfully.",
+                "success"
+            )
 
     except Exception as e:
 
@@ -1405,10 +1454,21 @@ def apply_admin():
 
         try:
 
-            database.create_admin_application(
-                user_id=session["user_id"],
+            success = database.create_admin_application(
+                username=session["username"],
                 reason=reason
             )
+
+            if not success:
+
+                flash(
+                    "You already have a pending admin application.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("dashboard")
+                )
 
             flash(
                 "Your admin application has been submitted.",
@@ -1462,14 +1522,18 @@ def approve_admin(application_id):
             )
 
             return redirect(
-                url_for(
-                    "admin_applications"
-                )
+                url_for("admin_applications")
             )
 
-        database.approve_admin_application(
+        success = database.approve_admin_application(
             application_id
         )
+
+        if not success:
+
+            raise RuntimeError(
+                "Application could not be approved."
+            )
 
         flash(
             "Admin application approved.",
@@ -1489,9 +1553,7 @@ def approve_admin(application_id):
         )
 
     return redirect(
-        url_for(
-            "admin_applications"
-        )
+        url_for("admin_applications")
     )
 
 
@@ -1509,9 +1571,15 @@ def reject_admin(application_id):
 
     try:
 
-        database.reject_admin_application(
+        success = database.reject_admin_application(
             application_id
         )
+
+        if not success:
+
+            raise RuntimeError(
+                "Application could not be rejected."
+            )
 
         flash(
             "Admin application rejected.",
@@ -1531,9 +1599,7 @@ def reject_admin(application_id):
         )
 
     return redirect(
-        url_for(
-            "admin_applications"
-        )
+        url_for("admin_applications")
     )
 
 
@@ -1616,10 +1682,16 @@ def change_password():
                     "change_password.html"
                 )
 
-            database.update_password(
-                session["user_id"],
+            success = database.update_password(
+                session["username"],
                 new_password
             )
+
+            if not success:
+
+                raise RuntimeError(
+                    "Password could not be updated."
+                )
 
             flash(
                 "Password changed successfully.",
