@@ -1,50 +1,63 @@
 import os
 import uuid
+from functools import wraps
 
 from flask import (
     Flask,
     render_template,
     request,
     redirect,
+    url_for,
     session,
-    flash
+    flash,
+    abort,
 )
 from werkzeug.utils import secure_filename
 
-from database import (
-    init_db,
-    create_user,
-    authenticate_user,
-    get_user,
-    get_user_by_username,
-    get_all_users,
-    update_password,
 
-    create_admin_application,
-    get_admin_applications,
-    get_admin_application,
-    approve_admin_application,
-    reject_admin_application,
+# ============================================================
+# SUPABASE CONFIGURATION
+# ============================================================
 
-    save_report,
-    get_report,
-    get_all_reports,
-    get_user_reports,
-    update_report_status,
-    mark_report_unreasonable,
-    get_unreasonable_reports,
+SUPABASE_URL = "https://ywiliickclswcyrneivz.supabase.co"
 
-    add_report_photo,
-    get_report_photos,
-
-    add_report_message,
-    get_report_messages,
-
-    delete_report,
-    delete_user,
-
-    get_report_stats
+SUPABASE_SERVICE_KEY = os.environ.get(
+    "sb_secret_JAUzo1s47HEc6NmGs3OXLg_EQiEh7B2"
 )
+
+# Support old Render variable name too
+if not SUPABASE_SERVICE_KEY:
+    SUPABASE_SERVICE_KEY = os.environ.get(
+        "sb_secret_JAUzo1s47HEc6NmGs3OXLg_EQiEh7B2"
+    )
+
+# Give database.py the variables it expects
+os.environ["SUPABASE_URL"] = SUPABASE_URL
+
+if SUPABASE_SERVICE_KEY:
+    os.environ["SUPABASE_SERVICE_KEY"] = SUPABASE_SERVICE_KEY
+
+print(
+    "SUPABASE_URL configured:",
+    bool(SUPABASE_URL)
+)
+
+print(
+    "SUPABASE_SERVICE_KEY configured:",
+    bool(SUPABASE_SERVICE_KEY)
+)
+
+if not SUPABASE_SERVICE_KEY:
+    raise RuntimeError(
+        "SUPABASE_SERVICE_KEY environment variable is required."
+    )
+
+
+# ============================================================
+# DATABASE
+# ============================================================
+
+import database
 
 
 # ============================================================
@@ -54,9 +67,11 @@ from database import (
 app = Flask(__name__)
 
 app.secret_key = os.environ.get(
-    "SECRET_KEY",
-    "schoolvoice-development-secret-key"
+    "FLASK_SECRET_KEY",
+    "schoolvoice-change-this-secret"
 )
+
+app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024
 
 
 # ============================================================
@@ -83,7 +98,7 @@ ALLOWED_EXTENSIONS = {
     "webp"
 }
 
-app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024
+MAX_PHOTOS = 5
 
 
 # ============================================================
@@ -91,72 +106,181 @@ app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024
 # ============================================================
 
 try:
-    init_db()
+    database.init_db()
+
+    print(
+        "Database initialization successful."
+    )
+
 except Exception as e:
-    print("Database initialization warning:", e)
+
+    print(
+        "Database initialization failed:",
+        str(e)
+    )
+
+    raise
 
 
 # ============================================================
-# HELPERS
+# TEMPLATE CONTEXT
+# ============================================================
+
+@app.context_processor
+def inject_user_data():
+
+    return {
+        "current_user": session.get("username"),
+        "role": session.get("role"),
+        "user_id": session.get("user_id"),
+        "logged_in": "user_id" in session,
+    }
+
+
+# ============================================================
+# HELPER FUNCTIONS
 # ============================================================
 
 def allowed_file(filename):
+
     if not filename:
         return False
 
-    return (
-        "." in filename
-        and filename.rsplit(".", 1)[1].lower()
-        in ALLOWED_EXTENSIONS
-    )
+    if "." not in filename:
+        return False
+
+    extension = filename.rsplit(
+        ".",
+        1
+    )[1].lower()
+
+    return extension in ALLOWED_EXTENSIONS
 
 
-def current_username():
-    return session.get("username")
+def login_required(view):
+
+    @wraps(view)
+    def wrapped_view(*args, **kwargs):
+
+        if "user_id" not in session:
+
+            flash(
+                "Please log in first.",
+                "error"
+            )
+
+            return redirect(
+                url_for("login")
+            )
+
+        return view(*args, **kwargs)
+
+    return wrapped_view
 
 
-def current_role():
-    return session.get("role")
+def admin_required(view):
+
+    @wraps(view)
+    def wrapped_view(*args, **kwargs):
+
+        if "user_id" not in session:
+
+            flash(
+                "Please log in first.",
+                "error"
+            )
+
+            return redirect(
+                url_for("login")
+            )
+
+        if session.get("role") not in (
+            "admin",
+            "main_admin"
+        ):
+
+            flash(
+                "You do not have permission to access this page.",
+                "error"
+            )
+
+            return redirect(
+                url_for("dashboard")
+            )
+
+        return view(*args, **kwargs)
+
+    return wrapped_view
 
 
-def is_logged_in():
-    return "username" in session
+def main_admin_required(view):
 
+    @wraps(view)
+    def wrapped_view(*args, **kwargs):
 
-def is_admin():
-    return session.get("role") in [
-        "admin",
-        "main_admin"
-    ]
+        if "user_id" not in session:
 
+            flash(
+                "Please log in first.",
+                "error"
+            )
 
-def is_main_admin():
-    return session.get("role") == "main_admin"
+            return redirect(
+                url_for("login")
+            )
+
+        if session.get("role") != "main_admin":
+
+            flash(
+                "Main Admin permission required.",
+                "error"
+            )
+
+            return redirect(
+                url_for("dashboard")
+            )
+
+        return view(*args, **kwargs)
+
+    return wrapped_view
 
 
 def delete_report_files(report_id):
-    """
-    Delete physical photo files belonging to a report.
-    """
 
-    photos = get_report_photos(report_id)
+    try:
 
-    for photo in photos:
-        filename = photo[2]
-
-        if not filename:
-            continue
-
-        path = os.path.join(
-            app.config["UPLOAD_FOLDER"],
-            filename
+        photos = database.get_report_photos(
+            report_id
         )
 
+    except Exception:
+
+        photos = []
+
+    for photo in photos or []:
+
         try:
-            if os.path.isfile(path):
-                os.remove(path)
-        except OSError:
-            pass
+
+            filename = photo[2]
+
+            if not filename:
+                continue
+
+            filepath = os.path.join(
+                app.config["UPLOAD_FOLDER"],
+                filename
+            )
+
+            if os.path.exists(filepath):
+
+                os.remove(filepath)
+
+        except Exception as e:
+
+            print(
+                "Could not delete uploaded file:",
+                e
+            )
 
 
 # ============================================================
@@ -165,17 +289,20 @@ def delete_report_files(report_id):
 
 @app.route("/")
 def home():
-    if is_logged_in():
-        return redirect("/dashboard")
 
-    return render_template("home.html")
+    return render_template(
+        "home.html"
+    )
 
 
 # ============================================================
 # REGISTER
 # ============================================================
 
-@app.route("/register", methods=["GET", "POST"])
+@app.route(
+    "/register",
+    methods=["GET", "POST"]
+)
 def register():
 
     if request.method == "POST":
@@ -196,47 +323,95 @@ def register():
         )
 
         if not username or not password:
+
             flash(
                 "Username and password are required.",
                 "error"
             )
-            return redirect("/register")
+
+            return render_template(
+                "register.html"
+            )
 
         if password != confirm_password:
+
             flash(
                 "Passwords do not match.",
                 "error"
             )
-            return redirect("/register")
 
-        success = create_user(
-            username,
-            password,
-            "student"
-        )
+            return render_template(
+                "register.html"
+            )
 
-        if not success:
+        if len(password) < 6:
+
             flash(
-                "That username already exists.",
+                "Password must be at least 6 characters.",
                 "error"
             )
-            return redirect("/register")
 
-        flash(
-            "Account created successfully. You can now log in.",
-            "success"
-        )
+            return render_template(
+                "register.html"
+            )
 
-        return redirect("/login")
+        try:
 
-    return render_template("register.html")
+            existing = database.get_user_by_username(
+                username
+            )
+
+            if existing:
+
+                flash(
+                    "Username already exists.",
+                    "error"
+                )
+
+                return render_template(
+                    "register.html"
+                )
+
+            database.create_user(
+                username=username,
+                password=password,
+                role="student"
+            )
+
+            flash(
+                "Registration successful. You can now log in.",
+                "success"
+            )
+
+            return redirect(
+                url_for("login")
+            )
+
+        except Exception as e:
+
+            print(
+                "Registration error:",
+                e
+            )
+
+            flash(
+                "Registration failed. Please try again.",
+                "error"
+            )
+
+    return render_template(
+        "register.html"
+    )
 
 
 # ============================================================
 # LOGIN
 # ============================================================
 
-@app.route("/login", methods=["GET", "POST"])
+@app.route(
+    "/login",
+    methods=["GET", "POST"]
+)
 def login():
 
     if request.method == "POST":
@@ -251,27 +426,65 @@ def login():
             ""
         )
 
-        user = authenticate_user(
-            username,
-            password
-        )
+        if not username or not password:
 
-        if not user:
             flash(
-                "Invalid username or password.",
+                "Please enter your username and password.",
                 "error"
             )
-            return redirect("/login")
 
-        session.clear()
+            return render_template(
+                "login.html"
+            )
 
-        session["user_id"] = user[0]
-        session["username"] = user[1]
-        session["role"] = user[3]
+        try:
 
-        return redirect("/dashboard")
+            user = database.authenticate_user(
+                username,
+                password
+            )
 
-    return render_template("login.html")
+            if not user:
+
+                flash(
+                    "Invalid username or password.",
+                    "error"
+                )
+
+                return render_template(
+                    "login.html"
+                )
+
+            session.clear()
+
+            session["user_id"] = user[0]
+            session["username"] = user[1]
+            session["role"] = user[3]
+
+            flash(
+                "Login successful.",
+                "success"
+            )
+
+            return redirect(
+                url_for("dashboard")
+            )
+
+        except Exception as e:
+
+            print(
+                "Login error:",
+                e
+            )
+
+            flash(
+                "Login failed. Please try again.",
+                "error"
+            )
+
+    return render_template(
+        "login.html"
+    )
 
 
 # ============================================================
@@ -280,8 +493,17 @@ def login():
 
 @app.route("/logout")
 def logout():
+
     session.clear()
-    return redirect("/")
+
+    flash(
+        "You have been logged out.",
+        "success"
+    )
+
+    return redirect(
+        url_for("home")
+    )
 
 
 # ============================================================
@@ -289,48 +511,63 @@ def logout():
 # ============================================================
 
 @app.route("/dashboard")
+@login_required
 def dashboard():
 
-    if not is_logged_in():
-        return redirect("/login")
+    role = session.get("role")
 
-    username = current_username()
+    try:
 
-    if is_admin():
+        if role in (
+            "admin",
+            "main_admin"
+        ):
 
-        reports = get_all_reports()
+            stats = database.get_stats()
 
-        stats = get_report_stats()
+            return render_template(
+                "dashboard.html",
+                stats=stats
+            )
+
+        reports = database.get_user_reports(
+            session["user_id"]
+        )
 
         return render_template(
             "dashboard.html",
-            reports=reports,
-            stats=stats
+            reports=reports
         )
 
-    reports = get_user_reports(username)
+    except Exception as e:
 
-    stats = get_report_stats(username)
+        print(
+            "Dashboard error:",
+            e
+        )
 
-    return render_template(
-        "dashboard.html",
-        reports=reports,
-        stats=stats
-    )
+        flash(
+            "Unable to load dashboard.",
+            "error"
+        )
+
+        return render_template(
+            "dashboard.html",
+            reports=[],
+            stats={}
+        )
 
 
 # ============================================================
 # SUBMIT REPORT
 # ============================================================
 
-@app.route("/submit-report", methods=["GET", "POST"])
+@app.route(
+    "/submit-report",
+    methods=["GET", "POST"]
+)
+@login_required
 def submit_report():
-
-    if not is_logged_in():
-        return redirect("/login")
-
-    if is_admin():
-        return redirect("/dashboard")
 
     if request.method == "POST":
 
@@ -344,106 +581,144 @@ def submit_report():
             ""
         ).strip()
 
-        message = request.form.get(
-            "message",
+        description = request.form.get(
+            "description",
             ""
         ).strip()
 
-        if not category or not message:
+        if not category:
+
             flash(
-                "Please fill in all required fields.",
+                "Please select a category.",
                 "error"
             )
-            return redirect("/submit-report")
 
-        photos = request.files.getlist(
+            return render_template(
+                "submit_report.html"
+            )
+
+        if not description:
+
+            flash(
+                "Please describe the issue.",
+                "error"
+            )
+
+            return render_template(
+                "submit_report.html"
+            )
+
+        files = request.files.getlist(
             "photos"
         )
 
-        valid_photos = []
+        selected_files = [
+            file
+            for file in files
+            if file and file.filename
+        ]
 
-        for photo in photos:
+        if len(selected_files) > MAX_PHOTOS:
 
-            if not photo or not photo.filename:
-                continue
+            flash(
+                f"You can upload a maximum of {MAX_PHOTOS} photos.",
+                "error"
+            )
 
-            if not allowed_file(photo.filename):
+            return render_template(
+                "submit_report.html"
+            )
+
+        for file in selected_files:
+
+            if not allowed_file(
+                file.filename
+            ):
+
                 flash(
                     "Only PNG, JPG, JPEG and WEBP images are allowed.",
                     "error"
                 )
-                return redirect("/submit-report")
 
-            valid_photos.append(photo)
+                return render_template(
+                    "submit_report.html"
+                )
 
-        if len(valid_photos) > 5:
+        try:
+
+            report_id = database.save_report(
+                user_id=session["user_id"],
+                category=category,
+                location=location,
+                description=description
+            )
+
+            for file in selected_files:
+
+                original_name = secure_filename(
+                    file.filename
+                )
+
+                extension = ""
+
+                if "." in original_name:
+
+                    extension = original_name.rsplit(
+                        ".",
+                        1
+                    )[1].lower()
+
+                filename = (
+                    uuid.uuid4().hex
+                    + "."
+                    + extension
+                )
+
+                filepath = os.path.join(
+                    app.config["UPLOAD_FOLDER"],
+                    filename
+                )
+
+                file.save(filepath)
+
+                try:
+
+                    database.add_report_photo(
+                        report_id=report_id,
+                        filename=filename
+                    )
+
+                except Exception:
+
+                    if os.path.exists(filepath):
+
+                        os.remove(filepath)
+
+                    raise
+
             flash(
-                "You can upload a maximum of 5 photos.",
+                "Your report has been submitted successfully.",
+                "success"
+            )
+
+            return redirect(
+                url_for(
+                    "report_detail",
+                    report_id=report_id
+                )
+            )
+
+        except Exception as e:
+
+            print(
+                "Submit report error:",
+                e
+            )
+
+            flash(
+                "Unable to submit your report.",
                 "error"
             )
-            return redirect("/submit-report")
-
-        # ----------------------------------------------------
-        # Create report
-        # ----------------------------------------------------
-
-        report_id = save_report(
-            current_username(),
-            category,
-            location,
-            message
-        )
-
-        if not report_id:
-            flash(
-                "Unable to submit the report.",
-                "error"
-            )
-            return redirect("/submit-report")
-
-        # ----------------------------------------------------
-        # Save uploaded photos
-        # ----------------------------------------------------
-
-        for photo in valid_photos:
-
-            original_name = secure_filename(
-                photo.filename
-            )
-
-            extension = ""
-
-            if "." in original_name:
-                extension = "." + original_name.rsplit(
-                    ".",
-                    1
-                )[1].lower()
-
-            unique_filename = (
-                uuid.uuid4().hex
-                + extension
-            )
-
-            file_path = os.path.join(
-                app.config["UPLOAD_FOLDER"],
-                unique_filename
-            )
-
-            photo.save(file_path)
-
-            add_report_photo(
-                report_id,
-                unique_filename
-            )
-
-        flash(
-            "Your report has been submitted successfully.",
-            "success"
-        )
-
-        return redirect(
-            f"/report/{report_id}"
-        )
 
     return render_template(
         "submit_report.html"
@@ -455,390 +730,634 @@ def submit_report():
 # ============================================================
 
 @app.route("/my-reports")
+@login_required
 def my_reports():
 
-    if not is_logged_in():
-        return redirect("/login")
+    # Admins should use All Reports.
+    if session.get("role") in (
+        "admin",
+        "main_admin"
+    ):
 
-    if is_admin():
-        return redirect("/reports")
+        return redirect(
+            url_for("reports")
+        )
 
-    reports = get_user_reports(
-        current_username()
-    )
+    try:
 
-    return render_template(
-        "my_reports.html",
-        reports=reports
-    )
+        reports = database.get_user_reports(
+            session["user_id"]
+        )
+
+        return render_template(
+            "reports.html",
+            reports=reports,
+            page_title="My Reports"
+        )
+
+    except Exception as e:
+
+        print(
+            "My reports error:",
+            e
+        )
+
+        flash(
+            "Unable to load your reports.",
+            "error"
+        )
+
+        return render_template(
+            "reports.html",
+            reports=[],
+            page_title="My Reports"
+        )
 
 
 # ============================================================
 # ALL REPORTS
+# ADMIN + MAIN ADMIN
 # ============================================================
 
 @app.route("/reports")
+@admin_required
 def reports():
 
-    if not is_admin():
-        return redirect("/dashboard")
+    try:
 
-    reports = get_all_reports()
+        all_reports = database.get_all_reports()
 
-    return render_template(
-        "reports.html",
-        reports=reports
-    )
+        return render_template(
+            "reports.html",
+            reports=all_reports,
+            page_title="All Reports"
+        )
 
+    except Exception as e:
 
-# ============================================================
-# VIEW REPORT
-# ============================================================
+        print(
+            "Reports error:",
+            e
+        )
 
-@app.route("/report/<int:report_id>")
-def report_detail(report_id):
-
-    if not is_logged_in():
-        return redirect("/login")
-
-    report = get_report(report_id)
-
-    if not report:
         flash(
-            "Report not found.",
+            "Unable to load reports.",
             "error"
         )
-        return redirect("/dashboard")
 
-    # --------------------------------------------------------
-    # Students can ONLY open their own reports
-    # --------------------------------------------------------
-
-    if not is_admin():
-
-        if report[1] != current_username():
-            flash(
-                "You do not have permission to view this report.",
-                "error"
-            )
-            return redirect("/my-reports")
-
-    photos = get_report_photos(
-        report_id
-    )
-
-    messages = get_report_messages(
-        report_id
-    )
-
-    return render_template(
-        "report_detail.html",
-        report=report,
-        photos=photos,
-        messages=messages
-    )
+        return render_template(
+            "reports.html",
+            reports=[],
+            page_title="All Reports"
+        )
 
 
 # ============================================================
-# REPORT MESSAGE / CONVERSATION
+# REPORT DETAIL
+# ============================================================
+
+@app.route(
+    "/report/<int:report_id>"
+)
+@login_required
+def report_detail(report_id):
+
+    try:
+
+        report = database.get_report(
+            report_id
+        )
+
+        if not report:
+            abort(404)
+
+        role = session.get(
+            "role"
+        )
+
+        # Students can only view their own reports.
+        if role not in (
+            "admin",
+            "main_admin"
+        ):
+
+            if report[1] != session.get(
+                "username"
+            ):
+
+                abort(403)
+
+        photos = database.get_report_photos(
+            report_id
+        )
+
+        messages = database.get_report_messages(
+            report_id
+        )
+
+        return render_template(
+            "report_detail.html",
+            report=report,
+            photos=photos,
+            messages=messages,
+            role=role
+        )
+
+    except Exception as e:
+
+        print(
+            "Report detail error:",
+            e
+        )
+
+        if hasattr(e, "code"):
+
+            if e.code == 403:
+                raise
+
+            if e.code == 404:
+                raise
+
+        flash(
+            "Unable to load the report.",
+            "error"
+        )
+
+        return redirect(
+            url_for("dashboard")
+        )
+
+
+# ============================================================
+# REPORT MESSAGE
 # ============================================================
 
 @app.route(
     "/report/<int:report_id>/message",
     methods=["POST"]
 )
+@login_required
 def report_message(report_id):
-
-    if not is_logged_in():
-        return redirect("/login")
-
-    report = get_report(report_id)
-
-    if not report:
-        return redirect("/dashboard")
-
-    # --------------------------------------------------------
-    # Students can only message on their own reports
-    # --------------------------------------------------------
-
-    if not is_admin():
-
-        if report[1] != current_username():
-            return redirect("/dashboard")
 
     message = request.form.get(
         "message",
         ""
     ).strip()
 
-    if message:
+    if not message:
 
-        add_report_message(
-            report_id,
-            current_username(),
-            current_role(),
-            message
+        flash(
+            "Message cannot be empty.",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "report_detail",
+                report_id=report_id
+            )
+        )
+
+    try:
+
+        report = database.get_report(
+            report_id
+        )
+
+        if not report:
+            abort(404)
+
+        role = session.get(
+            "role"
+        )
+
+        # Students can only message on their own reports.
+        if role not in (
+            "admin",
+            "main_admin"
+        ):
+
+            if report[1] != session.get(
+                "username"
+            ):
+
+                abort(403)
+
+        database.add_report_message(
+            report_id=report_id,
+            user_id=session["user_id"],
+            message=message
+        )
+
+        flash(
+            "Message sent.",
+            "success"
+        )
+
+    except Exception as e:
+
+        print(
+            "Message error:",
+            e
+        )
+
+        if hasattr(e, "code"):
+
+            if e.code in (
+                403,
+                404
+            ):
+                raise
+
+        flash(
+            "Unable to send message.",
+            "error"
         )
 
     return redirect(
-        f"/report/{report_id}"
+        url_for(
+            "report_detail",
+            report_id=report_id
+        )
     )
 
 
 # ============================================================
 # UPDATE REPORT
+# ADMIN + MAIN ADMIN
 # ============================================================
 
 @app.route(
     "/update-report/<int:report_id>",
     methods=["POST"]
 )
+@admin_required
 def update_report(report_id):
-
-    if not is_admin():
-        return redirect("/dashboard")
-
-    report = get_report(report_id)
-
-    if not report:
-        return redirect("/reports")
 
     status = request.form.get(
         "status",
         "Pending"
-    )
+    ).strip()
 
     admin_note = request.form.get(
         "admin_note",
         ""
     ).strip()
 
-    success = update_report_status(
-        report_id,
-        status,
-        admin_note
-    )
+    allowed_statuses = {
+        "Pending",
+        "Reviewed",
+        "In Progress",
+        "Resolved",
+        "Unreasonable"
+    }
 
-    if success:
+    if status not in allowed_statuses:
+
+        flash(
+            "Invalid report status.",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "report_detail",
+                report_id=report_id
+            )
+        )
+
+    try:
+
+        database.update_report(
+            report_id=report_id,
+            status=status,
+            admin_note=admin_note
+        )
+
         flash(
             "Report updated successfully.",
             "success"
         )
-    else:
+
+    except Exception as e:
+
+        print(
+            "Update report error:",
+            e
+        )
+
         flash(
             "Unable to update report.",
             "error"
         )
 
     return redirect(
-        f"/report/{report_id}"
+        url_for(
+            "report_detail",
+            report_id=report_id
+        )
     )
 
 
 # ============================================================
 # MARK UNREASONABLE
+# ADMIN + MAIN ADMIN
 # ============================================================
 
 @app.route(
     "/unreasonable/<int:report_id>",
     methods=["POST"]
 )
-def unreasonable(report_id):
+@admin_required
+def mark_unreasonable(report_id):
 
-    if not is_admin():
-        return redirect("/dashboard")
+    try:
 
-    report = get_report(report_id)
+        database.mark_report_unreasonable(
+            report_id
+        )
 
-    if not report:
-        return redirect("/reports")
+        flash(
+            "Report marked as unreasonable.",
+            "success"
+        )
 
-    mark_report_unreasonable(
-        report_id
-    )
+    except Exception as e:
 
-    flash(
-        "Report marked as unreasonable and sent to Main Admin review.",
-        "success"
-    )
+        print(
+            "Mark unreasonable error:",
+            e
+        )
+
+        flash(
+            "Unable to mark the report.",
+            "error"
+        )
 
     return redirect(
-        f"/report/{report_id}"
+        url_for(
+            "report_detail",
+            report_id=report_id
+        )
     )
 
 
 # ============================================================
 # UNREASONABLE REPORTS
+# MAIN ADMIN ONLY
 # ============================================================
 
 @app.route("/unreasonable-reports")
+@main_admin_required
 def unreasonable_reports():
 
-    if not is_main_admin():
-        return redirect("/dashboard")
+    try:
 
-    reports = get_unreasonable_reports()
+        reports = database.get_unreasonable_reports()
 
-    return render_template(
-        "unreasonable_reports.html",
-        reports=reports
-    )
+        return render_template(
+            "reports.html",
+            reports=reports,
+            page_title="Unreasonable Reports"
+        )
+
+    except Exception as e:
+
+        print(
+            "Unreasonable reports error:",
+            e
+        )
+
+        flash(
+            "Unable to load unreasonable reports.",
+            "error"
+        )
+
+        return render_template(
+            "reports.html",
+            reports=[],
+            page_title="Unreasonable Reports"
+        )
 
 
 # ============================================================
 # DELETE REPORT
+# MAIN ADMIN ONLY
 # ============================================================
 
 @app.route(
     "/delete-report/<int:report_id>",
     methods=["POST"]
 )
-def delete_report_route(report_id):
+@main_admin_required
+def delete_report(report_id):
 
-    if not is_main_admin():
-        return redirect("/dashboard")
+    try:
 
-    report = get_report(report_id)
-
-    if not report:
-        flash(
-            "Report not found.",
-            "error"
+        report = database.get_report(
+            report_id
         )
-        return redirect("/unreasonable-reports")
 
-    # Delete physical images first
-    delete_report_files(
-        report_id
-    )
+        if not report:
+            abort(404)
 
-    # Delete Supabase records
-    success = delete_report(
-        report_id
-    )
+        delete_report_files(
+            report_id
+        )
 
-    if success:
+        database.delete_report(
+            report_id
+        )
+
         flash(
-            "Report deleted successfully.",
+            "Report permanently deleted.",
             "success"
         )
-    else:
+
+        return redirect(
+            url_for(
+                "unreasonable_reports"
+            )
+        )
+
+    except Exception as e:
+
+        print(
+            "Delete report error:",
+            e
+        )
+
+        if hasattr(e, "code"):
+
+            if e.code == 404:
+                raise
+
         flash(
             "Unable to delete report.",
             "error"
         )
 
-    return redirect(
-        "/unreasonable-reports"
-    )
+        return redirect(
+            url_for(
+                "report_detail",
+                report_id=report_id
+            )
+        )
 
 
 # ============================================================
 # USERS
+# MAIN ADMIN ONLY
 # ============================================================
 
 @app.route("/users")
+@main_admin_required
 def users():
 
-    if not is_main_admin():
-        return redirect("/dashboard")
+    try:
 
-    all_users = get_all_users()
+        all_users = database.get_all_users()
 
-    return render_template(
-        "users.html",
-        users=all_users
-    )
+        return render_template(
+            "users.html",
+            users=all_users
+        )
+
+    except Exception as e:
+
+        print(
+            "Users error:",
+            e
+        )
+
+        flash(
+            "Unable to load users.",
+            "error"
+        )
+
+        return render_template(
+            "users.html",
+            users=[]
+        )
 
 
 # ============================================================
 # DELETE USER
+# MAIN ADMIN ONLY
 # ============================================================
 
 @app.route(
     "/delete-user/<int:user_id>",
     methods=["POST"]
 )
-def delete_user_route(user_id):
+@main_admin_required
+def delete_user(user_id):
 
-    if not is_main_admin():
-        return redirect("/dashboard")
+    if user_id == session.get(
+        "user_id"
+    ):
+
+        flash(
+            "You cannot delete your own Main Admin account.",
+            "error"
+        )
+
+        return redirect(
+            url_for("users")
+        )
 
     try:
 
-        result = delete_user(
-            user_id,
-            app.config["UPLOAD_FOLDER"]
+        user = database.get_user(
+            user_id
         )
 
-        # Main Admin protection
-        if result == "protected":
-
-            flash(
-                "Main Admin accounts cannot be deleted.",
-                "error"
-            )
-
-            return redirect("/users")
-
-        # User does not exist
-        if result == "not_found":
+        if not user:
 
             flash(
                 "User not found.",
                 "error"
             )
 
-            return redirect("/users")
-
-        # Successful deletion
-        if result:
-
-            flash(
-                f"User '{result['username']}' and "
-                f"{result['report_count']} report(s) were deleted.",
-                "success"
+            return redirect(
+                url_for("users")
             )
 
-            return redirect("/users")
+        # Never allow deleting another Main Admin.
+        if user[3] == "main_admin":
+
+            flash(
+                "Main Admin accounts cannot be deleted.",
+                "error"
+            )
+
+            return redirect(
+                url_for("users")
+            )
+
+        database.delete_user(
+            user_id,
+            upload_folder=app.config[
+                "UPLOAD_FOLDER"
+            ]
+        )
+
+        flash(
+            "User and associated reports deleted successfully.",
+            "success"
+        )
+
+    except Exception as e:
+
+        print(
+            "Delete user error:",
+            e
+        )
 
         flash(
             "Unable to delete user.",
             "error"
         )
 
-        return redirect("/users")
-
-    except Exception:
-
-        app.logger.exception(
-            "Error deleting user"
-        )
-
-        flash(
-            "An error occurred while deleting the user.",
-            "error"
-        )
-
-        return redirect("/users")
+    return redirect(
+        url_for("users")
+    )
 
 
 # ============================================================
 # ADMIN APPLICATIONS
+# MAIN ADMIN ONLY
 # ============================================================
 
 @app.route("/admin-applications")
+@main_admin_required
 def admin_applications():
 
-    if not is_main_admin():
-        return redirect("/dashboard")
+    try:
 
-    applications = get_admin_applications()
+        applications = database.get_admin_applications()
 
-    return render_template(
-        "admin_applications.html",
-        applications=applications
-    )
+        return render_template(
+            "admin_applications.html",
+            applications=applications
+        )
+
+    except Exception as e:
+
+        print(
+            "Admin applications error:",
+            e
+        )
+
+        flash(
+            "Unable to load admin applications.",
+            "error"
+        )
+
+        return render_template(
+            "admin_applications.html",
+            applications=[]
+        )
 
 
 # ============================================================
@@ -849,13 +1368,22 @@ def admin_applications():
     "/apply-admin",
     methods=["GET", "POST"]
 )
+@login_required
 def apply_admin():
 
-    if not is_logged_in():
-        return redirect("/login")
+    if session.get("role") in (
+        "admin",
+        "main_admin"
+    ):
 
-    if current_role() != "student":
-        return redirect("/dashboard")
+        flash(
+            "You already have admin access.",
+            "error"
+        )
+
+        return redirect(
+            url_for("dashboard")
+        )
 
     if request.method == "POST":
 
@@ -864,26 +1392,44 @@ def apply_admin():
             ""
         ).strip()
 
-        success = create_admin_application(
-            current_username(),
-            reason
-        )
+        if not reason:
 
-        if success:
+            flash(
+                "Please provide a reason.",
+                "error"
+            )
+
+            return render_template(
+                "apply_admin.html"
+            )
+
+        try:
+
+            database.create_admin_application(
+                user_id=session["user_id"],
+                reason=reason
+            )
 
             flash(
                 "Your admin application has been submitted.",
                 "success"
             )
 
-        else:
-
-            flash(
-                "You already have a pending admin application.",
-                "error"
+            return redirect(
+                url_for("dashboard")
             )
 
-        return redirect("/dashboard")
+        except Exception as e:
+
+            print(
+                "Admin application error:",
+                e
+            )
+
+            flash(
+                "Unable to submit application.",
+                "error"
+            )
 
     return render_template(
         "apply_admin.html"
@@ -891,30 +1437,51 @@ def apply_admin():
 
 
 # ============================================================
-# APPROVE ADMIN APPLICATION
+# APPROVE ADMIN
+# MAIN ADMIN ONLY
 # ============================================================
 
 @app.route(
     "/approve-admin/<int:application_id>",
     methods=["POST"]
 )
+@main_admin_required
 def approve_admin(application_id):
 
-    if not is_main_admin():
-        return redirect("/dashboard")
+    try:
 
-    success = approve_admin_application(
-        application_id
-    )
+        application = database.get_admin_application(
+            application_id
+        )
 
-    if success:
+        if not application:
+
+            flash(
+                "Application not found.",
+                "error"
+            )
+
+            return redirect(
+                url_for(
+                    "admin_applications"
+                )
+            )
+
+        database.approve_admin_application(
+            application_id
+        )
 
         flash(
             "Admin application approved.",
             "success"
         )
 
-    else:
+    except Exception as e:
+
+        print(
+            "Approve admin error:",
+            e
+        )
 
         flash(
             "Unable to approve application.",
@@ -922,35 +1489,41 @@ def approve_admin(application_id):
         )
 
     return redirect(
-        "/admin-applications"
+        url_for(
+            "admin_applications"
+        )
     )
 
 
 # ============================================================
-# REJECT ADMIN APPLICATION
+# REJECT ADMIN
+# MAIN ADMIN ONLY
 # ============================================================
 
 @app.route(
     "/reject-admin/<int:application_id>",
     methods=["POST"]
 )
+@main_admin_required
 def reject_admin(application_id):
 
-    if not is_main_admin():
-        return redirect("/dashboard")
+    try:
 
-    success = reject_admin_application(
-        application_id
-    )
-
-    if success:
+        database.reject_admin_application(
+            application_id
+        )
 
         flash(
             "Admin application rejected.",
             "success"
         )
 
-    else:
+    except Exception as e:
+
+        print(
+            "Reject admin error:",
+            e
+        )
 
         flash(
             "Unable to reject application.",
@@ -958,7 +1531,9 @@ def reject_admin(application_id):
         )
 
     return redirect(
-        "/admin-applications"
+        url_for(
+            "admin_applications"
+        )
     )
 
 
@@ -970,12 +1545,15 @@ def reject_admin(application_id):
     "/change-password",
     methods=["GET", "POST"]
 )
+@login_required
 def change_password():
 
-    if not is_logged_in():
-        return redirect("/login")
-
     if request.method == "POST":
+
+        current_password = request.form.get(
+            "current_password",
+            ""
+        )
 
         new_password = request.form.get(
             "new_password",
@@ -987,34 +1565,61 @@ def change_password():
             ""
         )
 
-        if not new_password:
+        if not current_password or not new_password:
 
             flash(
-                "Password cannot be empty.",
+                "All password fields are required.",
                 "error"
             )
 
-            return redirect(
-                "/change-password"
+            return render_template(
+                "change_password.html"
             )
 
         if new_password != confirm_password:
 
             flash(
-                "Passwords do not match.",
+                "New passwords do not match.",
                 "error"
             )
 
-            return redirect(
-                "/change-password"
+            return render_template(
+                "change_password.html"
             )
 
-        success = update_password(
-            current_username(),
-            new_password
-        )
+        if len(new_password) < 6:
 
-        if success:
+            flash(
+                "New password must be at least 6 characters.",
+                "error"
+            )
+
+            return render_template(
+                "change_password.html"
+            )
+
+        try:
+
+            user = database.authenticate_user(
+                session["username"],
+                current_password
+            )
+
+            if not user:
+
+                flash(
+                    "Current password is incorrect.",
+                    "error"
+                )
+
+                return render_template(
+                    "change_password.html"
+                )
+
+            database.update_password(
+                session["user_id"],
+                new_password
+            )
 
             flash(
                 "Password changed successfully.",
@@ -1022,13 +1627,20 @@ def change_password():
             )
 
             return redirect(
-                "/dashboard"
+                url_for("dashboard")
             )
 
-        flash(
-            "Unable to change password.",
-            "error"
-        )
+        except Exception as e:
+
+            print(
+                "Change password error:",
+                e
+            )
+
+            flash(
+                "Unable to change password.",
+                "error"
+            )
 
     return render_template(
         "change_password.html"
@@ -1036,61 +1648,58 @@ def change_password():
 
 
 # ============================================================
-# 404
+# ERROR HANDLERS
 # ============================================================
+
+@app.errorhandler(403)
+def forbidden(error):
+
+    return render_template(
+        "error.html",
+        error_code=403,
+        message="You do not have permission to access this page."
+    ), 403
+
 
 @app.errorhandler(404)
-def page_not_found(error):
+def not_found(error):
 
-    if is_logged_in():
-        return redirect("/dashboard")
+    return render_template(
+        "error.html",
+        error_code=404,
+        message="The page you are looking for could not be found."
+    ), 404
 
-    return redirect("/")
-
-
-# ============================================================
-# FILE TOO LARGE
-# ============================================================
 
 @app.errorhandler(413)
 def file_too_large(error):
 
     flash(
-        "The uploaded files are too large. Maximum total size is 20 MB.",
+        "Uploaded files are too large. Maximum total size is 20 MB.",
         "error"
     )
 
     return redirect(
-        "/submit-report"
+        url_for("submit_report")
     )
 
-
-# ============================================================
-# SERVER ERROR
-# ============================================================
 
 @app.errorhandler(500)
-def server_error(error):
+def internal_error(error):
 
-    app.logger.exception(
-        "Internal server error"
+    print(
+        "ERROR in app: Internal server error"
     )
 
-    if is_logged_in():
-
-        return render_template(
-            "error.html",
-            message="Something went wrong. Please try again."
-        ), 500
-
-    return (
-        "Internal server error.",
-        500
-    )
+    return render_template(
+        "error.html",
+        error_code=500,
+        message="Something went wrong on the server."
+    ), 500
 
 
 # ============================================================
-# RUN
+# LOCAL SERVER
 # ============================================================
 
 if __name__ == "__main__":
