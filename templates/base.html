@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f2f57">
+  <title>{% block title %}SchoolFix{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="site-bg" aria-hidden="true"></div>
+  <div class="top-glow" aria-hidden="true"></div>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="{{ url_for('home') }}">
+        <span class="brand-mark">S</span>
+        <span class="brand-copy"><strong>School</strong><em>Fix</em><small>STUDENT VOICE PORTAL</small></span>
+      </a>
+      <div class="nav-links">
+        {% if logged_in %}
+          <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">Dashboard</a>
+          {% if role in ['admin','main_admin'] %}
+            <a class="nav-link {% if request.endpoint in ['reports','report_detail','unreasonable_reports'] %}active{% endif %}" href="{{ url_for('reports') }}">Reports</a>
+          {% else %}
+            <a class="nav-link {% if request.endpoint in ['my_reports','report_detail'] %}active{% endif %}" href="{{ url_for('my_reports') }}">My Reports</a>
+            <a class="nav-link {% if request.endpoint == 'submit_report' %}active{% endif %}" href="{{ url_for('submit_report') }}">Report Issue</a>
+          {% endif %}
+          {% if role == 'main_admin' %}
+            <a class="nav-link {% if request.endpoint in ['database_panel','users','admin_applications'] %}active{% endif %}" href="{{ url_for('database_panel') }}">Admin</a>
+          {% endif %}
+          <a class="account-chip" href="{{ url_for('change_password') }}"><span class="account-dot">{{ current_user[0]|upper }}</span><span>{{ current_user }}</span></a>
+          <a class="nav-logout" href="{{ url_for('logout') }}">Logout</a>
+        {% else %}
+          <a class="nav-link {% if request.endpoint == 'login' %}active{% endif %}" href="{{ url_for('login') }}">Login</a>
+          <a class="nav-cta" href="{{ url_for('register') }}">Create account <span>→</span></a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <main class="page-shell">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-stack">
+          {% for category, message in messages %}
+            <div class="flash {{ category }}"><span class="flash-icon">{% if category == 'success' %}✓{% else %}!{% endif %}</span><span>{{ message }}</span></div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <div><strong>SchoolFix</strong><span>•</span><span>A safer way to make your school heard.</span></div>
+    <span>Student Voice Portal</span>
+  </footer>
+</body>
+</html>

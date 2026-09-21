@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Login — SchoolFix{% endblock %}
+{% block content %}
+<div class="auth-layout reveal">
+  <div class="auth-info"><div class="eyebrow"><span></span> WELCOME BACK</div><h1>Back to your<br><strong>SchoolFix.</strong></h1><p>Sign in to view reports, updates, and conversations connected to your account.</p><div class="auth-image"><img src="{{ url_for('static', filename='school-bg.png') }}" alt="School campus"><div><strong>One place for your school voice.</strong><span>Secure account access</span></div></div></div>
+  <div class="auth-card"><div class="auth-card-top"><span class="auth-mark">S</span><div><strong>SchoolFix</strong><small>Student Voice Portal</small></div></div><div class="eyebrow">ACCOUNT LOGIN</div><h2>Welcome back</h2><p class="muted">Enter your account details below.</p><form method="post" class="clean-form"><label>Username</label><input name="username" autocomplete="username" required placeholder="Your username"><label>Password</label><div class="password-wrap"><input id="password" type="password" name="password" autocomplete="current-password" required placeholder="Your password"><button type="button" class="eye" onclick="togglePassword('password',this)">Show</button></div><button class="btn btn-primary full" type="submit">Login <span>→</span></button></form><p class="auth-foot muted">New here? <a href="{{ url_for('register') }}">Create an account</a></p></div>
+</div>
+<script>function togglePassword(id,b){const x=document.getElementById(id);x.type=x.type==='password'?'text':'password';b.textContent=x.type==='password'?'Show':'Hide'}</script>
+{% endblock %}

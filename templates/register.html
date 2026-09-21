@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Register — SchoolFix{% endblock %}
+{% block content %}
+<div class="auth-layout reveal">
+  <div class="auth-info"><div class="eyebrow"><span></span> JOIN SCHOOLFIX</div><h1>Create your<br><strong>school account.</strong></h1><p>Make reports, follow updates, and keep your school feedback in one organised place.</p><div class="benefit-list"><div><b>01</b><span>Report school issues clearly</span></div><div><b>02</b><span>Follow your own reports</span></div><div><b>03</b><span>Continue conversations with admins</span></div></div></div>
+  <div class="auth-card"><div class="auth-card-top"><span class="auth-mark">S</span><div><strong>SchoolFix</strong><small>Student Voice Portal</small></div></div><div class="eyebrow">CREATE ACCOUNT</div><h2>Get started</h2><p class="muted">Your account starts with student access.</p><form method="post" class="clean-form"><label>Username</label><input name="username" minlength="3" required placeholder="Choose a username"><label>Password</label><div class="password-wrap"><input id="p1" type="password" name="password" minlength="6" required placeholder="At least 6 characters"><button type="button" class="eye" onclick="togglePassword('p1',this)">Show</button></div><label>Confirm password</label><input type="password" name="confirm_password" minlength="6" required placeholder="Enter password again"><button class="btn btn-primary full" type="submit">Create account <span>→</span></button></form><p class="auth-foot muted">Already registered? <a href="{{ url_for('login') }}">Login</a></p></div>
+</div>
+<script>function togglePassword(id,b){const x=document.getElementById(id);x.type=x.type==='password'?'text':'password';b.textContent=x.type==='password'?'Show':'Hide'}</script>
+{% endblock %}
