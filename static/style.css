@@ -488,3 +488,240 @@ body::after {
         animation: none;
     }
 }
+
+
+/* =========================================================
+   SCHOOLFIX — WEBSITE ACTIVITY ANIMATION
+   Report → Review → Resolve
+   ========================================================= */
+
+.hero-visual {
+    position: relative;
+}
+
+
+/* Floating SchoolFix activity panel */
+.hero-visual::before {
+    content: "✓  REPORT  →  REVIEW  →  RESOLVE";
+
+    position: absolute;
+    left: 50%;
+    bottom: 12%;
+
+    transform: translateX(-50%);
+
+    padding: 14px 22px;
+
+    min-width: 245px;
+
+    border-radius: 16px;
+
+    background: rgba(255, 255, 255, 0.94);
+
+    border: 1px solid rgba(30, 100, 160, 0.12);
+
+    box-shadow:
+        0 16px 40px rgba(18, 52, 90, 0.18),
+        0 0 30px rgba(40, 130, 200, 0.08);
+
+    color: #153b63;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    letter-spacing: 0.8px;
+
+    text-align: center;
+
+    z-index: 10;
+
+    animation:
+        schoolfixProcessFloat 4s ease-in-out infinite,
+        schoolfixProcessGlow 3s ease-in-out infinite;
+
+    white-space: nowrap;
+}
+
+
+/* Moving glowing status dot */
+.hero-visual::after {
+    content: "";
+
+    position: absolute;
+
+    width: 11px;
+    height: 11px;
+
+    left: calc(50% - 108px);
+    bottom: calc(12% + 17px);
+
+    border-radius: 50%;
+
+    background: #36c9a0;
+
+    box-shadow:
+        0 0 0 0 rgba(54, 201, 160, 0.5);
+
+    z-index: 11;
+
+    animation: schoolfixStatusPulse 1.8s ease-out infinite;
+}
+
+
+/* =========================================================
+   FLOATING PROCESS ANIMATION
+   ========================================================= */
+
+@keyframes schoolfixProcessFloat {
+
+    0%,
+    100% {
+        transform:
+            translateX(-50%)
+            translateY(0);
+    }
+
+    50% {
+        transform:
+            translateX(-50%)
+            translateY(-9px);
+    }
+}
+
+
+/* =========================================================
+   SOFT GLOW
+   ========================================================= */
+
+@keyframes schoolfixProcessGlow {
+
+    0%,
+    100% {
+        box-shadow:
+            0 16px 40px rgba(18, 52, 90, 0.18),
+            0 0 30px rgba(40, 130, 200, 0.08);
+    }
+
+    50% {
+        box-shadow:
+            0 20px 48px rgba(18, 52, 90, 0.23),
+            0 0 35px rgba(40, 130, 200, 0.16);
+    }
+}
+
+
+/* =========================================================
+   ACTIVE STATUS PULSE
+   ========================================================= */
+
+@keyframes schoolfixStatusPulse {
+
+    0% {
+        box-shadow:
+            0 0 0 0 rgba(54, 201, 160, 0.55);
+    }
+
+    70% {
+        box-shadow:
+            0 0 0 12px rgba(54, 201, 160, 0);
+    }
+
+    100% {
+        box-shadow:
+            0 0 0 0 rgba(54, 201, 160, 0);
+    }
+}
+
+
+/* =========================================================
+   FLOATING MINI REPORT CARDS
+   ========================================================= */
+
+.hero-visual {
+    overflow: visible !important;
+}
+
+.hero-visual .schoolfix-floating-card {
+    display: none;
+}
+
+
+/* Decorative floating dots */
+.hero-visual {
+    background-image:
+        radial-gradient(
+            circle at 18% 25%,
+            rgba(32, 120, 195, 0.18) 0 4px,
+            transparent 5px
+        ),
+        radial-gradient(
+            circle at 84% 20%,
+            rgba(54, 201, 160, 0.20) 0 5px,
+            transparent 6px
+        ),
+        radial-gradient(
+            circle at 75% 78%,
+            rgba(32, 120, 195, 0.15) 0 3px,
+            transparent 4px
+        );
+
+    animation: schoolfixAmbientMove 8s ease-in-out infinite alternate;
+}
+
+
+@keyframes schoolfixAmbientMove {
+
+    0% {
+        background-position:
+            0 0,
+            0 0,
+            0 0;
+    }
+
+    100% {
+        background-position:
+            12px -10px,
+            -10px 14px,
+            8px 10px;
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    .hero-visual::before {
+        bottom: 9%;
+
+        min-width: 205px;
+
+        padding: 11px 15px;
+
+        font-size: 10px;
+    }
+
+    .hero-visual::after {
+        left: calc(50% - 90px);
+        bottom: calc(9% + 14px);
+
+        width: 9px;
+        height: 9px;
+    }
+}
+
+
+/* =========================================================
+   ACCESSIBILITY
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .hero-visual,
+    .hero-visual::before,
+    .hero-visual::after {
+        animation: none !important;
+    }
+}
