@@ -20,56 +20,76 @@
 @media(max-width:430px){.hero-copy h1{font-size:45px}.stats-grid{grid-template-columns:1fr}.hero-actions{display:grid}.hero-actions .btn{width:100%}.auth-card{padding:22px}.detail-heading h1{font-size:31px}.meta-grid{grid-template-columns:1fr}.photo-grid{grid-template-columns:1fr}.application-actions{grid-column:1/-1}.application-actions .btn{flex:1}.page-title .count-badge{align-self:flex-start}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
 
-
-
 /* =========================================================
-   SCHOOLFIX — FULL WEBSITE SCHOOL BACKGROUND
+   SCHOOLFIX — FULL KV SCHOOL BACKGROUND
    ========================================================= */
 
-/* Whole website background */
 html,
 body {
     min-height: 100%;
 }
 
 body {
-    background-image:
-        linear-gradient(
-            rgba(248, 251, 254, 0.88),
-            rgba(248, 251, 254, 0.92)
-        ),
-        url("/static/school-bg.png");
+    position: relative;
+    isolation: isolate;
+    background: #f8fbfe !important;
+}
 
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("/static/school-bg.png?v=4");
     background-size: cover;
     background-position: center center;
-    background-attachment: fixed;
     background-repeat: no-repeat;
-
-    position: relative;
+    z-index: -2;
+    pointer-events: none;
+    animation: kvBackgroundMove 24s ease-in-out infinite alternate;
 }
 
-
-/* Keep everything above the background */
-body > * {
-    position: relative;
-    z-index: 1;
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg,
+        rgba(255,255,255,.84),
+        rgba(248,251,254,.91)
+    );
+    z-index: -1;
+    pointer-events: none;
 }
 
+@keyframes kvBackgroundMove {
+    0% {
+        transform: scale(1);
+        background-position: 46% 50%;
+    }
+    50% {
+        transform: scale(1.018);
+        background-position: 50% 48%;
+    }
+    100% {
+        transform: scale(1);
+        background-position: 54% 52%;
+    }
+}
 
-/* =========================================================
-   REMOVE SCHOOL IMAGE FROM HERO
-   ========================================================= */
-
-/* The hero container stays, but its photo disappears */
+/* The old campus photo is no longer used inside the hero. */
 .hero-visual img,
 .hero-image img,
 .hero-card img,
-.hero-media img {
+.hero-media img,
+.campus-card,
+.floating-stat {
     display: none !important;
 }
 
-
-/* Make the old photo container transparent */
 .hero-visual,
 .hero-image,
 .hero-card,
@@ -78,1089 +98,363 @@ body > * {
     background-image: none !important;
 }
 
-
-/* =========================================================
-   ANIMATED SCHOOLFIX ELEMENT
-   ========================================================= */
-
-/*
-   This animation now sits independently on top of the
-   website background — NOT on top of the school photo.
-*/
-
+/* Remove every previous hero pseudo-element animation. */
 .hero-visual::before,
-.hero-image::before,
-.hero-card::before,
-.hero-media::before {
-    content: "S";
-
-    position: absolute;
-
-    left: 50%;
-    top: 50%;
-
-    width: 76px;
-    height: 76px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    transform: translate(-50%, -50%);
-
-    border-radius: 24px;
-
-    background: linear-gradient(
-        135deg,
-        #10345c,
-        #217ac5
-    );
-
-    color: white;
-
-    font-size: 38px;
-    font-weight: 900;
-
-    box-shadow:
-        0 18px 45px rgba(13, 53, 92, 0.25),
-        0 0 0 1px rgba(255,255,255,0.8);
-
-    z-index: 5;
-
-    animation:
-        schoolfixLogoFloat 3s ease-in-out infinite,
-        schoolfixLogoGlow 2.5s ease-in-out infinite;
-}
-
-
-/* SchoolFix text */
 .hero-visual::after,
+.hero-image::before,
 .hero-image::after,
+.hero-card::before,
 .hero-card::after,
+.hero-media::before,
 .hero-media::after {
-    content: "SCHOOLFIX";
-
-    position: absolute;
-
-    left: 50%;
-    top: calc(50% + 65px);
-
-    transform: translateX(-50%);
-
-    padding: 8px 16px;
-
-    border-radius: 999px;
-
-    background: rgba(255,255,255,0.92);
-
-    color: #12345a;
-
-    font-size: 13px;
-    font-weight: 900;
-
-    letter-spacing: 2px;
-
-    white-space: nowrap;
-
-    box-shadow:
-        0 8px 25px rgba(13, 53, 92, 0.16);
-
-    z-index: 6;
-
-    animation: schoolfixTextFloat 3s ease-in-out infinite;
+    content: none !important;
+    display: none !important;
 }
-
 
 /* =========================================================
-   ANIMATIONS
-   ========================================================= */
-
-@keyframes schoolfixLogoFloat {
-
-    0%,
-    100% {
-        transform:
-            translate(-50%, -50%)
-            translateY(0)
-            rotate(0deg);
-    }
-
-    50% {
-        transform:
-            translate(-50%, -50%)
-            translateY(-10px)
-            rotate(2deg);
-    }
-}
-
-
-@keyframes schoolfixLogoGlow {
-
-    0%,
-    100% {
-        box-shadow:
-            0 18px 45px rgba(13, 53, 92, 0.25),
-            0 0 0 1px rgba(255,255,255,0.8);
-    }
-
-    50% {
-        box-shadow:
-            0 22px 55px rgba(13, 53, 92, 0.30),
-            0 0 35px rgba(33,122,197,0.25),
-            0 0 0 1px rgba(255,255,255,0.9);
-    }
-}
-
-
-@keyframes schoolfixTextFloat {
-
-    0%,
-    100% {
-        transform:
-            translateX(-50%)
-            translateY(0);
-    }
-
-    50% {
-        transform:
-            translateX(-50%)
-            translateY(-5px);
-    }
-}
-
-
-/* =========================================================
-   SOFT BACKGROUND MOTION
-   ========================================================= */
-
-body {
-    background-position:
-        center center;
-
-    animation: schoolBackgroundMove 18s ease-in-out infinite alternate;
-}
-
-
-@keyframes schoolBackgroundMove {
-
-    0% {
-        background-position:
-            48% 48%;
-    }
-
-    50% {
-        background-position:
-            52% 50%;
-    }
-
-    100% {
-        background-position:
-            50% 52%;
-    }
-}
-
-
-/* =========================================================
-   MOBILE
-   ========================================================= */
-
-@media (max-width: 700px) {
-
-    body {
-        background-attachment: scroll;
-
-        background-size: auto 100%;
-    }
-
-    .hero-visual::before,
-    .hero-image::before,
-    .hero-card::before,
-    .hero-media::before {
-        width: 62px;
-        height: 62px;
-
-        border-radius: 19px;
-
-        font-size: 30px;
-    }
-
-    .hero-visual::after,
-    .hero-image::after,
-    .hero-card::after,
-    .hero-media::after {
-        top: calc(50% + 52px);
-
-        font-size: 11px;
-
-        padding: 7px 13px;
-    }
-}
-
-
-/* =========================================================
-   REDUCED MOTION
-   ========================================================= */
-
-@media (prefers-reduced-motion: reduce) {
-
-    body,
-    .hero-visual::before,
-    .hero-visual::after,
-    .hero-image::before,
-    .hero-image::after,
-    .hero-card::before,
-    .hero-card::after,
-    .hero-media::before,
-    .hero-media::after {
-        animation: none !important;
-    }
-}
-
-
-/* =========================================================
-   KV SCHOOL — FULL WEBSITE BACKGROUND
-   ========================================================= */
-
-html,
-body {
-    min-height: 100%;
-}
-
-body {
-    background:
-        linear-gradient(
-            rgba(248, 251, 254, 0.82),
-            rgba(248, 251, 254, 0.88)
-        ),
-        url("/static/school-bg.png");
-
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-
-    min-height: 100vh;
-}
-
-
-/* Keep website content above the background */
-header,
-main,
-footer,
-section,
-nav,
-.container,
-.hero,
-.page,
-.dashboard,
-.content {
-    position: relative;
-    z-index: 1;
-}
-
-
-/* =========================================================
-   SCHOOLFIX — FULL KV BACKGROUND
-   ========================================================= */
-
-html {
-    min-height: 100%;
-}
-
-body {
-    min-height: 100vh;
-    position: relative;
-    isolation: isolate;
-
-    /* Keep the normal page base */
-    background: #f8fbfe !important;
-}
-
-
-/* ---------------------------------------------------------
-   KV IMAGE LAYER
-   --------------------------------------------------------- */
-
-body::before {
-    content: "";
-
-    position: fixed;
-    inset: 0;
-
-    width: 100%;
-    height: 100%;
-
-    background-image: url("/static/school-bg.png?v=3");
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
-
-    z-index: -2;
-
-    pointer-events: none;
-
-    animation: kvBackgroundMove 24s ease-in-out infinite alternate;
-}
-
-
-/* ---------------------------------------------------------
-   LIGHT OVERLAY
-   --------------------------------------------------------- */
-
-body::after {
-    content: "";
-
-    position: fixed;
-    inset: 0;
-
-    width: 100%;
-    height: 100%;
-
-    background:
-        linear-gradient(
-            135deg,
-            rgba(255, 255, 255, 0.82),
-            rgba(248, 251, 254, 0.88)
-        );
-
-    z-index: -1;
-
-    pointer-events: none;
-}
-
-
-/* ---------------------------------------------------------
-   SLOW BACKGROUND MOVEMENT
-   --------------------------------------------------------- */
-
-@keyframes kvBackgroundMove {
-
-    0% {
-        transform: scale(1);
-        background-position: 46% 50%;
-    }
-
-    50% {
-        transform: scale(1.025);
-        background-position: 50% 48%;
-    }
-
-    100% {
-        transform: scale(1);
-        background-position: 54% 52%;
-    }
-}
-
-
-/* ---------------------------------------------------------
-   MOBILE
-   --------------------------------------------------------- */
-
-@media (max-width: 700px) {
-
-    body::before {
-        position: fixed;
-
-        background-size: cover;
-        background-position: center center;
-
-        animation: none;
-    }
-
-    body::after {
-        background:
-            linear-gradient(
-                135deg,
-                rgba(255, 255, 255, 0.86),
-                rgba(248, 251, 254, 0.92)
-            );
-    }
-}
-
-
-/* ---------------------------------------------------------
-   REDUCED MOTION
-   --------------------------------------------------------- */
-
-@media (prefers-reduced-motion: reduce) {
-
-    body::before {
-        animation: none;
-    }
-}
-
-
-/* =========================================================
-   SCHOOLFIX — WEBSITE ACTIVITY ANIMATION
-   Report → Review → Resolve
-   ========================================================= */
-
-.hero-visual {
-    position: relative;
-}
-
-
-/* Floating SchoolFix activity panel */
-.hero-visual::before {
-    content: "✓  REPORT  →  REVIEW  →  RESOLVE";
-
-    position: absolute;
-    left: 50%;
-    bottom: 12%;
-
-    transform: translateX(-50%);
-
-    padding: 14px 22px;
-
-    min-width: 245px;
-
-    border-radius: 16px;
-
-    background: rgba(255, 255, 255, 0.94);
-
-    border: 1px solid rgba(30, 100, 160, 0.12);
-
-    box-shadow:
-        0 16px 40px rgba(18, 52, 90, 0.18),
-        0 0 30px rgba(40, 130, 200, 0.08);
-
-    color: #153b63;
-
-    font-size: 12px;
-    font-weight: 800;
-
-    letter-spacing: 0.8px;
-
-    text-align: center;
-
-    z-index: 10;
-
-    animation:
-        schoolfixProcessFloat 4s ease-in-out infinite,
-        schoolfixProcessGlow 3s ease-in-out infinite;
-
-    white-space: nowrap;
-}
-
-
-/* Moving glowing status dot */
-.hero-visual::after {
-    content: "";
-
-    position: absolute;
-
-    width: 11px;
-    height: 11px;
-
-    left: calc(50% - 108px);
-    bottom: calc(12% + 17px);
-
-    border-radius: 50%;
-
-    background: #36c9a0;
-
-    box-shadow:
-        0 0 0 0 rgba(54, 201, 160, 0.5);
-
-    z-index: 11;
-
-    animation: schoolfixStatusPulse 1.8s ease-out infinite;
-}
-
-
-/* =========================================================
-   FLOATING PROCESS ANIMATION
-   ========================================================= */
-
-@keyframes schoolfixProcessFloat {
-
-    0%,
-    100% {
-        transform:
-            translateX(-50%)
-            translateY(0);
-    }
-
-    50% {
-        transform:
-            translateX(-50%)
-            translateY(-9px);
-    }
-}
-
-
-/* =========================================================
-   SOFT GLOW
-   ========================================================= */
-
-@keyframes schoolfixProcessGlow {
-
-    0%,
-    100% {
-        box-shadow:
-            0 16px 40px rgba(18, 52, 90, 0.18),
-            0 0 30px rgba(40, 130, 200, 0.08);
-    }
-
-    50% {
-        box-shadow:
-            0 20px 48px rgba(18, 52, 90, 0.23),
-            0 0 35px rgba(40, 130, 200, 0.16);
-    }
-}
-
-
-/* =========================================================
-   ACTIVE STATUS PULSE
-   ========================================================= */
-
-@keyframes schoolfixStatusPulse {
-
-    0% {
-        box-shadow:
-            0 0 0 0 rgba(54, 201, 160, 0.55);
-    }
-
-    70% {
-        box-shadow:
-            0 0 0 12px rgba(54, 201, 160, 0);
-    }
-
-    100% {
-        box-shadow:
-            0 0 0 0 rgba(54, 201, 160, 0);
-    }
-}
-
-
-/* =========================================================
-   FLOATING MINI REPORT CARDS
-   ========================================================= */
-
-.hero-visual {
-    overflow: visible !important;
-}
-
-.hero-visual .schoolfix-floating-card {
-    display: none;
-}
-
-
-/* Decorative floating dots */
-.hero-visual {
-    background-image:
-        radial-gradient(
-            circle at 18% 25%,
-            rgba(32, 120, 195, 0.18) 0 4px,
-            transparent 5px
-        ),
-        radial-gradient(
-            circle at 84% 20%,
-            rgba(54, 201, 160, 0.20) 0 5px,
-            transparent 6px
-        ),
-        radial-gradient(
-            circle at 75% 78%,
-            rgba(32, 120, 195, 0.15) 0 3px,
-            transparent 4px
-        );
-
-    animation: schoolfixAmbientMove 8s ease-in-out infinite alternate;
-}
-
-
-@keyframes schoolfixAmbientMove {
-
-    0% {
-        background-position:
-            0 0,
-            0 0,
-            0 0;
-    }
-
-    100% {
-        background-position:
-            12px -10px,
-            -10px 14px,
-            8px 10px;
-    }
-}
-
-
-/* =========================================================
-   MOBILE
-   ========================================================= */
-
-@media (max-width: 700px) {
-
-    .hero-visual::before {
-        bottom: 9%;
-
-        min-width: 205px;
-
-        padding: 11px 15px;
-
-        font-size: 10px;
-    }
-
-    .hero-visual::after {
-        left: calc(50% - 90px);
-        bottom: calc(9% + 14px);
-
-        width: 9px;
-        height: 9px;
-    }
-}
-
-
-/* =========================================================
-   ACCESSIBILITY
-   ========================================================= */
-
-@media (prefers-reduced-motion: reduce) {
-
-    .hero-visual,
-    .hero-visual::before,
-    .hero-visual::after {
-        animation: none !important;
-    }
-}
-
-
-
-/* =========================================================
-   SCHOOLFIX — STUDENT REPORTING TO TEACHER ANIMATION
+   SCHOOLFIX — STUDENT REPORTS TO TEACHER
    ========================================================= */
 
 .schoolfix-scene {
     position: relative;
-
-    width: min(620px, 90vw);
-    height: 330px;
-
+    width: min(620px, 100%);
+    height: 350px;
     margin: 0 auto;
-
-    border-radius: 28px;
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(255,255,255,.82),
-            rgba(255,255,255,.62)
-        );
-
-    border: 1px solid rgba(255,255,255,.75);
-
-    box-shadow:
-        0 25px 70px rgba(20,55,90,.20);
-
     overflow: hidden;
-
+    border: 1px solid rgba(255,255,255,.9);
+    border-radius: 28px;
+    background: rgba(255,255,255,.70);
+    box-shadow: 0 28px 70px rgba(20,55,85,.15);
     backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
-
-/* Small SchoolFix heading */
-
-.scene-title {
+.schoolfix-scene::before {
+    content: "";
     position: absolute;
-
-    top: 20px;
-    left: 50%;
-
-    transform: translateX(-50%);
-
-    padding: 7px 15px;
-
-    border-radius: 999px;
-
-    background: #123b64;
-
-    color: white;
-
-    font-size: 12px;
-    font-weight: 800;
-
-    letter-spacing: 1.5px;
-
-    text-transform: uppercase;
-
-    z-index: 10;
-
-    animation:
-        sceneTitlePulse 3s ease-in-out infinite;
+    left: 8%;
+    right: 8%;
+    bottom: 64px;
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(29,111,184,.18),
+        transparent
+    );
 }
-
-
-@keyframes sceneTitlePulse {
-
-    0%, 100% {
-        box-shadow:
-            0 0 0 rgba(40,130,200,0);
-    }
-
-    50% {
-        box-shadow:
-            0 0 25px rgba(40,130,200,.25);
-    }
-}
-
-
-/* =========================================================
-   STUDENT
-   ========================================================= */
-
-.scene-student {
-    position: absolute;
-
-    left: 12%;
-    bottom: 42px;
-
-    width: 110px;
-    height: 150px;
-
-    text-align: center;
-
-    animation:
-        studentMove 4s ease-in-out infinite;
-}
-
-
-.character-head {
-    font-size: 58px;
-
-    line-height: 1;
-
-    filter:
-        drop-shadow(
-            0 8px 8px
-            rgba(0,0,0,.12)
-        );
-}
-
-
-.character-body {
-    width: 62px;
-    height: 62px;
-
-    margin: 7px auto 0;
-
-    border-radius: 22px 22px 15px 15px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #2479bd,
-            #123b64
-        );
-
-    box-shadow:
-        0 10px 20px rgba(18,59,100,.18);
-}
-
-
-@keyframes studentMove {
-
-    0%, 100% {
-        transform:
-            translateX(0)
-            translateY(0);
-    }
-
-    45% {
-        transform:
-            translateX(12px)
-            translateY(-4px);
-    }
-
-    55% {
-        transform:
-            translateX(12px)
-            translateY(-4px);
-    }
-}
-
-
-/* =========================================================
-   TEACHER
-   ========================================================= */
-
-.scene-teacher {
-    position: absolute;
-
-    right: 12%;
-    bottom: 42px;
-
-    width: 110px;
-    height: 150px;
-
-    text-align: center;
-
-    animation:
-        teacherMove 4s ease-in-out infinite;
-}
-
-
-.scene-teacher .character-body {
-    background:
-        linear-gradient(
-            135deg,
-            #55c9a7,
-            #207b69
-        );
-}
-
-
-@keyframes teacherMove {
-
-    0%, 100% {
-        transform:
-            translateY(0);
-    }
-
-    50% {
-        transform:
-            translateY(-5px);
-    }
-}
-
-
-/* =========================================================
-   SPEECH BUBBLES
-   ========================================================= */
-
-.speech {
-    position: absolute;
-
-    min-width: 145px;
-
-    padding: 10px 13px;
-
-    border-radius: 13px;
-
-    background: white;
-
-    color: #183b5e;
-
-    font-size: 11px;
-
-    font-weight: 700;
-
-    line-height: 1.35;
-
-    box-shadow:
-        0 10px 25px rgba(15,50,80,.16);
-
-    opacity: 0;
-}
-
-
-/* Student speaks first */
-
-.student-speech {
-    left: 70px;
-    top: -5px;
-
-    animation:
-        studentSpeech 4s ease-in-out infinite;
-}
-
-
-@keyframes studentSpeech {
-
-    0%, 8% {
-        opacity: 0;
-        transform: translateY(8px) scale(.94);
-    }
-
-    15%, 42% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-
-    48%, 100% {
-        opacity: 0;
-        transform: translateY(-5px) scale(.96);
-    }
-}
-
-
-/* Teacher responds */
-
-.teacher-speech {
-    right: 70px;
-    top: -5px;
-
-    animation:
-        teacherSpeech 4s ease-in-out infinite;
-}
-
-
-@keyframes teacherSpeech {
-
-    0%, 48% {
-        opacity: 0;
-        transform: translateY(8px) scale(.94);
-    }
-
-    55%, 82% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-
-    88%, 100% {
-        opacity: 0;
-        transform: translateY(-5px) scale(.96);
-    }
-}
-
-
-/* =========================================================
-   REPORT SUBMITTED
-   ========================================================= */
-
-.scene-report {
-    position: absolute;
-
-    left: 50%;
-    bottom: 15px;
-
-    transform:
-        translateX(-50%)
-        translateY(10px);
-
-    padding: 7px 13px;
-
-    border-radius: 999px;
-
-    background:
-        rgba(48,190,148,.12);
-
-    border:
-        1px solid rgba(48,190,148,.22);
-
-    color: #16765c;
-
-    font-size: 10px;
-    font-weight: 800;
-
-    opacity: 0;
-
-    animation:
-        reportSubmitted 4s ease-in-out infinite;
-}
-
-
-.scene-report span {
-    display: inline-flex;
-
-    align-items: center;
-    justify-content: center;
-
-    width: 17px;
-    height: 17px;
-
-    margin-right: 5px;
-
-    border-radius: 50%;
-
-    background: #35b995;
-
-    color: white;
-}
-
-
-@keyframes reportSubmitted {
-
-    0%, 65% {
-        opacity: 0;
-
-        transform:
-            translateX(-50%)
-            translateY(10px);
-    }
-
-    72%, 90% {
-        opacity: 1;
-
-        transform:
-            translateX(-50%)
-            translateY(0);
-    }
-
-    100% {
-        opacity: 0;
-    }
-}
-
-
-/* =========================================================
-   FLOOR / ENVIRONMENT
-   ========================================================= */
 
 .schoolfix-scene::after {
     content: "";
-
     position: absolute;
-
-    left: 7%;
-    right: 7%;
-    bottom: 28px;
-
-    height: 2px;
-
-    background:
-        linear-gradient(
-            90deg,
-            transparent,
-            rgba(20,60,95,.15),
-            transparent
-        );
+    left: 50%;
+    bottom: 22px;
+    width: 120px;
+    height: 7px;
+    transform: translateX(-50%);
+    border-radius: 999px;
+    background: rgba(13,43,77,.08);
+    filter: blur(4px);
 }
 
+.scene-title {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    padding: 8px 17px;
+    border-radius: 999px;
+    background: #123f69;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    box-shadow: 0 9px 24px rgba(18,63,105,.18);
+    animation: sceneTitlePulse 3.5s ease-in-out infinite;
+}
+
+@keyframes sceneTitlePulse {
+    0%,100% { box-shadow: 0 9px 24px rgba(18,63,105,.18); }
+    50% { box-shadow: 0 11px 30px rgba(29,111,184,.28); }
+}
+
+.scene-student,
+.scene-teacher {
+    position: absolute;
+    bottom: 61px;
+    width: 125px;
+    height: 160px;
+    text-align: center;
+    z-index: 5;
+}
+
+.scene-student {
+    left: 12%;
+    animation: studentShift 6s ease-in-out infinite;
+}
+
+.scene-teacher {
+    right: 12%;
+    animation: teacherShift 6s ease-in-out infinite;
+}
+
+.character-head {
+    position: relative;
+    width: 72px;
+    height: 72px;
+    margin: 0 auto;
+    display: grid;
+    place-items: center;
+    font-size: 54px;
+    line-height: 1;
+    filter: drop-shadow(0 8px 9px rgba(13,43,77,.13));
+}
+
+.character-body {
+    width: 72px;
+    height: 70px;
+    margin: 2px auto 0;
+    border-radius: 23px 23px 15px 15px;
+    background: linear-gradient(145deg,#2d8ac9,#124d7c);
+    box-shadow: 0 10px 22px rgba(18,75,120,.18);
+}
+
+.scene-teacher .character-body {
+    background: linear-gradient(145deg,#51c8a8,#227d6b);
+    box-shadow: 0 10px 22px rgba(32,129,109,.17);
+}
+
+@keyframes studentShift {
+    0%,100% { transform: translateX(0) translateY(0); }
+    16% { transform: translateX(9px) translateY(-3px); }
+    30% { transform: translateX(0) translateY(0); }
+    45% { transform: translateX(0) translateY(0); }
+}
+
+@keyframes teacherShift {
+    0%,42%,100% { transform: translateY(0); }
+    55% { transform: translateY(-4px); }
+    68% { transform: translateY(0); }
+}
+
+.speech {
+    position: absolute;
+    z-index: 15;
+    min-width: 155px;
+    padding: 11px 15px;
+    border: 1px solid rgba(220,230,238,.95);
+    border-radius: 15px;
+    background: #fff;
+    color: #173f63;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.35;
+    text-align: center;
+    box-shadow: 0 12px 28px rgba(20,55,85,.14);
+    opacity: 0;
+}
+
+.speech::after {
+    content: "";
+    position: absolute;
+    bottom: -6px;
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    border-right: 1px solid rgba(220,230,238,.95);
+    border-bottom: 1px solid rgba(220,230,238,.95);
+    transform: rotate(45deg);
+}
+
+.student-speech {
+    left: 55px;
+    top: -13px;
+    animation: studentSpeechClean 6s ease-in-out infinite;
+}
+
+.student-speech::after {
+    left: 25px;
+}
+
+.teacher-speech {
+    right: 55px;
+    top: -13px;
+    animation: teacherSpeechClean 6s ease-in-out infinite;
+}
+
+.teacher-speech::after {
+    right: 25px;
+}
+
+@keyframes studentSpeechClean {
+    0%,5% {
+        opacity: 0;
+        transform: translateY(8px) scale(.95);
+    }
+    12%,38% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    45%,100% {
+        opacity: 0;
+        transform: translateY(-4px) scale(.97);
+    }
+}
+
+@keyframes teacherSpeechClean {
+    0%,44% {
+        opacity: 0;
+        transform: translateY(8px) scale(.95);
+    }
+    51%,76% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    83%,100% {
+        opacity: 0;
+        transform: translateY(-4px) scale(.97);
+    }
+}
+
+.scene-report {
+    position: absolute;
+    left: 50%;
+    bottom: 18px;
+    z-index: 20;
+    display: inline-flex;
+    align-items: center;
+    transform: translateX(-50%) translateY(10px);
+    padding: 7px 13px 7px 8px;
+    border: 1px solid #cde9df;
+    border-radius: 999px;
+    background: rgba(231,246,240,.96);
+    color: #19745d;
+    font-size: 10px;
+    font-weight: 900;
+    white-space: nowrap;
+    opacity: 0;
+    box-shadow: 0 8px 20px rgba(29,138,104,.08);
+    animation: reportSubmittedClean 6s ease-in-out infinite;
+}
+
+.scene-report span {
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    margin-right: 6px;
+    border-radius: 50%;
+    background: #35b995;
+    color: #fff;
+    font-size: 11px;
+}
+
+@keyframes reportSubmittedClean {
+    0%,70% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(10px);
+    }
+    77%,91% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-3px);
+    }
+}
 
 /* =========================================================
-   MOBILE
+   RESPONSIVE ANIMATION
    ========================================================= */
 
-@media (max-width: 650px) {
+@media (max-width: 700px) {
+    body::before {
+        background-size: cover;
+        background-position: center center;
+        animation: none;
+    }
+
+    body::after {
+        background: linear-gradient(
+            135deg,
+            rgba(255,255,255,.87),
+            rgba(248,251,254,.93)
+        );
+    }
 
     .schoolfix-scene {
-        height: 290px;
+        width: 100%;
+        height: 310px;
+        border-radius: 23px;
     }
 
     .scene-student {
-        left: 5%;
+        left: 4%;
+        bottom: 55px;
     }
 
     .scene-teacher {
-        right: 5%;
+        right: 4%;
+        bottom: 55px;
     }
 
     .speech {
-        min-width: 115px;
-
+        min-width: 120px;
+        padding: 9px 10px;
         font-size: 9px;
-
-        padding: 8px 9px;
     }
 
     .student-speech {
-        left: 48px;
+        left: 43px;
     }
 
     .teacher-speech {
-        right: 48px;
+        right: 43px;
     }
 }
 
+@media (max-width: 430px) {
+    .schoolfix-scene {
+        height: 285px;
+    }
 
-/* =========================================================
-   REDUCED MOTION
-   ========================================================= */
+    .scene-student,
+    .scene-teacher {
+        width: 100px;
+        height: 140px;
+        bottom: 51px;
+    }
+
+    .character-head {
+        width: 60px;
+        height: 60px;
+        font-size: 44px;
+    }
+
+    .character-body {
+        width: 58px;
+        height: 59px;
+    }
+
+    .speech {
+        min-width: 105px;
+        font-size: 8px;
+    }
+
+    .student-speech {
+        left: 28px;
+    }
+
+    .teacher-speech {
+        right: 28px;
+    }
+}
 
 @media (prefers-reduced-motion: reduce) {
-
+    body::before,
     .schoolfix-scene *,
     .schoolfix-scene {
         animation: none !important;
