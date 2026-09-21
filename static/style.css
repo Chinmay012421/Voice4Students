@@ -360,50 +360,131 @@ nav,
 
 
 /* =========================================================
-   SUBTLE CONTINUOUS KV BACKGROUND MOVEMENT
+   SCHOOLFIX — FULL KV BACKGROUND
    ========================================================= */
 
-body {
-    animation: kvBackgroundMove 20s ease-in-out infinite alternate;
+html {
+    min-height: 100%;
 }
+
+body {
+    min-height: 100vh;
+    position: relative;
+    isolation: isolate;
+
+    /* Keep the normal page base */
+    background: #f8fbfe !important;
+}
+
+
+/* ---------------------------------------------------------
+   KV IMAGE LAYER
+   --------------------------------------------------------- */
+
+body::before {
+    content: "";
+
+    position: fixed;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    background-image: url("/static/school-bg.png?v=3");
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+
+    z-index: -2;
+
+    pointer-events: none;
+
+    animation: kvBackgroundMove 24s ease-in-out infinite alternate;
+}
+
+
+/* ---------------------------------------------------------
+   LIGHT OVERLAY
+   --------------------------------------------------------- */
+
+body::after {
+    content: "";
+
+    position: fixed;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.82),
+            rgba(248, 251, 254, 0.88)
+        );
+
+    z-index: -1;
+
+    pointer-events: none;
+}
+
+
+/* ---------------------------------------------------------
+   SLOW BACKGROUND MOVEMENT
+   --------------------------------------------------------- */
 
 @keyframes kvBackgroundMove {
 
     0% {
-        background-position: 48% 50%;
+        transform: scale(1);
+        background-position: 46% 50%;
     }
 
     50% {
-        background-position: 52% 48%;
+        transform: scale(1.025);
+        background-position: 50% 48%;
     }
 
     100% {
-        background-position: 50% 52%;
+        transform: scale(1);
+        background-position: 54% 52%;
     }
 }
 
 
-/* =========================================================
+/* ---------------------------------------------------------
    MOBILE
-   ========================================================= */
+   --------------------------------------------------------- */
 
 @media (max-width: 700px) {
 
-    body {
-        background-attachment: scroll;
+    body::before {
+        position: fixed;
+
         background-size: cover;
         background-position: center center;
+
+        animation: none;
+    }
+
+    body::after {
+        background:
+            linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.86),
+                rgba(248, 251, 254, 0.92)
+            );
     }
 }
 
 
-/* =========================================================
+/* ---------------------------------------------------------
    REDUCED MOTION
-   ========================================================= */
+   --------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
 
-    body {
+    body::before {
         animation: none;
     }
 }
