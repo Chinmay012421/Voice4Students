@@ -725,3 +725,444 @@ body::after {
         animation: none !important;
     }
 }
+
+
+
+/* =========================================================
+   SCHOOLFIX — STUDENT REPORTING TO TEACHER ANIMATION
+   ========================================================= */
+
+.schoolfix-scene {
+    position: relative;
+
+    width: min(620px, 90vw);
+    height: 330px;
+
+    margin: 0 auto;
+
+    border-radius: 28px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,.82),
+            rgba(255,255,255,.62)
+        );
+
+    border: 1px solid rgba(255,255,255,.75);
+
+    box-shadow:
+        0 25px 70px rgba(20,55,90,.20);
+
+    overflow: hidden;
+
+    backdrop-filter: blur(12px);
+}
+
+
+/* Small SchoolFix heading */
+
+.scene-title {
+    position: absolute;
+
+    top: 20px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    padding: 7px 15px;
+
+    border-radius: 999px;
+
+    background: #123b64;
+
+    color: white;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    letter-spacing: 1.5px;
+
+    text-transform: uppercase;
+
+    z-index: 10;
+
+    animation:
+        sceneTitlePulse 3s ease-in-out infinite;
+}
+
+
+@keyframes sceneTitlePulse {
+
+    0%, 100% {
+        box-shadow:
+            0 0 0 rgba(40,130,200,0);
+    }
+
+    50% {
+        box-shadow:
+            0 0 25px rgba(40,130,200,.25);
+    }
+}
+
+
+/* =========================================================
+   STUDENT
+   ========================================================= */
+
+.scene-student {
+    position: absolute;
+
+    left: 12%;
+    bottom: 42px;
+
+    width: 110px;
+    height: 150px;
+
+    text-align: center;
+
+    animation:
+        studentMove 4s ease-in-out infinite;
+}
+
+
+.character-head {
+    font-size: 58px;
+
+    line-height: 1;
+
+    filter:
+        drop-shadow(
+            0 8px 8px
+            rgba(0,0,0,.12)
+        );
+}
+
+
+.character-body {
+    width: 62px;
+    height: 62px;
+
+    margin: 7px auto 0;
+
+    border-radius: 22px 22px 15px 15px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2479bd,
+            #123b64
+        );
+
+    box-shadow:
+        0 10px 20px rgba(18,59,100,.18);
+}
+
+
+@keyframes studentMove {
+
+    0%, 100% {
+        transform:
+            translateX(0)
+            translateY(0);
+    }
+
+    45% {
+        transform:
+            translateX(12px)
+            translateY(-4px);
+    }
+
+    55% {
+        transform:
+            translateX(12px)
+            translateY(-4px);
+    }
+}
+
+
+/* =========================================================
+   TEACHER
+   ========================================================= */
+
+.scene-teacher {
+    position: absolute;
+
+    right: 12%;
+    bottom: 42px;
+
+    width: 110px;
+    height: 150px;
+
+    text-align: center;
+
+    animation:
+        teacherMove 4s ease-in-out infinite;
+}
+
+
+.scene-teacher .character-body {
+    background:
+        linear-gradient(
+            135deg,
+            #55c9a7,
+            #207b69
+        );
+}
+
+
+@keyframes teacherMove {
+
+    0%, 100% {
+        transform:
+            translateY(0);
+    }
+
+    50% {
+        transform:
+            translateY(-5px);
+    }
+}
+
+
+/* =========================================================
+   SPEECH BUBBLES
+   ========================================================= */
+
+.speech {
+    position: absolute;
+
+    min-width: 145px;
+
+    padding: 10px 13px;
+
+    border-radius: 13px;
+
+    background: white;
+
+    color: #183b5e;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    line-height: 1.35;
+
+    box-shadow:
+        0 10px 25px rgba(15,50,80,.16);
+
+    opacity: 0;
+}
+
+
+/* Student speaks first */
+
+.student-speech {
+    left: 70px;
+    top: -5px;
+
+    animation:
+        studentSpeech 4s ease-in-out infinite;
+}
+
+
+@keyframes studentSpeech {
+
+    0%, 8% {
+        opacity: 0;
+        transform: translateY(8px) scale(.94);
+    }
+
+    15%, 42% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    48%, 100% {
+        opacity: 0;
+        transform: translateY(-5px) scale(.96);
+    }
+}
+
+
+/* Teacher responds */
+
+.teacher-speech {
+    right: 70px;
+    top: -5px;
+
+    animation:
+        teacherSpeech 4s ease-in-out infinite;
+}
+
+
+@keyframes teacherSpeech {
+
+    0%, 48% {
+        opacity: 0;
+        transform: translateY(8px) scale(.94);
+    }
+
+    55%, 82% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    88%, 100% {
+        opacity: 0;
+        transform: translateY(-5px) scale(.96);
+    }
+}
+
+
+/* =========================================================
+   REPORT SUBMITTED
+   ========================================================= */
+
+.scene-report {
+    position: absolute;
+
+    left: 50%;
+    bottom: 15px;
+
+    transform:
+        translateX(-50%)
+        translateY(10px);
+
+    padding: 7px 13px;
+
+    border-radius: 999px;
+
+    background:
+        rgba(48,190,148,.12);
+
+    border:
+        1px solid rgba(48,190,148,.22);
+
+    color: #16765c;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    opacity: 0;
+
+    animation:
+        reportSubmitted 4s ease-in-out infinite;
+}
+
+
+.scene-report span {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 17px;
+    height: 17px;
+
+    margin-right: 5px;
+
+    border-radius: 50%;
+
+    background: #35b995;
+
+    color: white;
+}
+
+
+@keyframes reportSubmitted {
+
+    0%, 65% {
+        opacity: 0;
+
+        transform:
+            translateX(-50%)
+            translateY(10px);
+    }
+
+    72%, 90% {
+        opacity: 1;
+
+        transform:
+            translateX(-50%)
+            translateY(0);
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+
+/* =========================================================
+   FLOOR / ENVIRONMENT
+   ========================================================= */
+
+.schoolfix-scene::after {
+    content: "";
+
+    position: absolute;
+
+    left: 7%;
+    right: 7%;
+    bottom: 28px;
+
+    height: 2px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(20,60,95,.15),
+            transparent
+        );
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 650px) {
+
+    .schoolfix-scene {
+        height: 290px;
+    }
+
+    .scene-student {
+        left: 5%;
+    }
+
+    .scene-teacher {
+        right: 5%;
+    }
+
+    .speech {
+        min-width: 115px;
+
+        font-size: 9px;
+
+        padding: 8px 9px;
+    }
+
+    .student-speech {
+        left: 48px;
+    }
+
+    .teacher-speech {
+        right: 48px;
+    }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .schoolfix-scene *,
+    .schoolfix-scene {
+        animation: none !important;
+    }
+}
