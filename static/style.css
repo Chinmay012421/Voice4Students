@@ -19,3 +19,242 @@
 @media(max-width:680px){.nav-inner{display:block}.brand{margin-bottom:10px}.nav-links{justify-content:flex-start;overflow:auto;flex-wrap:nowrap;padding-bottom:2px}.nav-link,.nav-logout{font-size:12px;padding:7px 9px;white-space:nowrap}.account-chip{display:none}.nav-cta{margin-left:0;white-space:nowrap}.page-shell{width:92vw;padding-top:25px}.home-hero{min-height:auto;padding-bottom:45px}.hero-copy h1{font-size:52px;letter-spacing:-2.2px}.hero-lead{font-size:16px}.hero-trust{gap:9px;display:grid}.campus-card{aspect-ratio:1/1.05}.floating-stat{position:relative;right:auto;bottom:auto;margin:-25px 15px 0;z-index:2}.feature-grid{grid-template-columns:1fr}.home-bottom{display:block;padding:24px}.home-bottom p{margin-top:12px}.dashboard-head,.page-title{align-items:flex-start;flex-direction:column;gap:17px}.dashboard-head h1,.page-title h1{font-size:42px}.stats-grid{grid-template-columns:1fr 1fr}.report-item{grid-template-columns:34px minmax(0,1fr) auto}.report-icon{width:34px;height:34px}.report-arrow{display:none}.status{font-size:9px;padding:5px 7px}.side-panel{grid-template-columns:1fr}.side-card{grid-column:auto}.form-grid{grid-template-columns:1fr}.full-col{grid-column:auto}.form-intro h1{font-size:42px}.form-card{padding:20px}.detail-heading{display:block}.detail-heading .status{margin-top:12px}.meta-grid{grid-template-columns:1fr 1fr}.photo-grid{grid-template-columns:1fr 1fr}.admin-grid{grid-template-columns:1fr}.system-note{display:block}.connection-pill{margin-top:13px}.application-card{grid-template-columns:38px 1fr}.application-actions{grid-column:2}.footer{display:block}.footer>span{display:block;margin-top:5px}.error-code{font-size:75px}}
 @media(max-width:430px){.hero-copy h1{font-size:45px}.stats-grid{grid-template-columns:1fr}.hero-actions{display:grid}.hero-actions .btn{width:100%}.auth-card{padding:22px}.detail-heading h1{font-size:31px}.meta-grid{grid-template-columns:1fr}.photo-grid{grid-template-columns:1fr}.application-actions{grid-column:1/-1}.application-actions .btn{flex:1}.page-title .count-badge{align-self:flex-start}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
+
+
+
+/* =========================================================
+   SCHOOLFIX — ANIMATED BADGE ON SCHOOL PHOTO
+   ========================================================= */
+
+/* Make the school image the positioning reference */
+.hero-visual,
+.hero-image,
+.hero-card,
+.hero-media {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Keep the actual KV school photo */
+.hero-visual img,
+.hero-image img,
+.hero-card img,
+.hero-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Animated SchoolFix badge */
+.hero-visual::after,
+.hero-image::after,
+.hero-card::after,
+.hero-media::after {
+    content: "SCHOOLFIX";
+    position: absolute;
+
+    /* Position around the existing KV sign/logo */
+    left: 50%;
+    top: 58%;
+
+    transform: translate(-50%, -50%);
+
+    min-width: 150px;
+    padding: 13px 22px;
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255,255,255,0.96),
+            rgba(239,248,255,0.92)
+        );
+
+    color: #12345a;
+
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-align: center;
+
+    border: 1px solid rgba(255,255,255,0.95);
+
+    box-shadow:
+        0 10px 30px rgba(15,55,95,0.25),
+        0 0 0 1px rgba(30,115,190,0.08);
+
+    z-index: 5;
+
+    animation:
+        schoolfixFloat 3s ease-in-out infinite,
+        schoolfixGlow 2.5s ease-in-out infinite;
+}
+
+/* Small animated S icon */
+.hero-visual::before,
+.hero-image::before,
+.hero-card::before,
+.hero-media::before {
+    content: "S";
+
+    position: absolute;
+
+    left: calc(50% - 75px);
+    top: calc(58% - 4px);
+
+    transform: translate(-50%, -50%);
+
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 11px;
+
+    background: linear-gradient(
+        135deg,
+        #0d3158,
+        #1e78c4
+    );
+
+    color: white;
+
+    font-size: 20px;
+    font-weight: 900;
+
+    box-shadow:
+        0 8px 22px rgba(20,90,150,0.35);
+
+    z-index: 6;
+
+    animation: schoolfixIcon 2.8s ease-in-out infinite;
+}
+
+
+/* ---------------------------------------------------------
+   FLOATING MOTION
+   --------------------------------------------------------- */
+
+@keyframes schoolfixFloat {
+
+    0%,
+    100% {
+        transform: translate(-50%, -50%) translateY(0);
+    }
+
+    50% {
+        transform: translate(-50%, -50%) translateY(-7px);
+    }
+}
+
+
+/* ---------------------------------------------------------
+   SOFT CONTINUOUS GLOW
+   --------------------------------------------------------- */
+
+@keyframes schoolfixGlow {
+
+    0%,
+    100% {
+        box-shadow:
+            0 10px 30px rgba(15,55,95,0.25),
+            0 0 0 1px rgba(30,115,190,0.08);
+    }
+
+    50% {
+        box-shadow:
+            0 14px 36px rgba(15,55,95,0.32),
+            0 0 22px rgba(35,130,210,0.22),
+            0 0 0 1px rgba(35,130,210,0.16);
+    }
+}
+
+
+/* ---------------------------------------------------------
+   ICON MOTION
+   --------------------------------------------------------- */
+
+@keyframes schoolfixIcon {
+
+    0%,
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.08);
+    }
+}
+
+
+/* ---------------------------------------------------------
+   MOVING LIGHT ACROSS THE BADGE
+   --------------------------------------------------------- */
+
+.hero-visual .hero-badge,
+.hero-image .hero-badge,
+.hero-card .hero-badge,
+.hero-media .hero-badge {
+    position: relative;
+}
+
+
+/* ---------------------------------------------------------
+   MOBILE
+   --------------------------------------------------------- */
+
+@media (max-width: 700px) {
+
+    .hero-visual::after,
+    .hero-image::after,
+    .hero-card::after,
+    .hero-media::after {
+        top: 58%;
+
+        min-width: 120px;
+
+        padding: 10px 17px;
+
+        font-size: 14px;
+
+        letter-spacing: 1.5px;
+    }
+
+    .hero-visual::before,
+    .hero-image::before,
+    .hero-card::before,
+    .hero-media::before {
+        left: calc(50% - 60px);
+        top: calc(58% - 1px);
+
+        width: 30px;
+        height: 30px;
+
+        font-size: 16px;
+
+        border-radius: 9px;
+    }
+}
+
+
+/* ---------------------------------------------------------
+   REDUCED MOTION ACCESSIBILITY
+   --------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .hero-visual::before,
+    .hero-visual::after,
+    .hero-image::before,
+    .hero-image::after,
+    .hero-card::before,
+    .hero-card::after,
+    .hero-media::before,
+    .hero-media::after {
+        animation: none;
+    }
+}
