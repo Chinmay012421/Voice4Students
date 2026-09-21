@@ -315,3 +315,95 @@ body {
         animation: none !important;
     }
 }
+
+
+/* =========================================================
+   KV SCHOOL — FULL WEBSITE BACKGROUND
+   ========================================================= */
+
+html,
+body {
+    min-height: 100%;
+}
+
+body {
+    background:
+        linear-gradient(
+            rgba(248, 251, 254, 0.82),
+            rgba(248, 251, 254, 0.88)
+        ),
+        url("/static/school-bg.png");
+
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+
+    min-height: 100vh;
+}
+
+
+/* Keep website content above the background */
+header,
+main,
+footer,
+section,
+nav,
+.container,
+.hero,
+.page,
+.dashboard,
+.content {
+    position: relative;
+    z-index: 1;
+}
+
+
+/* =========================================================
+   SUBTLE CONTINUOUS KV BACKGROUND MOVEMENT
+   ========================================================= */
+
+body {
+    animation: kvBackgroundMove 20s ease-in-out infinite alternate;
+}
+
+@keyframes kvBackgroundMove {
+
+    0% {
+        background-position: 48% 50%;
+    }
+
+    50% {
+        background-position: 52% 48%;
+    }
+
+    100% {
+        background-position: 50% 52%;
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    body {
+        background-attachment: scroll;
+        background-size: cover;
+        background-position: center center;
+    }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    body {
+        animation: none;
+    }
+}
