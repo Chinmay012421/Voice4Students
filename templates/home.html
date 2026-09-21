@@ -1,69 +1,210 @@
 {% extends "base.html" %}
+
 {% block title %}SchoolFix — Speak Up{% endblock %}
+
 {% block content %}
+
 <section class="home-hero reveal">
+
   <div class="hero-copy">
-    <div class="eyebrow"><span></span> STUDENT VOICE • SCHOOL IMPROVEMENT</div>
-    <h1>Speak up.<br><strong>Fix what matters.</strong></h1>
-    <p class="hero-lead">A simple place to report school problems, attach evidence, follow progress, and keep communication organised.</p>
-    <div class="hero-actions">
-      {% if logged_in %}
-        <a class="btn btn-primary" href="{{ url_for('dashboard') }}">Open Dashboard <span>→</span></a>
-      {% else %}
-        <a class="btn btn-primary" href="{{ url_for('register') }}">Get Started <span>→</span></a>
-        <a class="btn btn-light" href="{{ url_for('login') }}">I already have an account</a>
-      {% endif %}
+
+    <div class="eyebrow">
+      <span></span>
+      STUDENT VOICE • SCHOOL IMPROVEMENT
     </div>
-    <div class="hero-trust"><span>✓ Private student reports</span><span>✓ Photo evidence</span><span>✓ Admin responses</span></div>
+
+    <h1>
+      Speak up.<br>
+      <strong>Fix what matters.</strong>
+    </h1>
+
+    <p class="hero-lead">
+      A simple place to report school problems, attach evidence,
+      follow progress, and keep communication organised.
+    </p>
+
+    <div class="hero-actions">
+
+      {% if logged_in %}
+
+        <a class="btn btn-primary" href="{{ url_for('dashboard') }}">
+          Open Dashboard
+          <span>→</span>
+        </a>
+
+      {% else %}
+
+        <a class="btn btn-primary" href="{{ url_for('register') }}">
+          Get Started
+          <span>→</span>
+        </a>
+
+        <a class="btn btn-light" href="{{ url_for('login') }}">
+          I already have an account
+        </a>
+
+      {% endif %}
+
+    </div>
+
+    <div class="hero-trust">
+      <span>✓ Private student reports</span>
+      <span>✓ Photo evidence</span>
+      <span>✓ Admin responses</span>
+    </div>
+
   </div>
+
+
+  <!-- =====================================================
+       SCHOOLFIX VIDEO
+       ===================================================== -->
 
   <div class="hero-visual reveal-delay">
 
-    <div class="schoolfix-scene">
+    <div class="video-card">
 
-      <div class="scene-title">
-        SchoolFix
-      </div>
+      <video
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="auto"
+        aria-label="SchoolFix demonstration video"
+      >
 
-      <div class="scene-student">
-        <div class="character-head">👨‍🎓</div>
-        <div class="character-body"></div>
+        <source
+          src="{{ url_for('static', filename='videos/schoolfix.mp4') }}"
+          type="video/mp4"
+        >
 
-        <div class="speech student-speech">
-          There's a problem...
-        </div>
-      </div>
+        Your browser does not support the video.
 
-      <div class="scene-teacher">
-        <div class="character-head">👩‍🏫</div>
-        <div class="character-body"></div>
-
-        <div class="speech teacher-speech">
-          I'll look into it.
-        </div>
-      </div>
-
-      <div class="scene-report">
-        <span>✓</span>
-        Report submitted
-      </div>
+      </video>
 
     </div>
 
   </div>
+
 </section>
+
 
 <section class="section-block">
-  <div class="section-title reveal"><div><div class="eyebrow">HOW IT WORKS</div><h2>Simple for students.<br><span>Clear for admins.</span></h2></div><p>Everything important stays connected to the report, so issues are easier to understand and follow.</p></div>
-  <div class="feature-grid">
-    <article class="feature-card reveal"><div class="feature-number">01</div><div class="feature-icon">↗</div><h3>Report</h3><p>Describe the issue, add a location, and attach up to five photos when useful.</p></article>
-    <article class="feature-card reveal"><div class="feature-number">02</div><div class="feature-icon">◷</div><h3>Track</h3><p>See your report status and continue the conversation without losing context.</p></article>
-    <article class="feature-card reveal"><div class="feature-number">03</div><div class="feature-icon">✓</div><h3>Improve</h3><p>Admins can review reports, respond, update status, and work toward resolution.</p></article>
+
+  <div class="section-title reveal">
+
+    <div>
+
+      <div class="eyebrow">
+        HOW IT WORKS
+      </div>
+
+      <h2>
+        Simple for students.<br>
+        <span>Clear for admins.</span>
+      </h2>
+
+    </div>
+
+    <p>
+      Everything important stays connected to the report,
+      so issues are easier to understand and follow.
+    </p>
+
   </div>
+
+
+  <div class="feature-grid">
+
+    <article class="feature-card reveal">
+
+      <div class="feature-number">
+        01
+      </div>
+
+      <div class="feature-icon">
+        ↗
+      </div>
+
+      <h3>
+        Report
+      </h3>
+
+      <p>
+        Describe the issue, add a location,
+        and attach up to five photos when useful.
+      </p>
+
+    </article>
+
+
+    <article class="feature-card reveal">
+
+      <div class="feature-number">
+        02
+      </div>
+
+      <div class="feature-icon">
+        ◷
+      </div>
+
+      <h3>
+        Track
+      </h3>
+
+      <p>
+        See your report status and continue the
+        conversation without losing context.
+      </p>
+
+    </article>
+
+
+    <article class="feature-card reveal">
+
+      <div class="feature-number">
+        03
+      </div>
+
+      <div class="feature-icon">
+        ✓
+      </div>
+
+      <h3>
+        Improve
+      </h3>
+
+      <p>
+        Admins can review reports, respond,
+        update status, and work toward resolution.
+      </p>
+
+    </article>
+
+  </div>
+
 </section>
 
+
 <section class="home-bottom reveal">
-  <div><div class="eyebrow">BUILT FOR SCHOOL COMMUNITIES</div><h2>Turn a problem into a process.</h2></div>
-  <p>SchoolFix keeps reporting focused, respectful, and easy to follow from the first message to the final update.</p>
+
+  <div>
+
+    <div class="eyebrow">
+      BUILT FOR SCHOOL COMMUNITIES
+    </div>
+
+    <h2>
+      Turn a problem into a process.
+    </h2>
+
+  </div>
+
+  <p>
+    SchoolFix keeps reporting focused, respectful,
+    and easy to follow from the first message to the final update.
+  </p>
+
 </section>
+
 {% endblock %}
