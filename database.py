@@ -59,19 +59,29 @@ def init_db():
     # Create the first Main Admin
     main_admins = [
         {
-            "username": os.getenv("MAIN_ADMIN_USERNAME", "mainadmin"),
-            "password": os.getenv("MAIN_ADMIN_PASSWORD", "admin123")
+            "username": os.getenv("MAIN_ADMIN_USERNAME", "Principal"),
+            "password": os.getenv("MAIN_ADMIN_PASSWORD", "KVAG1404P")
         },
 
         # Add more Main Admins here
         {
-            "username": os.getenv("MAIN_ADMIN_2_USERNAME", "mainadmin2"),
-            "password": os.getenv("MAIN_ADMIN_2_PASSWORD", "admin123")
+            "username": os.getenv("MAIN_ADMIN_2_USERNAME", "Vice Principal"),
+            "password": os.getenv("MAIN_ADMIN_2_PASSWORD", "KVAG1404VP")
         },
 
         {
-            "username": os.getenv("MAIN_ADMIN_3_USERNAME", "mainadmin3"),
-            "password": os.getenv("MAIN_ADMIN_3_PASSWORD", "admin123")
+            "username": os.getenv("MAIN_ADMIN_3_USERNAME", "Chinmay Epili"),
+            "password": os.getenv("MAIN_ADMIN_3_PASSWORD", "Frontend_Dev")
+        },
+
+        {
+            "username": os.getenv("MAIN_ADMIN_3_USERNAME", "Harshil Bisen"),
+            "password": os.getenv("MAIN_ADMIN_3_PASSWORD", "Backend_Dev")
+        },
+
+        {
+            "username": os.getenv("MAIN_ADMIN_3_USERNAME", "Arshad Khan"),
+            "password": os.getenv("MAIN_ADMIN_3_PASSWORD", "Arshad151")
         }
     ]
 
