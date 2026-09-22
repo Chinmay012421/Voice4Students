@@ -52,14 +52,41 @@ def _report_tuple(row):
 
 
 def init_db():
-    # Tables are created once through schema.sql in Supabase SQL Editor.
-    # This function only guarantees that the Main Admin exists.
-    username = os.environ.get("MAIN_ADMIN_USERNAME", "mainadmin")
-    password = os.environ.get("MAIN_ADMIN_PASSWORD", "admin123")
+    """
+    Initialize the database and create all configured Main Admins.
+    """
 
-    existing = get_user_by_username(username)
-    if not existing:
-        create_user(username, password, "main_admin")
+    # Create the first Main Admin
+    main_admins = [
+        {
+            "username": os.getenv("MAIN_ADMIN_USERNAME", "mainadmin"),
+            "password": os.getenv("MAIN_ADMIN_PASSWORD", "admin123")
+        },
+
+        # Add more Main Admins here
+        {
+            "username": os.getenv("MAIN_ADMIN_2_USERNAME", "mainadmin2"),
+            "password": os.getenv("MAIN_ADMIN_2_PASSWORD", "admin123")
+        },
+
+        {
+            "username": os.getenv("MAIN_ADMIN_3_USERNAME", "mainadmin3"),
+            "password": os.getenv("MAIN_ADMIN_3_PASSWORD", "admin123")
+        }
+    ]
+
+    for admin in main_admins:
+        username = admin["username"]
+        password = admin["password"]
+
+        existing = get_user_by_username(username)
+
+        if not existing:
+            create_user(
+                username=username,
+                password=password,
+                role="main_admin"
+            )
 
 
 def create_user(username, password, role="student"):
