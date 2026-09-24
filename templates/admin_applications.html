@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Admin Applications — SchoolFix{% endblock %}
+{% block title %}Admin Applications — SchoolVoice{% endblock %}
 {% block content %}
 <div class="page-title reveal"><div><div class="eyebrow"><span></span> MAIN ADMIN</div><h1>Admin applications</h1><p>Review student requests for admin access.</p></div><div class="count-badge"><strong>{{ applications|length }}</strong><span>pending</span></div></div>
 <div class="panel-card reveal"><div class="application-list">{% for a in applications %}<div class="application-card"><div class="application-avatar">{{ a[1][0]|upper }}</div><div class="application-copy"><strong>{{ a[1] }}</strong><span>Applied {{ a[4] }}</span><p>{{ a[2] }}</p></div><div class="application-actions"><form method="post" action="{{ url_for('approve_admin', application_id=a[0]) }}"><button class="btn btn-primary" type="submit">Approve</button></form><form method="post" action="{{ url_for('reject_admin', application_id=a[0]) }}"><button class="btn btn-danger" type="submit">Reject</button></form></div></div>{% else %}<div class="empty-state"><span>✓</span><h3>No pending applications</h3><p>New admin requests will appear here.</p></div>{% endfor %}</div></div>
