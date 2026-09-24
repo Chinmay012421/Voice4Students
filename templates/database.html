@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Database Control — SchoolFix{% endblock %}
+{% block title %}Database Control — SchoolVoice{% endblock %}
 {% block content %}
 <div class="page-title reveal"><div><div class="eyebrow"><span></span> MAIN ADMIN ONLY</div><h1>Control centre.</h1><p>Manage the important parts of SchoolFix without exposing database credentials.</p></div></div>
 <div class="stats-grid"><div class="stat-card reveal"><span>Reports</span><strong>{{ stats.total }}</strong><small>Total reports</small></div><div class="stat-card reveal"><span>Pending</span><strong>{{ stats.pending }}</strong><small>Awaiting review</small></div><div class="stat-card reveal"><span>In progress</span><strong>{{ stats.in_progress }}</strong><small>Being worked on</small></div><div class="stat-card reveal"><span>Resolved</span><strong>{{ stats.resolved }}</strong><small>Completed</small></div></div>
