@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Report #{{ report[0] }} — SchoolFix{% endblock %}
+{% block title %}Report #{{ report[0] }} — SchoolVoice{% endblock %}
 {% block content %}
 <a class="back-link reveal" href="{{ url_for('reports') if role in ['admin','main_admin'] else url_for('my_reports') }}"><span>←</span> Back to reports</a>
 <div class="detail-layout">
