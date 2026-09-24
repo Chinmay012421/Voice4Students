@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Dashboard — SchoolFix{% endblock %}
+{% block title %}Dashboard — SchoolVoice{% endblock %}
 {% block content %}
 <div class="dashboard-head reveal"><div><div class="eyebrow"><span></span> {{ role|replace('_',' ')|upper }} DASHBOARD</div><h1>Hey, {{ current_user }}.</h1><p>Here’s the latest activity connected to SchoolFix.</p></div>{% if role == 'student' %}<a class="btn btn-primary" href="{{ url_for('submit_report') }}">+ New report <span>→</span></a>{% endif %}</div>
 <div class="stats-grid">
