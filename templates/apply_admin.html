@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Apply for Admin — SchoolFix{% endblock %}
+{% block title %}Apply for Admin — SchoolVoice{% endblock %}
 {% block content %}
 <div class="center-form reveal"><div class="form-intro"><div class="eyebrow"><span></span> REQUEST ACCESS</div><h1>Apply for admin.</h1><p>Your request will be sent to the Main Admin for review.</p></div><form class="form-card" method="post"><div class="form-card-head"><h2>Why should you become an admin?</h2><p>Keep your answer clear and relevant to the role.</p></div><label>Reason <i>*</i></label><textarea name="reason" rows="9" maxlength="2000" required placeholder="Explain why you would like admin access..."></textarea><div class="form-actions"><a class="btn btn-light" href="{{ url_for('dashboard') }}">Cancel</a><button class="btn btn-primary" type="submit">Submit application <span>→</span></button></div></form></div>
 {% endblock %}
