@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ page_title }} — SchoolFix{% endblock %}
+{% block title %}{{ page_title }} — SchoolVoice{% endblock %}
 {% block content %}
 <div class="page-title reveal"><div><div class="eyebrow"><span></span> REPORTS</div><h1>{{ page_title }}</h1><p>{% if role == 'student' %}Only your reports are shown here.{% else %}Review and track school reports from one place.{% endif %}</p></div><div class="count-badge"><strong>{{ reports|length }}</strong><span>reports</span></div></div>
 <div class="panel-card reveal"><div class="list-toolbar"><div><strong>Report list</strong><span>Click a report to open its details.</span></div></div>{% if reports %}<div class="report-list">{% for r in reports %}<a class="report-item" href="{{ url_for('report_detail', report_id=r[0]) }}"><span class="report-icon">{{ r[3][0]|upper }}</span><span class="report-main"><strong>#{{ r[0] }} · {{ r[3] }}</strong><small>{% if role in ['admin','main_admin'] %}{{ r[2] }} · {% endif %}{{ r[4] or 'No location' }} · {{ r[7] }}</small></span><span class="status {{ r[6]|lower|replace(' ','-') }}">{{ r[6] }}</span><span class="report-arrow">→</span></a>{% endfor %}</div>{% else %}<div class="empty-state"><span>✓</span><h3>No reports found</h3><p>There are no reports to display right now.</p></div>{% endif %}</div>
