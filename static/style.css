@@ -5696,3 +5696,89 @@ iframe {
         max-width: 100%;
     }
 }
+
+
+
+/* =========================================================
+   FINAL SCROLLBAR FIX
+   Keep ONLY the browser/page scrollbar vertically.
+   ========================================================= */
+
+html {
+    width: 100%;
+    min-height: 100%;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+}
+
+body {
+    width: 100%;
+    min-height: 100vh;
+    margin: 0;
+    overflow-x: hidden !important;
+    overflow-y: visible !important;
+}
+
+/* The main page wrapper must NEVER become a second scrollbar */
+.page-shell {
+    width: 100%;
+    max-width: 100%;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+}
+
+/* Background decorations must never scroll independently */
+.site-bg,
+.top-glow {
+    position: fixed !important;
+    inset: 0;
+    pointer-events: none !important;
+    overflow: visible !important;
+}
+
+/* Navigation should not create a vertical scrollbar */
+.nav {
+    width: 100%;
+    max-width: 100%;
+    overflow: visible !important;
+}
+
+/* Mobile navigation: horizontal scrolling only if necessary */
+.nav-links {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none;
+}
+
+.nav-links::-webkit-scrollbar {
+    display: none;
+}
+
+/* Tables can scroll horizontally, but NOT vertically */
+.table-wrap {
+    max-width: 100%;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+}
+
+/* Never allow normal content sections to become scroll containers */
+main,
+section,
+.container,
+.content,
+.dashboard,
+.dashboard-grid,
+.detail-layout,
+.home-hero,
+footer {
+    max-height: none !important;
+}
+
+/* Media cannot create page overflow */
+img,
+video,
+iframe {
+    max-width: 100%;
+}
