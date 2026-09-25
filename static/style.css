@@ -1,6 +1,7 @@
 /* =========================================================
    SCHOOLFIX
-   MAIN WEBSITE STYLES
+   COMPLETE MAIN STYLESHEET
+   RESPONSIVE + ANIMATED VERSION
    ========================================================= */
 
 :root {
@@ -72,6 +73,10 @@ body {
     overflow-x: hidden;
 
     -webkit-text-size-adjust: 100%;
+
+    /* PAGE OPENING */
+    animation:
+        pageOpen .65s cubic-bezier(.2,.75,.25,1) both;
 }
 
 img,
@@ -102,7 +107,48 @@ textarea {
 
 
 /* =========================================================
-   ORIGINAL SITE BACKGROUND
+   PAGE OPENING
+   ========================================================= */
+
+@keyframes pageOpen {
+
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* =========================================================
+   PAGE EXIT SUPPORT
+   ========================================================= */
+
+body.page-leaving {
+    animation:
+        pageClose .35s cubic-bezier(.4,0,.7,1) forwards;
+}
+
+@keyframes pageClose {
+
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+}
+
+
+/* =========================================================
+   SITE BACKGROUND
    ========================================================= */
 
 .site-bg {
@@ -169,6 +215,13 @@ textarea {
 
 @keyframes glowFloat {
 
+    0%,
+    100% {
+        transform:
+            translateX(-50%)
+            translateY(0);
+    }
+
     50% {
         transform:
             translateX(-50%)
@@ -179,7 +232,7 @@ textarea {
 
 
 /* =========================================================
-   FULL SCHOOL BACKGROUND
+   SCHOOL BACKGROUND
    ========================================================= */
 
 html,
@@ -317,6 +370,22 @@ nav,
     box-shadow:
         0 8px 25px
         rgba(20,55,85,.04);
+
+    animation:
+        navDrop .6s cubic-bezier(.2,.75,.25,1) both;
+}
+
+@keyframes navDrop {
+
+    from {
+        opacity: 0;
+        transform: translateY(-15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .nav-inner {
@@ -346,6 +415,14 @@ nav,
     gap: 11px;
 
     flex-shrink: 0;
+
+    transition:
+        transform .25s ease;
+}
+
+.brand:hover {
+    transform:
+        translateY(-1px);
 }
 
 .brand-mark {
@@ -376,6 +453,20 @@ nav,
         rgba(13,43,77,.20);
 
     flex-shrink: 0;
+
+    transition:
+        transform .3s ease,
+        box-shadow .3s ease;
+}
+
+.brand:hover .brand-mark {
+    transform:
+        rotate(-5deg)
+        scale(1.05);
+
+    box-shadow:
+        0 12px 27px
+        rgba(13,43,77,.25);
 }
 
 .brand-copy {
@@ -439,7 +530,9 @@ nav,
     border-radius: 10px;
 
     transition:
-        .22s ease;
+        background .22s ease,
+        color .22s ease,
+        transform .22s ease;
 }
 
 .nav-link:hover,
@@ -447,6 +540,9 @@ nav,
     background: #eef5fb;
 
     color: var(--navy);
+
+    transform:
+        translateY(-1px);
 }
 
 .nav-cta {
@@ -479,7 +575,7 @@ nav,
         rgba(13,43,77,.15);
 
     transition:
-        .22s;
+        .22s ease;
 
     white-space: nowrap;
 }
@@ -490,6 +586,10 @@ nav,
 
     background:
         var(--blue);
+
+    box-shadow:
+        0 12px 25px
+        rgba(13,43,77,.20);
 }
 
 .nav-logout {
@@ -529,6 +629,19 @@ nav,
     background: #fff;
 
     flex-shrink: 0;
+
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease;
+}
+
+.account-chip:hover {
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 8px 20px
+        rgba(20,55,85,.10);
 }
 
 .account-dot {
@@ -596,6 +709,23 @@ nav,
         var(--blue);
 
     flex-shrink: 0;
+
+    animation:
+        dotPulse 2s ease-in-out infinite;
+}
+
+@keyframes dotPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.35);
+        opacity: .65;
+    }
 }
 
 
@@ -624,6 +754,26 @@ nav,
 .hero-copy {
     max-width: 700px;
     min-width: 0;
+
+    animation:
+        heroTextIn .75s .08s
+        cubic-bezier(.2,.75,.25,1)
+        both;
+}
+
+@keyframes heroTextIn {
+
+    from {
+        opacity: 0;
+        transform:
+            translateX(-24px);
+    }
+
+    to {
+        opacity: 1;
+        transform:
+            translateX(0);
+    }
 }
 
 .hero-copy h1 {
@@ -648,6 +798,25 @@ nav,
     color: var(--blue);
 
     font-weight: 850;
+
+    display: inline-block;
+
+    animation:
+        titleGlow 4s ease-in-out infinite;
+}
+
+@keyframes titleGlow {
+
+    0%,
+    100% {
+        text-shadow:
+            0 0 0 rgba(61,143,211,0);
+    }
+
+    50% {
+        text-shadow:
+            0 5px 25px rgba(61,143,211,.15);
+    }
 }
 
 .hero-lead {
@@ -658,6 +827,9 @@ nav,
     color: var(--muted);
 
     line-height: 1.8;
+
+    animation:
+        fadeUp .7s .25s both;
 }
 
 .hero-actions {
@@ -669,6 +841,9 @@ nav,
 
     margin:
         29px 0 20px;
+
+    animation:
+        fadeUp .7s .35s both;
 }
 
 .hero-trust {
@@ -683,6 +858,9 @@ nav,
     font-size: 12px;
 
     font-weight: 700;
+
+    animation:
+        fadeUp .7s .45s both;
 }
 
 
@@ -702,6 +880,28 @@ nav,
     background: transparent !important;
 
     background-image: none !important;
+
+    animation:
+        heroVisualIn .85s .15s
+        cubic-bezier(.2,.75,.25,1)
+        both;
+}
+
+@keyframes heroVisualIn {
+
+    from {
+        opacity: 0;
+        transform:
+            translateX(25px)
+            scale(.97);
+    }
+
+    to {
+        opacity: 1;
+        transform:
+            translateX(0)
+            scale(1);
+    }
 }
 
 
@@ -771,10 +971,7 @@ nav,
     isolation: isolate;
 
     animation:
-        videoCardFloat
-        6s
-        ease-in-out
-        infinite;
+        videoFloat 6s ease-in-out 1s infinite;
 }
 
 .video-card video {
@@ -792,6 +989,14 @@ nav,
 
     background:
         #eef4f8;
+
+    transition:
+        transform .7s ease;
+}
+
+.video-card:hover video {
+    transform:
+        scale(1.025);
 }
 
 .video-card::after {
@@ -812,7 +1017,7 @@ nav,
     z-index: 2;
 }
 
-@keyframes videoCardFloat {
+@keyframes videoFloat {
 
     0%,
     100% {
@@ -822,7 +1027,7 @@ nav,
 
     50% {
         transform:
-            translateY(-6px);
+            translateY(-7px);
     }
 }
 
@@ -847,6 +1052,9 @@ nav,
     align-items: end;
 
     margin-bottom: 25px;
+
+    animation:
+        fadeUp .65s both;
 }
 
 .section-title h2 {
@@ -915,7 +1123,48 @@ nav,
         rgba(20,55,85,.05);
 
     transition:
-        .25s ease;
+        transform .3s cubic-bezier(.2,.75,.25,1),
+        box-shadow .3s ease,
+        border-color .3s ease;
+
+    animation:
+        cardIn .65s
+        cubic-bezier(.2,.75,.25,1)
+        both;
+}
+
+.feature-card:nth-child(1) {
+    animation-delay:
+        .08s;
+}
+
+.feature-card:nth-child(2) {
+    animation-delay:
+        .16s;
+}
+
+.feature-card:nth-child(3) {
+    animation-delay:
+        .24s;
+}
+
+@keyframes cardIn {
+
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(20px)
+            scale(.98);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+    }
 }
 
 .feature-card::after {
@@ -935,17 +1184,25 @@ nav,
         rgba(29,111,184,.06);
 
     pointer-events: none;
+
+    transition:
+        transform .45s ease;
 }
 
 .feature-card:hover {
     transform:
-        translateY(-5px);
+        translateY(-7px);
 
     box-shadow:
         var(--shadow);
 
     border-color:
         #c7dce9;
+}
+
+.feature-card:hover::after {
+    transform:
+        scale(1.25);
 }
 
 .feature-number {
@@ -976,6 +1233,19 @@ nav,
         var(--blue);
 
     font-weight: 900;
+
+    transition:
+        transform .3s ease,
+        background .3s ease;
+}
+
+.feature-card:hover .feature-icon {
+    transform:
+        rotate(-5deg)
+        scale(1.08);
+
+    background:
+        #dceef9;
 }
 
 .feature-card h3 {
@@ -1026,6 +1296,9 @@ nav,
         var(--shadow-lg);
 
     margin-bottom: 20px;
+
+    animation:
+        fadeUp .7s .2s both;
 }
 
 .home-bottom .eyebrow {
@@ -1085,14 +1358,71 @@ nav,
     font-size: 14px;
 
     transition:
-        .22s ease;
+        transform .2s ease,
+        box-shadow .2s ease,
+        background .2s ease;
 
     touch-action: manipulation;
+
+    position: relative;
+
+    overflow: hidden;
+}
+
+.btn::after {
+    content: "";
+
+    position: absolute;
+
+    width: 20px;
+    height: 20px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,.22);
+
+    transform:
+        scale(0);
+
+    opacity: 0;
+
+    pointer-events: none;
+}
+
+.btn:active::after {
+    animation:
+        buttonRipple .45s ease-out;
+}
+
+@keyframes buttonRipple {
+
+    from {
+        transform:
+            scale(0);
+
+        opacity:
+            .65;
+    }
+
+    to {
+        transform:
+            scale(12);
+
+        opacity:
+            0;
+    }
 }
 
 .btn:hover {
     transform:
         translateY(-2px);
+}
+
+.btn:active {
+    transform:
+        translateY(1px)
+        scale(.98);
 }
 
 .btn-primary {
@@ -1129,6 +1459,12 @@ nav,
         rgba(20,55,85,.05);
 }
 
+.btn-light:hover {
+    box-shadow:
+        0 11px 25px
+        rgba(20,55,85,.10);
+}
+
 .btn-danger {
     background:
         var(--red-soft);
@@ -1157,7 +1493,7 @@ nav,
 
 
 /* =========================================================
-   AUTH PAGES
+   AUTH
    ========================================================= */
 
 .auth-layout {
@@ -1175,6 +1511,11 @@ nav,
     max-width: 1050px;
 
     margin: auto;
+}
+
+.auth-info {
+    animation:
+        heroTextIn .7s .1s both;
 }
 
 .auth-info h1 {
@@ -1221,6 +1562,14 @@ nav,
 
     box-shadow:
         var(--shadow);
+
+    transition:
+        transform .4s ease;
+}
+
+.auth-image:hover {
+    transform:
+        translateY(-4px);
 }
 
 .auth-image img {
@@ -1228,6 +1577,14 @@ nav,
     height: 100%;
 
     object-fit: cover;
+
+    transition:
+        transform .6s ease;
+}
+
+.auth-image:hover img {
+    transform:
+        scale(1.04);
 }
 
 .auth-image::after {
@@ -1292,6 +1649,24 @@ nav,
         var(--ink);
 
     font-weight: 750;
+
+    animation:
+        fadeUp .5s both;
+}
+
+.benefit-list div:nth-child(1) {
+    animation-delay:
+        .2s;
+}
+
+.benefit-list div:nth-child(2) {
+    animation-delay:
+        .28s;
+}
+
+.benefit-list div:nth-child(3) {
+    animation-delay:
+        .36s;
 }
 
 .benefit-list b {
@@ -1329,6 +1704,30 @@ nav,
         var(--shadow-lg);
 
     min-width: 0;
+
+    animation:
+        authCardIn .7s .12s
+        cubic-bezier(.2,.75,.25,1)
+        both;
+}
+
+@keyframes authCardIn {
+
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(22px)
+            scale(.97);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+    }
 }
 
 .auth-card-top {
@@ -1473,7 +1872,10 @@ textarea {
     outline: none;
 
     transition:
-        .2s;
+        border .2s ease,
+        box-shadow .2s ease,
+        background .2s ease,
+        transform .2s ease;
 
     max-width: 100%;
 }
@@ -1483,10 +1885,11 @@ textarea {
     min-height: 45px;
 }
 
-input::placeholder,
-textarea::placeholder {
-    color:
-        #9aa9b7;
+input:hover,
+select:hover,
+textarea:hover {
+    border-color:
+        #c4d5e2;
 }
 
 input:focus,
@@ -1501,6 +1904,15 @@ textarea:focus {
 
     background:
         #fff;
+
+    transform:
+        translateY(-1px);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color:
+        #9aa9b7;
 }
 
 .password-wrap {
@@ -1535,6 +1947,14 @@ textarea:focus {
     cursor: pointer;
 
     min-height: 32px;
+
+    transition:
+        transform .2s ease;
+}
+
+.eye:hover {
+    transform:
+        scale(1.05);
 }
 
 .auth-foot {
@@ -1555,6 +1975,15 @@ textarea:focus {
 
     text-decoration:
         none;
+
+    transition:
+        color .2s ease;
+}
+
+.auth-foot a:hover,
+.text-link:hover {
+    color:
+        var(--navy);
 }
 
 
@@ -1575,6 +2004,9 @@ textarea:focus {
 
     margin:
         25px 0 28px;
+
+    animation:
+        fadeUp .6s both;
 }
 
 .dashboard-head h1,
@@ -1630,14 +2062,57 @@ textarea:focus {
         rgba(20,55,85,.05);
 
     transition:
-        .23s;
+        transform .3s ease,
+        box-shadow .3s ease;
 
     min-width: 0;
+
+    animation:
+        statIn .55s
+        cubic-bezier(.2,.75,.25,1)
+        both;
+}
+
+.stat-card:nth-child(1) {
+    animation-delay:
+        .05s;
+}
+
+.stat-card:nth-child(2) {
+    animation-delay:
+        .10s;
+}
+
+.stat-card:nth-child(3) {
+    animation-delay:
+        .15s;
+}
+
+.stat-card:nth-child(4) {
+    animation-delay:
+        .20s;
+}
+
+@keyframes statIn {
+
+    from {
+        opacity: 0;
+        transform:
+            translateY(15px)
+            scale(.97);
+    }
+
+    to {
+        opacity: 1;
+        transform:
+            translateY(0)
+            scale(1);
+    }
 }
 
 .stat-card:hover {
     transform:
-        translateY(-3px);
+        translateY(-5px);
 
     box-shadow:
         var(--shadow);
@@ -1700,6 +2175,9 @@ textarea:focus {
 
 .panel-card {
     padding: 24px;
+
+    animation:
+        fadeUp .6s .12s both;
 }
 
 .panel-heading {
@@ -1757,9 +2235,59 @@ textarea:focus {
         1px solid #edf2f6;
 
     transition:
-        .18s;
+        background .2s ease,
+        padding .2s ease,
+        transform .2s ease;
 
     min-width: 0;
+
+    animation:
+        reportIn .5s both;
+}
+
+.report-item:nth-child(1) {
+    animation-delay:
+        .04s;
+}
+
+.report-item:nth-child(2) {
+    animation-delay:
+        .08s;
+}
+
+.report-item:nth-child(3) {
+    animation-delay:
+        .12s;
+}
+
+.report-item:nth-child(4) {
+    animation-delay:
+        .16s;
+}
+
+.report-item:nth-child(5) {
+    animation-delay:
+        .20s;
+}
+
+.report-item:nth-child(6) {
+    animation-delay:
+        .24s;
+}
+
+@keyframes reportIn {
+
+    from {
+        opacity: 0;
+        transform:
+            translateX(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform:
+            translateX(0);
+    }
 }
 
 .report-item:hover {
@@ -1798,6 +2326,15 @@ textarea:focus {
     font-weight: 900;
 
     flex-shrink: 0;
+
+    transition:
+        transform .25s ease;
+}
+
+.report-item:hover .report-icon {
+    transform:
+        rotate(-4deg)
+        scale(1.05);
 }
 
 .report-main {
@@ -1848,6 +2385,14 @@ textarea:focus {
 
     font-weight:
         900;
+
+    transition:
+        transform .2s ease;
+}
+
+.report-item:hover .report-arrow {
+    transform:
+        translateX(3px);
 }
 
 
@@ -1887,6 +2432,14 @@ textarea:focus {
         #66798b;
 
     flex-shrink: 0;
+
+    transition:
+        transform .2s ease;
+}
+
+.status:hover {
+    transform:
+        scale(1.04);
 }
 
 .status.pending {
@@ -1898,6 +2451,9 @@ textarea:focus {
 
     border-color:
         #eeddb8;
+
+    animation:
+        statusPulse 3s ease-in-out infinite;
 }
 
 .status.reviewed,
@@ -1934,6 +2490,22 @@ textarea:focus {
         #f0d2d5;
 }
 
+@keyframes statusPulse {
+
+    0%,
+    100% {
+        box-shadow:
+            0 0 0 0
+            rgba(169,107,18,0);
+    }
+
+    50% {
+        box-shadow:
+            0 0 0 4px
+            rgba(169,107,18,.06);
+    }
+}
+
 
 /* =========================================================
    EMPTY STATE
@@ -1945,6 +2517,9 @@ textarea:focus {
 
     padding:
         55px 20px;
+
+    animation:
+        fadeUp .55s both;
 }
 
 .empty-state > span {
@@ -1968,6 +2543,28 @@ textarea:focus {
 
     font-weight:
         900;
+
+    animation:
+        emptyIcon .8s ease both;
+}
+
+@keyframes emptyIcon {
+
+    from {
+        transform:
+            scale(.6)
+            rotate(-10deg);
+
+        opacity: 0;
+    }
+
+    to {
+        transform:
+            scale(1)
+            rotate(0);
+
+        opacity: 1;
+    }
 }
 
 .empty-state h3 {
@@ -2024,6 +2621,9 @@ textarea:focus {
 
     box-shadow:
         var(--shadow-lg);
+
+    animation:
+        fadeUp .6s .18s both;
 }
 
 .side-icon {
@@ -2044,6 +2644,15 @@ textarea:focus {
 
     margin-bottom:
         24px;
+
+    transition:
+        transform .3s ease;
+}
+
+.side-card:hover .side-icon {
+    transform:
+        rotate(5deg)
+        scale(1.05);
 }
 
 .side-card .eyebrow {
@@ -2118,19 +2727,36 @@ textarea:focus {
         none;
 
     transition:
-        .2s;
+        transform .25s ease,
+        border-color .25s ease,
+        box-shadow .25s ease;
 
     box-shadow:
         0 8px 24px
         rgba(20,55,85,.04);
 
     min-width: 0;
+
+    animation:
+        fadeUp .55s both;
+}
+
+.quick-card:nth-child(2),
+.admin-action:nth-child(2) {
+    animation-delay:
+        .08s;
+}
+
+.quick-card:nth-child(3),
+.admin-action:nth-child(3) {
+    animation-delay:
+        .16s;
 }
 
 .quick-card:hover,
 .admin-action:hover {
     transform:
-        translateY(-3px);
+        translateY(-4px);
 
     border-color:
         #c5dbe9;
@@ -2176,6 +2802,15 @@ textarea:focus {
         17px;
 
     flex-shrink: 0;
+
+    transition:
+        transform .2s ease;
+}
+
+.quick-card:hover > strong,
+.admin-action:hover > strong {
+    transform:
+        translateX(3px);
 }
 
 
@@ -2190,6 +2825,9 @@ textarea:focus {
 
     margin:
         25px auto;
+
+    animation:
+        fadeUp .65s both;
 }
 
 .center-form {
@@ -2221,7 +2859,8 @@ textarea:focus {
     margin:
         0 0 9px;
 
-    overflow-wrap: anywhere;
+    overflow-wrap:
+        anywhere;
 }
 
 .form-intro p {
@@ -2277,6 +2916,28 @@ textarea:focus {
 .form-card {
     padding:
         27px;
+
+    animation:
+        formCardIn .6s .08s both;
+}
+
+@keyframes formCardIn {
+
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(18px)
+            scale(.98);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+    }
 }
 
 .form-card-head {
@@ -2372,6 +3033,22 @@ textarea:focus {
 
     overflow:
         hidden;
+
+    transition:
+        border-color .25s ease,
+        background .25s ease,
+        transform .25s ease;
+}
+
+.upload-box:hover {
+    border-color:
+        #7fb1d3;
+
+    background:
+        #f7fbfe;
+
+    transform:
+        translateY(-1px);
 }
 
 .upload-box input {
@@ -2420,6 +3097,14 @@ textarea:focus {
         900;
 
     flex-shrink: 0;
+
+    transition:
+        transform .25s ease;
+}
+
+.upload-box:hover::before {
+    transform:
+        translateY(-3px);
 }
 
 .upload-box div {
@@ -2511,12 +3196,20 @@ textarea:focus {
     margin:
         5px 0 18px;
 
-    min-height: 32px;
+    min-height:
+        32px;
+
+    transition:
+        transform .2s ease,
+        color .2s ease;
 }
 
 .back-link:hover {
     color:
         var(--blue);
+
+    transform:
+        translateX(-3px);
 }
 
 .detail-layout {
@@ -2534,6 +3227,9 @@ textarea:focus {
 .detail-main {
     min-width:
         0;
+
+    animation:
+        fadeUp .6s both;
 }
 
 .detail-heading {
@@ -2603,6 +3299,24 @@ textarea:focus {
         12px;
 
     min-width: 0;
+
+    animation:
+        fadeUp .45s both;
+}
+
+.meta-grid > div:nth-child(1) {
+    animation-delay:
+        .05s;
+}
+
+.meta-grid > div:nth-child(2) {
+    animation-delay:
+        .10s;
+}
+
+.meta-grid > div:nth-child(3) {
+    animation-delay:
+        .15s;
 }
 
 .meta-grid span,
@@ -2658,6 +3372,9 @@ textarea:focus {
 
     margin-top:
         12px;
+
+    animation:
+        fadeUp .5s both;
 }
 
 .block-label {
@@ -2737,6 +3454,39 @@ textarea:focus {
 
     background:
         #eaf0f4;
+
+    animation:
+        photoIn .5s both;
+}
+
+.photo-grid a:nth-child(1) {
+    animation-delay:
+        .05s;
+}
+
+.photo-grid a:nth-child(2) {
+    animation-delay:
+        .10s;
+}
+
+.photo-grid a:nth-child(3) {
+    animation-delay:
+        .15s;
+}
+
+@keyframes photoIn {
+
+    from {
+        opacity: 0;
+        transform:
+            scale(.95);
+    }
+
+    to {
+        opacity: 1;
+        transform:
+            scale(1);
+    }
 }
 
 .photo-grid img {
@@ -2753,12 +3503,12 @@ textarea:focus {
         cover;
 
     transition:
-        .25s;
+        transform .4s ease;
 }
 
 .photo-grid a:hover img {
     transform:
-        scale(1.04);
+        scale(1.07);
 }
 
 
@@ -2771,6 +3521,9 @@ textarea:focus {
         start;
 
     min-width: 0;
+
+    animation:
+        fadeUp .6s .15s both;
 }
 
 .chat {
@@ -2808,6 +3561,48 @@ textarea:focus {
 
     overflow-wrap:
         anywhere;
+
+    animation:
+        bubbleIn .4s cubic-bezier(.2,.75,.25,1) both;
+}
+
+.bubble:nth-child(1) {
+    animation-delay:
+        .05s;
+}
+
+.bubble:nth-child(2) {
+    animation-delay:
+        .10s;
+}
+
+.bubble:nth-child(3) {
+    animation-delay:
+        .15s;
+}
+
+.bubble:nth-child(4) {
+    animation-delay:
+        .20s;
+}
+
+@keyframes bubbleIn {
+
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(9px)
+            scale(.98);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+    }
 }
 
 .bubble.mine {
@@ -2831,7 +3626,8 @@ textarea:focus {
     gap:
         10px;
 
-    flex-wrap: wrap;
+    flex-wrap:
+        wrap;
 }
 
 .bubble-top strong {
@@ -2912,6 +3708,9 @@ textarea:focus {
         1 / -1;
 
     min-width: 0;
+
+    animation:
+        fadeUp .55s both;
 }
 
 .danger-actions {
@@ -2973,6 +3772,15 @@ textarea:focus {
         900;
 
     flex-shrink: 0;
+
+    transition:
+        transform .25s ease;
+}
+
+.admin-action:hover .admin-action-icon {
+    transform:
+        rotate(-4deg)
+        scale(1.05);
 }
 
 .system-note {
@@ -3088,7 +3896,8 @@ textarea:focus {
     border-bottom:
         1px solid #edf2f6;
 
-    gap: 15px;
+    gap:
+        15px;
 }
 
 .list-toolbar strong,
@@ -3187,6 +3996,16 @@ textarea:focus {
 .table-wrap td {
     font-size:
         12px;
+}
+
+.table-wrap tbody tr {
+    transition:
+        background .2s ease;
+}
+
+.table-wrap tbody tr:hover {
+    background:
+        #f8fbfd;
 }
 
 .table-wrap tr:last-child td {
@@ -3325,12 +4144,25 @@ textarea:focus {
     cursor:
         pointer;
 
-    min-height: 34px;
+    min-height:
+        34px;
+
+    transition:
+        transform .2s ease,
+        background .2s ease;
 }
 
 .mini-btn:hover {
     background:
         var(--sky);
+
+    transform:
+        translateY(-1px);
+}
+
+.mini-btn:active {
+    transform:
+        scale(.96);
 }
 
 .mini-btn.danger {
@@ -3379,6 +4211,24 @@ textarea:focus {
 
     border-bottom:
         1px solid #edf2f6;
+
+    animation:
+        fadeUp .5s both;
+}
+
+.application-card:nth-child(1) {
+    animation-delay:
+        .05s;
+}
+
+.application-card:nth-child(2) {
+    animation-delay:
+        .10s;
+}
+
+.application-card:nth-child(3) {
+    animation-delay:
+        .15s;
 }
 
 .application-card:last-child {
@@ -3499,6 +4349,9 @@ textarea:focus {
 
     margin:
         90px auto;
+
+    animation:
+        fadeUp .65s both;
 }
 
 .error-code {
@@ -3516,6 +4369,28 @@ textarea:focus {
 
     letter-spacing:
         -6px;
+
+    animation:
+        errorCodeIn .7s both;
+}
+
+@keyframes errorCodeIn {
+
+    from {
+        opacity: 0;
+
+        transform:
+            scale(.75)
+            rotate(-3deg);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            scale(1)
+            rotate(0);
+    }
 }
 
 .error-page h1 {
@@ -3572,6 +4447,9 @@ textarea:focus {
 
     font-size:
         10px;
+
+    animation:
+        fadeUp .6s .2s both;
 }
 
 .footer div {
@@ -3592,12 +4470,29 @@ textarea:focus {
    GENERAL ANIMATIONS
    ========================================================= */
 
+.fade-up,
 .reveal {
     animation:
-        reveal
-        .55s
+        fadeUp .6s
         cubic-bezier(.2,.75,.25,1)
         both;
+}
+
+@keyframes fadeUp {
+
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(14px);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(0);
+    }
 }
 
 .reveal:nth-child(2) {
@@ -3615,26 +4510,13 @@ textarea:focus {
         .18s;
 }
 
-@keyframes reveal {
+@keyframes blink {
 
-    from {
-        opacity:
-            0;
-
-        transform:
-            translateY(12px);
-    }
-
-    to {
+    0%,
+    100% {
         opacity:
             1;
-
-        transform:
-            none;
     }
-}
-
-@keyframes blink {
 
     50% {
         opacity:
@@ -3672,6 +4554,10 @@ textarea:focus {
     }
 }
 
+
+/* =========================================================
+   TABLET
+   ========================================================= */
 
 @media (max-width: 980px) {
 
@@ -3805,7 +4691,8 @@ textarea:focus {
     }
 
     .home-bottom {
-        gap: 25px;
+        gap:
+            25px;
     }
 }
 
@@ -3817,31 +4704,38 @@ textarea:focus {
 @media (max-width: 760px) {
 
     .page-shell {
-        width: 92vw;
+        width:
+            92vw;
     }
 
     .nav-inner {
-        width: 94vw;
+        width:
+            94vw;
     }
 
     .section-block {
-        padding-bottom: 55px;
+        padding-bottom:
+            55px;
     }
 
     .feature-grid {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns:
+            1fr 1fr;
     }
 
     .home-bottom {
-        align-items: flex-start;
+        align-items:
+            flex-start;
     }
 
     .meta-grid {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns:
+            1fr 1fr;
     }
 
     .photo-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns:
+            repeat(3,1fr);
     }
 }
 
@@ -3853,7 +4747,8 @@ textarea:focus {
 @media (max-width: 680px) {
 
     .nav {
-        position: sticky;
+        position:
+            sticky;
     }
 
     .nav-inner {
@@ -3876,17 +4771,24 @@ textarea:focus {
     }
 
     .brand-mark {
-        width: 39px;
-        height: 39px;
-        border-radius: 12px;
+        width:
+            39px;
+
+        height:
+            39px;
+
+        border-radius:
+            12px;
     }
 
     .brand-copy strong {
-        font-size: 18px;
+        font-size:
+            18px;
     }
 
     .brand-copy small {
-        font-size: 6px;
+        font-size:
+            6px;
     }
 
     .nav-links {
@@ -3913,7 +4815,8 @@ textarea:focus {
     }
 
     .nav-links::-webkit-scrollbar {
-        display: none;
+        display:
+            none;
     }
 
     .nav-link,
@@ -4000,11 +4903,13 @@ textarea:focus {
     }
 
     .hero-actions {
-        gap: 8px;
+        gap:
+            8px;
     }
 
     .hero-actions .btn {
-        min-height: 46px;
+        min-height:
+            46px;
     }
 
     .video-card {
@@ -4041,7 +4946,8 @@ textarea:focus {
     }
 
     .home-bottom h2 {
-        font-size: 26px;
+        font-size:
+            26px;
     }
 
     .home-bottom p {
@@ -4656,7 +5562,6 @@ textarea:focus {
                 rgba(248,251,254,.93)
             );
     }
-
 }
 
 
