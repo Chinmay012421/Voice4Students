@@ -5782,3 +5782,44 @@ video,
 iframe {
     max-width: 100%;
 }
+
+
+
+/* =========================================================
+   SCHOOLFIX — SAFE SCROLL FIX
+   ========================================================= */
+
+html {
+    overflow-x: hidden;
+}
+
+body {
+    overflow-x: hidden;
+    overflow-y: visible;
+}
+
+/* Never make the main page wrapper a scroll container */
+.page-shell {
+    overflow: visible;
+}
+
+/* Mobile navigation can scroll horizontally only */
+@media (max-width: 680px) {
+    .nav-links {
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .nav-links::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+/* Tables only scroll horizontally when necessary */
+.table-wrap {
+    overflow-x: auto;
+    overflow-y: hidden;
+    max-width: 100%;
+}
