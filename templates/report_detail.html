@@ -3,8 +3,41 @@
 {% block content %}
 <a class="back-link reveal" href="{{ url_for('reports') if role in ['admin','main_admin'] else url_for('my_reports') }}"><span>←</span> Back to reports</a>
 <div class="detail-layout">
-  <section class="panel-card detail-main reveal"><div class="detail-heading"><div><div class="eyebrow">REPORT #{{ report[0] }}</div><h1>{{ report[3] }}</h1><p>Submitted by {% if role in ['admin','main_admin'] %}<strong>{{ report[2] }}</strong>{% else %}you{% endif %} · {{ report[7] }}</p></div><span class="status big {{ report[6]|lower|replace(' ','-') }}">{{ report[6] }}</span></div><div class="meta-grid">{% if role in ['admin','main_admin'] %}<div><span>Student</span><strong>{{ report[2] }}</strong></div>{% endif %}<div><span>Location</span><strong>{{ report[4] or 'Not provided' }}</strong></div><div><span>Category</span><strong>{{ report[3] }}</strong></div></div><div class="content-block"><div class="block-label">Original report</div><p>{{ report[5] }}</p></div>{% if report[8] %}<div class="admin-note"><div class="block-label">Admin note</div><p>{{ report[8] }}</p></div>{% endif %}{% if photos %}<div class="block-label photo-label">Photo evidence</div><div class="photo-grid">{% for photo in photos %}<a href="{{ photo.url }}" target="_blank"><img src="{{ photo.url }}" alt="Report photo"></a>{% endfor %}</div>{% endif %}</section>
+  <section class="panel-card detail-main reveal"><div class="detail-heading"><div><div class="eyebrow">REPORT #{{ report[0] }}</div><h1>{{ report[3] }}</h1><p>Submitted by {% if role in ['admin','main_admin'] %}<strong>{{ report[2] }}</strong>{% else %}you{% endif %} · {{ report[7] }}</p></div><span class="status big {{ report[6]|lower|replace(' ','-') }}">{{ report[6] }}</span></div><div class="meta-grid">{% if role in ['admin','main_admin'] %}<div><span>Student</span><strong>{{ report[2] }}</strong></div>{% endif %}<div><span>Location</span><strong>{{ report[4] or 'Not provided' }}</strong></div><div><span>Category</span><strong>{{ report[3] }}</strong></div><div><span>Handling by</span><strong>{% if report[10] %}{{ report[10] }}{% else %}Main Admin{% endif %}</strong></div></div><div class="content-block"><div class="block-label">Original report</div><p>{{ report[5] }}</p></div>{% if report[8] %}<div class="admin-note"><div class="block-label">Admin note</div><p>{{ report[8] }}</p></div>{% endif %}{% if photos %}<div class="block-label photo-label">Photo evidence</div><div class="photo-grid">{% for photo in photos %}<a href="{{ photo.url }}" target="_blank"><img src="{{ photo.url }}" alt="Report photo"></a>{% endfor %}</div>{% endif %}</section>
   <section class="panel-card conversation-card reveal"><div class="panel-heading"><div><div class="eyebrow">MESSAGES</div><h2>Conversation</h2></div></div><div class="chat">{% for m in messages %}<div class="bubble {{ 'mine' if m[2] == current_user else '' }}"><div class="bubble-top"><strong>{{ m[2] }}</strong><small>{{ m[3] }}</small></div><p>{{ m[4] }}</p><time>{{ m[5] }}</time></div>{% else %}<div class="chat-empty">No messages yet.</div>{% endfor %}</div><form method="post" action="{{ url_for('report_message', report_id=report[0]) }}" class="message-form"><textarea name="message" rows="3" placeholder="Write a message..." required></textarea><button class="btn btn-primary" type="submit">Send message <span>→</span></button></form></section>
-  {% if role in ['admin','main_admin'] %}<section class="panel-card admin-controls reveal"><div class="panel-heading"><div><div class="eyebrow">ADMIN TOOLS</div><h2>Manage report</h2></div></div><form method="post" action="{{ url_for('update_report', report_id=report[0]) }}" class="form-grid"><div><label>Status</label><select name="status">{% for s in ['Pending','Reviewed','In Progress','Resolved','Unreasonable'] %}<option {% if report[6] == s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select></div><div class="full-col"><label>Admin note</label><textarea name="admin_note" rows="4" placeholder="Optional note for this report...">{{ report[8] }}</textarea></div><div class="full-col"><button class="btn btn-primary" type="submit">Save changes <span>→</span></button></div></form><div class="danger-actions">{% if role == 'admin' %}<form method="post" action="{{ url_for('mark_unreasonable', report_id=report[0]) }}"><button class="btn btn-warn" type="submit">Mark unreasonable</button></form>{% endif %}{% if role == 'main_admin' %}<form method="post" action="{{ url_for('delete_report', report_id=report[0]) }}" onsubmit="return confirm('Delete this report permanently?')"><button class="btn btn-danger" type="submit">Delete report</button></form>{% endif %}</div></section>{% endif %}
+  {% if role in ['admin','main_admin'] %}<section class="panel-card admin-controls reveal"><div class="panel-heading"><div><div class="eyebrow">ADMIN TOOLS</div><h2>Manage report</h2></div></div><form method="post" action="{{ url_for('update_report', report_id=report[0]) }}" class="form-grid"><div><label>Status</label><select name="status">{% for s in ['Pending','Reviewed','In Progress','Resolved','Unreasonable'] %}<option {% if report[6] == s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select></div><div class="full-col"><label>Admin note</label><textarea name="admin_note" rows="4" placeholder="Optional note for this report...">{{ report[8] }}</textarea></div><div class="full-col"><button class="btn btn-primary" type="submit">Save changes <span>→</span></button></div></form>{% if role == 'main_admin' %}
+<div class="assignment-box">
+  <div class="block-label">REPORT HANDLING</div>
+  {% if report[10] %}
+  <p>Currently referred to <strong>{{ report[10] }}</strong>.</p>
+  <div class="assignment-actions">
+    <form method="post" action="{{ url_for('take_back_report', report_id=report[0]) }}">
+      <button class="btn btn-light" type="submit">Take back to Main Admin</button>
+    </form>
+    <form method="post" action="{{ url_for('refer_report', report_id=report[0]) }}" class="refer-form">
+      <select name="admin_id" required>
+        <option value="">Refer to another Admin</option>
+        {% for admin in admins %}
+        <option value="{{ admin['id'] }}">{{ admin['username'] }}</option>
+        {% endfor %}
+      </select>
+      <button class="btn btn-primary" type="submit">Refer</button>
+    </form>
+  </div>
+  {% else %}
+  <p>Currently handled by <strong>Main Admin</strong>.</p>
+  <form method="post" action="{{ url_for('refer_report', report_id=report[0]) }}" class="refer-form">
+    <select name="admin_id" required>
+      <option value="">Select an Admin</option>
+      {% for admin in admins %}
+      <option value="{{ admin['id'] }}">{{ admin['username'] }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn btn-primary" type="submit">Refer to Admin <span>→</span></button>
+  </form>
+  {% endif %}
+</div>
+{% endif %}
+<div class="danger-actions">{% if role == 'admin' %}<form method="post" action="{{ url_for('mark_unreasonable', report_id=report[0]) }}"><button class="btn btn-warn" type="submit">Mark unreasonable</button></form>{% endif %}{% if role == 'main_admin' %}<form method="post" action="{{ url_for('delete_report', report_id=report[0]) }}" onsubmit="return confirm('Delete this report permanently?')"><button class="btn btn-danger" type="submit">Delete report</button></form>{% endif %}</div></section>{% endif %}
 </div>
 {% endblock %}
