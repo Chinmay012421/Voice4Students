@@ -5623,3 +5623,76 @@ textarea::placeholder {
             none !important;
     }
 }
+
+
+
+/* =========================================================
+   FINAL SCROLLBAR FIX
+   Prevents double vertical/horizontal scrollbars
+   ========================================================= */
+
+html {
+    width: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+body {
+    width: 100%;
+    min-height: 100vh;
+    margin: 0;
+
+    overflow-x: hidden;
+    overflow-y: visible;
+}
+
+/* Fixed decorative layers must NEVER create scrolling */
+body::before,
+body::after,
+.site-bg,
+.top-glow {
+    pointer-events: none;
+
+    max-width: 100vw;
+}
+
+/* Prevent wide elements from creating another scrollbar */
+main,
+header,
+footer,
+section,
+nav,
+.page-shell,
+.container,
+.content,
+.dashboard,
+.detail-layout,
+.dashboard-grid,
+.home-hero {
+    max-width: 100%;
+}
+
+/* Keep tables/images/media from causing horizontal page scroll */
+img,
+video,
+iframe {
+    max-width: 100%;
+}
+
+/* Mobile: one normal page scrollbar only */
+@media (max-width: 680px) {
+    html {
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    body {
+        overflow-x: hidden;
+        overflow-y: visible;
+    }
+
+    .nav-links {
+        max-width: 100%;
+    }
+}
