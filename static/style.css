@@ -47,6 +47,7 @@
 
 html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
 }
 
 body {
@@ -69,6 +70,13 @@ body {
     line-height: 1.55;
 
     overflow-x: hidden;
+
+    -webkit-text-size-adjust: 100%;
+}
+
+img,
+video {
+    max-width: 100%;
 }
 
 a {
@@ -80,6 +88,16 @@ input,
 select,
 textarea {
     font: inherit;
+}
+
+button,
+a,
+select {
+    -webkit-tap-highlight-color: transparent;
+}
+
+textarea {
+    resize: vertical;
 }
 
 
@@ -176,9 +194,6 @@ body {
     background: #f8fbfe !important;
 }
 
-
-/* School image */
-
 body::before {
     content: "";
 
@@ -210,9 +225,6 @@ body::before {
         alternate;
 }
 
-
-/* Light overlay */
-
 body::after {
     content: "";
 
@@ -234,7 +246,6 @@ body::after {
 
     pointer-events: none;
 }
-
 
 @keyframes kvBackgroundMove {
 
@@ -276,7 +287,6 @@ nav,
 .dashboard,
 .content {
     position: relative;
-
     z-index: 1;
 }
 
@@ -296,6 +306,9 @@ nav,
         rgba(255,255,255,.92);
 
     backdrop-filter:
+        blur(18px);
+
+    -webkit-backdrop-filter:
         blur(18px);
 
     border-bottom:
@@ -331,6 +344,8 @@ nav,
     align-items: center;
 
     gap: 11px;
+
+    flex-shrink: 0;
 }
 
 .brand-mark {
@@ -359,6 +374,8 @@ nav,
     box-shadow:
         0 9px 22px
         rgba(13,43,77,.20);
+
+    flex-shrink: 0;
 }
 
 .brand-copy {
@@ -403,6 +420,8 @@ nav,
     gap: 7px;
 
     flex-wrap: wrap;
+
+    min-width: 0;
 }
 
 .nav-link,
@@ -435,6 +454,8 @@ nav,
 
     align-items: center;
 
+    justify-content: center;
+
     gap: 9px;
 
     margin-left: 4px;
@@ -459,6 +480,8 @@ nav,
 
     transition:
         .22s;
+
+    white-space: nowrap;
 }
 
 .nav-cta:hover {
@@ -504,6 +527,8 @@ nav,
     font-weight: 700;
 
     background: #fff;
+
+    flex-shrink: 0;
 }
 
 .account-dot {
@@ -569,6 +594,8 @@ nav,
 
     background:
         var(--blue);
+
+    flex-shrink: 0;
 }
 
 
@@ -596,6 +623,7 @@ nav,
 
 .hero-copy {
     max-width: 700px;
+    min-width: 0;
 }
 
 .hero-copy h1 {
@@ -612,6 +640,8 @@ nav,
 
     letter-spacing:
         -4px;
+
+    overflow-wrap: anywhere;
 }
 
 .hero-copy h1 strong {
@@ -676,8 +706,7 @@ nav,
 
 
 /* =========================================================
-   IMPORTANT:
-   REMOVE ALL OLD HERO ANIMATIONS
+   REMOVE OLD HERO ANIMATIONS
    ========================================================= */
 
 .hero-visual::before,
@@ -697,9 +726,6 @@ nav,
 
     animation: none !important;
 }
-
-
-/* Old campus visual is no longer used */
 
 .campus-card,
 .floating-stat,
@@ -751,9 +777,6 @@ nav,
         infinite;
 }
 
-
-/* Video */
-
 .video-card video {
     display: block;
 
@@ -770,9 +793,6 @@ nav,
     background:
         #eef4f8;
 }
-
-
-/* Soft glass border */
 
 .video-card::after {
     content: "";
@@ -791,7 +811,6 @@ nav,
 
     z-index: 2;
 }
-
 
 @keyframes videoCardFloat {
 
@@ -914,6 +933,8 @@ nav,
 
     background:
         rgba(29,111,184,.06);
+
+    pointer-events: none;
 }
 
 .feature-card:hover {
@@ -1065,6 +1086,8 @@ nav,
 
     transition:
         .22s ease;
+
+    touch-action: manipulation;
 }
 
 .btn:hover {
@@ -1288,6 +1311,8 @@ nav,
         var(--blue);
 
     font-size: 10px;
+
+    flex-shrink: 0;
 }
 
 .auth-card {
@@ -1302,6 +1327,8 @@ nav,
 
     box-shadow:
         var(--shadow-lg);
+
+    min-width: 0;
 }
 
 .auth-card-top {
@@ -1335,6 +1362,8 @@ nav,
     color: #fff;
 
     font-weight: 900;
+
+    flex-shrink: 0;
 }
 
 .auth-card-top strong,
@@ -1445,6 +1474,8 @@ textarea {
 
     transition:
         .2s;
+
+    max-width: 100%;
 }
 
 .clean-form input,
@@ -1502,6 +1533,8 @@ textarea:focus {
     padding: 9px;
 
     cursor: pointer;
+
+    min-height: 32px;
 }
 
 .auth-foot {
@@ -1559,6 +1592,8 @@ textarea:focus {
 
     margin:
         0 0 8px;
+
+    overflow-wrap: anywhere;
 }
 
 .dashboard-head p,
@@ -1596,6 +1631,8 @@ textarea:focus {
 
     transition:
         .23s;
+
+    min-width: 0;
 }
 
 .stat-card:hover {
@@ -1657,6 +1694,8 @@ textarea:focus {
     box-shadow:
         0 12px 38px
         rgba(20,55,85,.06);
+
+    min-width: 0;
 }
 
 .panel-card {
@@ -1719,6 +1758,8 @@ textarea:focus {
 
     transition:
         .18s;
+
+    min-width: 0;
 }
 
 .report-item:hover {
@@ -1755,6 +1796,8 @@ textarea:focus {
     font-size: 12px;
 
     font-weight: 900;
+
+    flex-shrink: 0;
 }
 
 .report-main {
@@ -1842,6 +1885,8 @@ textarea:focus {
 
     color:
         #66798b;
+
+    flex-shrink: 0;
 }
 
 .status.pending {
@@ -1855,17 +1900,7 @@ textarea:focus {
         #eeddb8;
 }
 
-.status.reviewed {
-    color:
-        var(--blue);
-
-    background:
-        var(--sky);
-
-    border-color:
-        #cfe2f1;
-}
-
+.status.reviewed,
 .status.in_progress {
     color:
         var(--blue);
@@ -1966,6 +2001,8 @@ textarea:focus {
         start;
 
     gap: 12px;
+
+    min-width: 0;
 }
 
 .side-card {
@@ -2086,6 +2123,8 @@ textarea:focus {
     box-shadow:
         0 8px 24px
         rgba(20,55,85,.04);
+
+    min-width: 0;
 }
 
 .quick-card:hover,
@@ -2135,6 +2174,8 @@ textarea:focus {
 
     font-size:
         17px;
+
+    flex-shrink: 0;
 }
 
 
@@ -2179,6 +2220,8 @@ textarea:focus {
 
     margin:
         0 0 9px;
+
+    overflow-wrap: anywhere;
 }
 
 .form-intro p {
@@ -2375,11 +2418,15 @@ textarea:focus {
 
     font-weight:
         900;
+
+    flex-shrink: 0;
 }
 
 .upload-box div {
     flex:
         1;
+
+    min-width: 0;
 }
 
 .upload-box strong,
@@ -2410,6 +2457,8 @@ textarea:focus {
 
     color:
         var(--blue);
+
+    flex-shrink: 0;
 }
 
 .form-actions {
@@ -2461,6 +2510,8 @@ textarea:focus {
 
     margin:
         5px 0 18px;
+
+    min-height: 32px;
 }
 
 .back-link:hover {
@@ -2514,6 +2565,9 @@ textarea:focus {
 
     margin:
         0 0 7px;
+
+    overflow-wrap:
+        anywhere;
 }
 
 .detail-heading p {
@@ -2547,6 +2601,8 @@ textarea:focus {
 
     padding:
         12px;
+
+    min-width: 0;
 }
 
 .meta-grid span,
@@ -2581,6 +2637,9 @@ textarea:focus {
 
     margin-top:
         3px;
+
+    overflow-wrap:
+        anywhere;
 }
 
 .content-block,
@@ -2634,6 +2693,9 @@ textarea:focus {
 
     white-space:
         pre-wrap;
+
+    overflow-wrap:
+        anywhere;
 }
 
 .admin-note {
@@ -2707,6 +2769,8 @@ textarea:focus {
 .conversation-card {
     align-self:
         start;
+
+    min-width: 0;
 }
 
 .chat {
@@ -2718,6 +2782,9 @@ textarea:focus {
 
     padding-right:
         4px;
+
+    overscroll-behavior:
+        contain;
 }
 
 .bubble {
@@ -2738,6 +2805,9 @@ textarea:focus {
 
     margin:
         9px 0;
+
+    overflow-wrap:
+        anywhere;
 }
 
 .bubble.mine {
@@ -2760,6 +2830,8 @@ textarea:focus {
 
     gap:
         10px;
+
+    flex-wrap: wrap;
 }
 
 .bubble-top strong {
@@ -2788,6 +2860,9 @@ textarea:focus {
 
     margin:
         6px 0;
+
+    overflow-wrap:
+        anywhere;
 }
 
 .bubble time {
@@ -2835,6 +2910,8 @@ textarea:focus {
 .admin-controls {
     grid-column:
         1 / -1;
+
+    min-width: 0;
 }
 
 .danger-actions {
@@ -2894,6 +2971,8 @@ textarea:focus {
 
     font-weight:
         900;
+
+    flex-shrink: 0;
 }
 
 .system-note {
@@ -3008,6 +3087,8 @@ textarea:focus {
 
     border-bottom:
         1px solid #edf2f6;
+
+    gap: 15px;
 }
 
 .list-toolbar strong,
@@ -3040,11 +3121,17 @@ textarea:focus {
 .table-wrap {
     overflow:
         auto;
+
+    -webkit-overflow-scrolling:
+        touch;
 }
 
 .table-card {
     padding:
         0;
+
+    overflow:
+        hidden;
 }
 
 .table-heading {
@@ -3116,6 +3203,9 @@ textarea:focus {
 
     gap:
         9px;
+
+    min-width:
+        0;
 }
 
 .user-avatar {
@@ -3234,6 +3324,8 @@ textarea:focus {
 
     cursor:
         pointer;
+
+    min-height: 34px;
 }
 
 .mini-btn:hover {
@@ -3318,6 +3410,12 @@ textarea:focus {
 
     font-weight:
         900;
+
+    flex-shrink: 0;
+}
+
+.application-copy {
+    min-width: 0;
 }
 
 .application-copy strong,
@@ -3332,6 +3430,9 @@ textarea:focus {
 
     font-size:
         13px;
+
+    overflow-wrap:
+        anywhere;
 }
 
 .application-copy span {
@@ -3357,6 +3458,9 @@ textarea:focus {
 
     white-space:
         pre-wrap;
+
+    overflow-wrap:
+        anywhere;
 }
 
 .application-actions {
@@ -3365,6 +3469,9 @@ textarea:focus {
 
     gap:
         7px;
+
+    flex-wrap:
+        wrap;
 }
 
 .application-actions .btn {
@@ -3420,6 +3527,9 @@ textarea:focus {
 
     margin:
         0 0 8px;
+
+    overflow-wrap:
+        anywhere;
 }
 
 .error-page p {
@@ -3536,6 +3646,32 @@ textarea:focus {
 /* =========================================================
    TABLET
    ========================================================= */
+
+@media (max-width: 1100px) {
+
+    .nav-inner {
+        gap: 15px;
+    }
+
+    .nav-links {
+        gap: 4px;
+    }
+
+    .nav-link,
+    .nav-logout {
+        padding-left: 9px;
+        padding-right: 9px;
+    }
+
+    .home-hero {
+        gap: 45px;
+    }
+
+    .auth-layout {
+        gap: 50px;
+    }
+}
+
 
 @media (max-width: 980px) {
 
@@ -3668,6 +3804,45 @@ textarea:focus {
             repeat(2,1fr);
     }
 
+    .home-bottom {
+        gap: 25px;
+    }
+}
+
+
+/* =========================================================
+   TABLET / LARGE PHONE
+   ========================================================= */
+
+@media (max-width: 760px) {
+
+    .page-shell {
+        width: 92vw;
+    }
+
+    .nav-inner {
+        width: 94vw;
+    }
+
+    .section-block {
+        padding-bottom: 55px;
+    }
+
+    .feature-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .home-bottom {
+        align-items: flex-start;
+    }
+
+    .meta-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .photo-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }
 
 
@@ -3677,9 +3852,22 @@ textarea:focus {
 
 @media (max-width: 680px) {
 
+    .nav {
+        position: sticky;
+    }
+
     .nav-inner {
         display:
             block;
+
+        width:
+            94vw;
+
+        min-height:
+            auto;
+
+        padding:
+            11px 0;
     }
 
     .brand {
@@ -3687,18 +3875,45 @@ textarea:focus {
             10px;
     }
 
+    .brand-mark {
+        width: 39px;
+        height: 39px;
+        border-radius: 12px;
+    }
+
+    .brand-copy strong {
+        font-size: 18px;
+    }
+
+    .brand-copy small {
+        font-size: 6px;
+    }
+
     .nav-links {
         justify-content:
             flex-start;
 
-        overflow:
+        overflow-x:
             auto;
+
+        overflow-y:
+            hidden;
 
         flex-wrap:
             nowrap;
 
         padding-bottom:
-            2px;
+            3px;
+
+        scrollbar-width:
+            none;
+
+        -webkit-overflow-scrolling:
+            touch;
+    }
+
+    .nav-links::-webkit-scrollbar {
+        display: none;
     }
 
     .nav-link,
@@ -3707,10 +3922,13 @@ textarea:focus {
             12px;
 
         padding:
-            7px 9px;
+            8px 10px;
 
         white-space:
             nowrap;
+
+        min-height:
+            36px;
     }
 
     .account-chip {
@@ -3724,6 +3942,15 @@ textarea:focus {
 
         white-space:
             nowrap;
+
+        min-height:
+            36px;
+
+        padding:
+            8px 11px;
+
+        font-size:
+            12px;
     }
 
     .page-shell {
@@ -3732,14 +3959,20 @@ textarea:focus {
 
         padding-top:
             25px;
+
+        padding-bottom:
+            55px;
     }
 
     .home-hero {
         min-height:
             auto;
 
-        padding-bottom:
-            45px;
+        padding:
+            25px 0 45px;
+
+        gap:
+            30px;
     }
 
     .hero-copy h1 {
@@ -3753,6 +3986,9 @@ textarea:focus {
     .hero-lead {
         font-size:
             16px;
+
+        line-height:
+            1.7;
     }
 
     .hero-trust {
@@ -3763,17 +3999,37 @@ textarea:focus {
             grid;
     }
 
+    .hero-actions {
+        gap: 8px;
+    }
+
+    .hero-actions .btn {
+        min-height: 46px;
+    }
+
     .video-card {
         width:
             100%;
 
         border-radius:
             23px;
+
+        box-shadow:
+            0 20px 50px
+            rgba(20,55,85,.15);
     }
 
     .feature-grid {
         grid-template-columns:
             1fr;
+    }
+
+    .feature-card {
+        min-height:
+            auto;
+
+        padding:
+            22px;
     }
 
     .home-bottom {
@@ -3782,6 +4038,10 @@ textarea:focus {
 
         padding:
             24px;
+    }
+
+    .home-bottom h2 {
+        font-size: 26px;
     }
 
     .home-bottom p {
@@ -3807,9 +4067,50 @@ textarea:focus {
             42px;
     }
 
+    .dashboard-head p,
+    .page-title p {
+        font-size:
+            13px;
+    }
+
     .stats-grid {
         grid-template-columns:
             1fr 1fr;
+
+        gap:
+            10px;
+    }
+
+    .stat-card {
+        padding:
+            16px;
+    }
+
+    .stat-card strong {
+        font-size:
+            29px;
+    }
+
+    .stat-card span,
+    .stat-card small {
+        font-size:
+            10px;
+    }
+
+    .panel-card {
+        padding:
+            18px;
+    }
+
+    .panel-heading {
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+
+        gap:
+            9px;
     }
 
     .report-item {
@@ -3817,6 +4118,12 @@ textarea:focus {
             34px
             minmax(0,1fr)
             auto;
+
+        gap:
+            9px;
+
+        padding:
+            13px 2px;
     }
 
     .report-icon {
@@ -3825,6 +4132,19 @@ textarea:focus {
 
         height:
             34px;
+
+        border-radius:
+            10px;
+    }
+
+    .report-main strong {
+        font-size:
+            12px;
+    }
+
+    .report-main small {
+        font-size:
+            10px;
     }
 
     .report-arrow {
@@ -3850,6 +4170,21 @@ textarea:focus {
             auto;
     }
 
+    .quick-card,
+    .admin-action {
+        min-height:
+            60px;
+    }
+
+    .form-page,
+    .center-form {
+        width:
+            100%;
+
+        margin-top:
+            15px;
+    }
+
     .form-grid {
         grid-template-columns:
             1fr;
@@ -3860,14 +4195,42 @@ textarea:focus {
             auto;
     }
 
+    .form-intro {
+        margin-bottom:
+            20px;
+    }
+
     .form-intro h1 {
         font-size:
             42px;
     }
 
+    .form-intro p {
+        font-size:
+            13px;
+    }
+
     .form-card {
         padding:
             20px;
+
+        border-radius:
+            17px;
+    }
+
+    .form-card-head h2 {
+        font-size:
+            19px;
+    }
+
+    .form-actions {
+        flex-direction:
+            column-reverse;
+    }
+
+    .form-actions .btn {
+        width:
+            100%;
     }
 
     .detail-heading {
@@ -3878,6 +4241,11 @@ textarea:focus {
     .detail-heading .status {
         margin-top:
             12px;
+    }
+
+    .detail-heading h1 {
+        font-size:
+            34px;
     }
 
     .meta-grid {
@@ -3895,6 +4263,16 @@ textarea:focus {
             1fr;
     }
 
+    .danger-actions {
+        flex-direction:
+            column;
+    }
+
+    .danger-actions .btn {
+        width:
+            100%;
+    }
+
     .system-note {
         display:
             block;
@@ -3908,16 +4286,44 @@ textarea:focus {
     .application-card {
         grid-template-columns:
             38px 1fr;
+
+        gap:
+            10px;
     }
 
     .application-actions {
         grid-column:
             2;
+
+        width:
+            100%;
+    }
+
+    .application-actions .btn {
+        flex:
+            1;
+    }
+
+    .table-heading {
+        padding:
+            17px;
+    }
+
+    .table-wrap th,
+    .table-wrap td {
+        padding:
+            11px 13px;
     }
 
     .footer {
+        width:
+            92vw;
+
         display:
             block;
+
+        padding-bottom:
+            22px;
     }
 
     .footer > span {
@@ -3928,11 +4334,20 @@ textarea:focus {
             5px;
     }
 
+    .error-page {
+        margin:
+            65px auto;
+    }
+
     .error-code {
         font-size:
             75px;
     }
 
+    .error-page h1 {
+        font-size:
+            34px;
+    }
 }
 
 
@@ -3942,19 +4357,35 @@ textarea:focus {
 
 @media (max-width: 430px) {
 
+    .nav-inner {
+        width:
+            94vw;
+    }
+
+    .brand-copy strong {
+        font-size:
+            17px;
+    }
+
     .hero-copy h1 {
         font-size:
             45px;
+
+        letter-spacing:
+            -2px;
     }
 
-    .stats-grid {
-        grid-template-columns:
-            1fr;
+    .hero-lead {
+        font-size:
+            15px;
     }
 
     .hero-actions {
         display:
             grid;
+
+        grid-template-columns:
+            1fr;
     }
 
     .hero-actions .btn {
@@ -3962,9 +4393,66 @@ textarea:focus {
             100%;
     }
 
+    .stats-grid {
+        grid-template-columns:
+            1fr;
+    }
+
+    .stat-card {
+        padding:
+            17px;
+    }
+
+    .dashboard-head h1,
+    .page-title h1 {
+        font-size:
+            37px;
+    }
+
+    .panel-card {
+        padding:
+            15px;
+    }
+
+    .report-item {
+        grid-template-columns:
+            32px
+            minmax(0,1fr);
+
+        align-items:
+            start;
+    }
+
+    .report-icon {
+        width:
+            32px;
+
+        height:
+            32px;
+    }
+
+    .report-item .status {
+        grid-column:
+            2;
+
+        justify-self:
+            start;
+
+        margin-top:
+            2px;
+    }
+
     .auth-card {
         padding:
             22px;
+
+        border-radius:
+            18px;
+    }
+
+    .auth-card h2 {
+        font-size:
+            27px;
     }
 
     .detail-heading h1 {
@@ -3979,24 +4467,167 @@ textarea:focus {
 
     .photo-grid {
         grid-template-columns:
-            1fr;
+            1fr 1fr;
+    }
+
+    .photo-grid img {
+        aspect-ratio:
+            1;
     }
 
     .application-actions {
         grid-column:
             1 / -1;
+
+        display:
+            grid;
+
+        grid-template-columns:
+            1fr;
     }
 
     .application-actions .btn {
-        flex:
-            1;
+        width:
+            100%;
     }
 
-    .page-title .count-badge {
-        align-self:
+    .upload-box {
+        align-items:
             flex-start;
     }
 
+    .upload-box > b {
+        display:
+            none;
+    }
+
+    .form-card {
+        padding:
+            17px;
+    }
+
+    .form-intro h1 {
+        font-size:
+            37px;
+    }
+
+    .detail-layout {
+        gap:
+            13px;
+    }
+
+    .content-block,
+    .admin-note {
+        padding:
+            14px;
+    }
+
+    .bubble {
+        max-width:
+            94%;
+    }
+
+    .system-note h2 {
+        font-size:
+            18px;
+    }
+
+    .error-code {
+        font-size:
+            65px;
+    }
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 360px) {
+
+    .page-shell {
+        width:
+            94vw;
+    }
+
+    .nav-inner {
+        width:
+            95vw;
+    }
+
+    .brand {
+        gap:
+            8px;
+    }
+
+    .brand-mark {
+        width:
+            36px;
+
+        height:
+            36px;
+    }
+
+    .brand-copy strong {
+        font-size:
+            16px;
+    }
+
+    .nav-link,
+    .nav-logout,
+    .nav-cta {
+        font-size:
+            11px;
+
+        padding:
+            7px 8px;
+    }
+
+    .hero-copy h1 {
+        font-size:
+            41px;
+    }
+
+    .video-card {
+        border-radius:
+            18px;
+    }
+
+    .panel-card {
+        padding:
+            13px;
+    }
+
+    .stat-card {
+        border-radius:
+            14px;
+    }
+
+    .form-card {
+        padding:
+            15px;
+    }
+
+    .btn {
+        min-height:
+            44px;
+
+        padding:
+            10px 13px;
+
+        font-size:
+            13px;
+    }
+
+    .detail-heading h1 {
+        font-size:
+            28px;
+    }
+
+    .photo-grid {
+        grid-template-columns:
+            1fr;
+    }
 }
 
 
@@ -4030,6 +4661,45 @@ textarea:focus {
 
 
 /* =========================================================
+   TOUCH DEVICES
+   ========================================================= */
+
+@media (hover: none) and (pointer: coarse) {
+
+    .btn,
+    .nav-link,
+    .nav-logout,
+    .nav-cta,
+    .mini-btn,
+    .back-link,
+    .quick-card,
+    .admin-action {
+        -webkit-tap-highlight-color:
+            transparent;
+    }
+
+    .btn:hover,
+    .feature-card:hover,
+    .stat-card:hover,
+    .quick-card:hover,
+    .admin-action:hover,
+    .report-item:hover {
+        transform:
+            none;
+    }
+
+    .nav-link,
+    .nav-logout,
+    .nav-cta,
+    .btn,
+    .mini-btn {
+        touch-action:
+            manipulation;
+    }
+}
+
+
+/* =========================================================
    REDUCED MOTION
    ========================================================= */
 
@@ -4047,5 +4717,4 @@ textarea:focus {
         transition:
             none !important;
     }
-
 }
