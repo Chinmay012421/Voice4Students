@@ -192,6 +192,7 @@ def submit_report():
         category = request.form.get("category", "").strip()
         location = request.form.get("location", "").strip()
         description = request.form.get("description", "").strip()
+        is_anonymous = request.form.get("is_anonymous") == "1"
 
         if not category or not description:
             flash("Category and description are required.", "error")
