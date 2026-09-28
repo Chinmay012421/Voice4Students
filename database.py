@@ -316,18 +316,32 @@ def reject_admin_application(application_id):
     return bool(_rows(result))
 
 
-def save_report(user_id, username, category, location, message):
-    result = supabase.table("reports").insert({
-        "user_id": user_id,
-        "username": username,
-        "category": category,
-        "location": location,
-        "message": message,
-        "status": "Pending",
-        "admin_note": "",
-    }).execute()
+def save_report(
+    user_id,
+    username,
+    category,
+    location,
+    message,
+    is_anonymous=False
+):
+    result = (
+        supabase
+        .table("reports")
+        .insert({
+            "user_id": user_id,
+            "username": username,
+            "category": category,
+            "location": location,
+            "message": message,
+            "status": "Pending",
+            "admin_note": "",
+            "is_anonymous": bool(is_anonymous),
+        })
+        .execute()
+    )
 
     row = _first(result)
+
     if not row:
         return None
 
@@ -560,5 +574,107 @@ def get_report_stats(user_id=None, assigned_to=None):
             stats["resolved"] += 1
         elif status == "Unreasonable":
             stats["unreasonable"] += 1
+
+    return stats
+
+
+
+
+# ============================================================
+# SECURITY LOGGING
+# ============================================================
+
+def log_security_event(
+    user_id=None,
+    username=None,
+    role=None,
+    action="unknown",
+    details=None,
+    ip_address=None
+):
+    try:
+        supabase.table("security_logs").insert({
+            "user_id": user_id,
+            "username": username,
+            "role": role,
+            "action": action,
+            "details": details,
+            "ip_address": ip_address,
+        }).execute()
+
+        return True
+
+    except Exception as exc:
+        print("Security log error:", exc)
+        return False
+
+
+def get_security_logs(limit=100):
+    result = (
+        supabase
+        .table("security_logs")
+        .select("*")
+        .order("created_at", desc=True)
+        .limit(limit)
+        .execute()
+    )
+
+    return [
+        (
+            row.get("id"),
+            row.get("user_id"),
+            row.get("username"),
+            row.get("role"),
+            row.get("action"),
+            row.get("details"),
+            row.get("ip_address"),
+            row.get("created_at"),
+        )
+        for row in _rows(result)
+    ]
+
+
+def get_security_stats():
+    logs = get_security_logs(1000)
+
+    stats = {
+        "total": len(logs),
+        "login_success": 0,
+        "login_failed": 0,
+        "password_changed": 0,
+        "report_created": 0,
+        "report_updated": 0,
+        "admin_actions": 0,
+    }
+
+    for log in logs:
+        action = log[4]
+
+        if action == "login_success":
+            stats["login_success"] += 1
+
+        elif action == "login_failed":
+            stats["login_failed"] += 1
+
+        elif action == "password_changed":
+            stats["password_changed"] += 1
+
+        elif action == "report_created":
+            stats["report_created"] += 1
+
+        elif action == "report_updated":
+            stats["report_updated"] += 1
+
+        elif action in {
+            "admin_application_approved",
+            "admin_application_rejected",
+            "role_changed",
+            "user_deleted",
+            "report_deleted",
+            "report_referred",
+            "report_taken_back",
+            "password_reset"
+        }:
+            stats["admin_actions"] += 1
 
     return stats
