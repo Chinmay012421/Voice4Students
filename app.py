@@ -215,7 +215,9 @@ def submit_report():
                 category=category,
                 location=location,
                 message=description,
+                is_anonymous=is_anonymous,
             )
+            
 
             for f in files:
                 safe_name = secure_filename(f.filename)
