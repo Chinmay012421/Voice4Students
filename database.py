@@ -38,6 +38,7 @@ def _user_tuple(row):
 def _report_tuple(row):
     if not row:
         return None
+
     return (
         row["id"],
         row["user_id"],
@@ -51,6 +52,7 @@ def _report_tuple(row):
         row.get("assigned_to"),
         row.get("assigned_to_username"),
         row.get("assigned_by"),
+        row.get("is_anonymous", False),
     )
 
 
