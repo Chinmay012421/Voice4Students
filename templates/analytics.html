@@ -1,0 +1,672 @@
+{% extends "base.html" %}
+
+{% block title %}
+Admin Analytics — SchoolVoice
+{% endblock %}
+
+{% block content %}
+
+<div class="page-title reveal">
+
+    <div>
+
+        <div class="eyebrow">
+            <span></span>
+            ADMIN ANALYTICS
+        </div>
+
+        <h1>Report analytics</h1>
+
+        <p>
+            A clear overview of report activity and progress.
+        </p>
+
+    </div>
+
+    <a
+        class="btn btn-light"
+        href="{{ url_for('dashboard') }}"
+    >
+        ← Back to dashboard
+    </a>
+
+</div>
+
+
+<!-- =========================================================
+     SUMMARY
+     ========================================================= -->
+
+<div class="stats-grid reveal">
+
+    <div class="stat-card">
+
+        <span>Total reports</span>
+
+        <strong>
+            {{ analytics.total }}
+        </strong>
+
+        <small>
+            All reports in your view
+        </small>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <span>Pending</span>
+
+        <strong>
+            {{ analytics.pending }}
+        </strong>
+
+        <small>
+            Waiting for review
+        </small>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <span>In progress</span>
+
+        <strong>
+            {{ analytics.in_progress }}
+        </strong>
+
+        <small>
+            Currently being handled
+        </small>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <span>Resolved</span>
+
+        <strong>
+            {{ analytics.resolved }}
+        </strong>
+
+        <small>
+            Successfully resolved
+        </small>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     SECONDARY STATS
+     ========================================================= -->
+
+<div class="stats-grid reveal">
+
+    <div class="stat-card">
+
+        <span>Reviewed</span>
+
+        <strong>
+            {{ analytics.reviewed }}
+        </strong>
+
+        <small>
+            Reviewed by an admin
+        </small>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <span>Unreasonable</span>
+
+        <strong>
+            {{ analytics.unreasonable }}
+        </strong>
+
+        <small>
+            Sent for Main Admin review
+        </small>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <span>Resolution rate</span>
+
+        <strong>
+            {{ analytics.resolution_rate }}%
+        </strong>
+
+        <small>
+            Reports marked resolved
+        </small>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <span>Assigned</span>
+
+        <strong>
+            {{ analytics.assigned }}
+        </strong>
+
+        <small>
+            Reports assigned to an admin
+        </small>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     MAIN ANALYTICS GRID
+     ========================================================= -->
+
+<div
+    class="dashboard-grid reveal"
+    style="margin-top:17px;"
+>
+
+
+    <!-- CATEGORY -->
+    <section class="panel-card">
+
+        <div class="panel-heading">
+
+            <div>
+
+                <div class="eyebrow">
+                    REPORT CATEGORIES
+                </div>
+
+                <h2>
+                    What students report about
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        {% if analytics.categories %}
+
+        <div style="display:grid;gap:16px;">
+
+            {% for category, count in analytics.categories %}
+
+                {% if analytics.total > 0 %}
+
+                    {% set percentage =
+                        ((count / analytics.total) * 100)|round(1)
+                    %}
+
+                {% else %}
+
+                    {% set percentage = 0 %}
+
+                {% endif %}
+
+
+                <div>
+
+                    <div
+                        style="
+                            display:flex;
+                            justify-content:space-between;
+                            align-items:center;
+                            gap:12px;
+                            margin-bottom:7px;
+                        "
+                    >
+
+                        <strong
+                            style="
+                                color:var(--ink);
+                                font-size:13px;
+                            "
+                        >
+                            {{ category }}
+                        </strong>
+
+                        <span
+                            style="
+                                color:var(--muted);
+                                font-size:12px;
+                                font-weight:800;
+                            "
+                        >
+                            {{ count }}
+                            ·
+                            {{ percentage }}%
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        style="
+                            width:100%;
+                            height:9px;
+                            border-radius:999px;
+                            background:#edf3f7;
+                            overflow:hidden;
+                        "
+                    >
+
+                        <div
+                            style="
+                                width:{{ percentage }}%;
+                                height:100%;
+                                border-radius:999px;
+                                background:linear-gradient(
+                                    90deg,
+                                    #1f75b8,
+                                    #59aee8
+                                );
+                            "
+                        ></div>
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+        {% else %}
+
+        <div class="chat-empty">
+            No reports available yet.
+        </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- STATUS -->
+    <section class="panel-card">
+
+        <div class="panel-heading">
+
+            <div>
+
+                <div class="eyebrow">
+                    REPORT STATUS
+                </div>
+
+                <h2>
+                    Current progress
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div style="display:grid;gap:13px;">
+
+
+            <div
+                style="
+                    display:flex;
+                    align-items:center;
+                    justify-content:space-between;
+                    padding:13px 15px;
+                    border:1px solid #edf2f6;
+                    border-radius:12px;
+                    background:#fffaf0;
+                "
+            >
+
+                <span>Pending</span>
+
+                <strong>
+                    {{ analytics.pending }}
+                </strong>
+
+            </div>
+
+
+            <div
+                style="
+                    display:flex;
+                    align-items:center;
+                    justify-content:space-between;
+                    padding:13px 15px;
+                    border:1px solid #edf2f6;
+                    border-radius:12px;
+                    background:#f4f9fd;
+                "
+            >
+
+                <span>Reviewed</span>
+
+                <strong>
+                    {{ analytics.reviewed }}
+                </strong>
+
+            </div>
+
+
+            <div
+                style="
+                    display:flex;
+                    align-items:center;
+                    justify-content:space-between;
+                    padding:13px 15px;
+                    border:1px solid #edf2f6;
+                    border-radius:12px;
+                    background:#f4f9fd;
+                "
+            >
+
+                <span>In Progress</span>
+
+                <strong>
+                    {{ analytics.in_progress }}
+                </strong>
+
+            </div>
+
+
+            <div
+                style="
+                    display:flex;
+                    align-items:center;
+                    justify-content:space-between;
+                    padding:13px 15px;
+                    border:1px solid #edf2f6;
+                    border-radius:12px;
+                    background:#f2fbf6;
+                "
+            >
+
+                <span>Resolved</span>
+
+                <strong>
+                    {{ analytics.resolved }}
+                </strong>
+
+            </div>
+
+
+            <div
+                style="
+                    display:flex;
+                    align-items:center;
+                    justify-content:space-between;
+                    padding:13px 15px;
+                    border:1px solid #edf2f6;
+                    border-radius:12px;
+                    background:#fff5f4;
+                "
+            >
+
+                <span>Unreasonable</span>
+
+                <strong>
+                    {{ analytics.unreasonable }}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<!-- =========================================================
+     MONTHLY ACTIVITY
+     ========================================================= -->
+
+<section
+    class="panel-card reveal"
+    style="margin-top:17px;"
+>
+
+    <div class="panel-heading">
+
+        <div>
+
+            <div class="eyebrow">
+                ACTIVITY
+            </div>
+
+            <h2>
+                Reports by month
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    {% if analytics.monthly %}
+
+        {% set max_month =
+            analytics.monthly
+            | map(attribute=1)
+            | max
+        %}
+
+
+        <div
+            style="
+                display:grid;
+                grid-template-columns:repeat(
+                    {{ analytics.monthly|length }},
+                    minmax(50px,1fr)
+                );
+                gap:12px;
+                align-items:end;
+                min-height:210px;
+                overflow-x:auto;
+                padding-top:20px;
+            "
+        >
+
+            {% for month, count in analytics.monthly %}
+
+                {% if max_month > 0 %}
+
+                    {% set height =
+                        ((count / max_month) * 150)|round(0)
+                    %}
+
+                {% else %}
+
+                    {% set height = 0 %}
+
+                {% endif %}
+
+
+                <div
+                    style="
+                        min-width:55px;
+                        height:190px;
+                        display:flex;
+                        flex-direction:column;
+                        align-items:center;
+                        justify-content:flex-end;
+                        gap:8px;
+                    "
+                >
+
+                    <strong
+                        style="
+                            color:var(--navy);
+                            font-size:12px;
+                        "
+                    >
+                        {{ count }}
+                    </strong>
+
+
+                    <div
+                        style="
+                            width:32px;
+                            height:{{ height }}px;
+                            min-height:5px;
+                            border-radius:9px 9px 4px 4px;
+                            background:linear-gradient(
+                                180deg,
+                                #59aee8,
+                                #1f75b8
+                            );
+                            transition:
+                                height .45s ease,
+                                transform .2s ease;
+                        "
+                    ></div>
+
+
+                    <small
+                        style="
+                            color:var(--muted);
+                            font-size:10px;
+                            font-weight:800;
+                        "
+                    >
+                        {{ month }}
+                    </small>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="chat-empty">
+            No monthly activity available yet.
+        </div>
+
+    {% endif %}
+
+</section>
+
+
+<!-- =========================================================
+     ASSIGNMENT SUMMARY
+     ========================================================= -->
+
+<section
+    class="panel-card reveal"
+    style="margin-top:17px;"
+>
+
+    <div class="panel-heading">
+
+        <div>
+
+            <div class="eyebrow">
+                HANDLING
+            </div>
+
+            <h2>
+                Report assignment
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    <div
+        style="
+            display:grid;
+            grid-template-columns:
+                repeat(2,minmax(0,1fr));
+            gap:14px;
+        "
+    >
+
+        <div
+            style="
+                padding:20px;
+                border-radius:14px;
+                background:#f4f9fd;
+                border:1px solid #e0edf5;
+            "
+        >
+
+            <span
+                style="
+                    display:block;
+                    color:var(--muted);
+                    font-size:11px;
+                    font-weight:800;
+                "
+            >
+                ASSIGNED
+            </span>
+
+            <strong
+                style="
+                    display:block;
+                    color:var(--navy);
+                    font-size:32px;
+                    margin-top:5px;
+                "
+            >
+                {{ analytics.assigned }}
+            </strong>
+
+        </div>
+
+
+        <div
+            style="
+                padding:20px;
+                border-radius:14px;
+                background:#f8fbfd;
+                border:1px solid #e5edf2;
+            "
+        >
+
+            <span
+                style="
+                    display:block;
+                    color:var(--muted);
+                    font-size:11px;
+                    font-weight:800;
+                "
+            >
+                UNASSIGNED
+            </span>
+
+            <strong
+                style="
+                    display:block;
+                    color:var(--navy);
+                    font-size:32px;
+                    margin-top:5px;
+                "
+            >
+                {{ analytics.unassigned }}
+            </strong>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+{% endblock %}
