@@ -509,6 +509,33 @@ def dashboard():
 
 
 # ============================================================
+# ADMIN ANALYTICS
+# ADMIN + MAIN ADMIN
+# ============================================================
+
+@app.route("/analytics")
+@admin_required
+def analytics():
+
+    role = session["role"]
+
+    if role == "main_admin":
+
+        analytics_data = database.get_admin_analytics()
+
+    else:
+
+        analytics_data = database.get_admin_analytics(
+            assigned_to=session["user_id"]
+        )
+
+    return render_template(
+        "analytics.html",
+        analytics=analytics_data
+    )
+
+
+# ============================================================
 # SUBMIT REPORT
 # ============================================================
 
