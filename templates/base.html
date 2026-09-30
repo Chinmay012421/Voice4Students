@@ -1,86 +1,55 @@
 <!doctype html>
-
 <html lang="en">
-
 <head>
-
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1"
+  <meta name="theme-color" content="#0f2f57">
+
+  <!-- Browser Tab Icon / Favicon -->
+  <link
+    rel="icon"
+    type="image/png"
+    href="{{ url_for('static', filename='bg_image.png') }}"
   >
 
-  <meta
-    name="theme-color"
-    content="#0f2f57"
+  <link
+    rel="apple-touch-icon"
+    href="{{ url_for('static', filename='bg_image.png') }}"
   >
 
-  <title>
-    {% block title %}
-      SchoolVoice
-    {% endblock %}
-  </title>
+  <title>{% block title %}SchoolVoice{% endblock %}</title>
 
   <link
     rel="stylesheet"
     href="{{ url_for('static', filename='style.css') }}"
   >
-
 </head>
-
 
 <body>
 
-  <div
-    class="site-bg"
-    aria-hidden="true"
-  ></div>
-
-  <div
-    class="top-glow"
-    aria-hidden="true"
-  ></div>
-
+  <div class="site-bg" aria-hidden="true"></div>
+  <div class="top-glow" aria-hidden="true"></div>
 
   <nav class="nav">
 
     <div class="nav-inner">
 
+      <a class="brand" href="{{ url_for('home') }}">
 
-      <a
-        class="brand"
-        href="{{ url_for('home') }}"
-      >
-
-        <span class="brand-mark">
-          S
-        </span>
+        <span class="brand-mark">S</span>
 
         <span class="brand-copy">
-
-          <strong>
-            School
-          </strong>
-
-          <em>
-            Voice
-          </em>
-
-          <small>
-            STUDENT VOICE PORTAL
-          </small>
-
+          <strong>School</strong>
+          <em>Voice</em>
+          <small>STUDENT VOICE PORTAL</small>
         </span>
 
       </a>
 
-
       <div class="nav-links">
 
-
         {% if logged_in %}
-
 
           <a
             class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}"
@@ -88,7 +57,6 @@
           >
             Dashboard
           </a>
-
 
           {% if role in ['admin','main_admin'] %}
 
@@ -108,7 +76,6 @@
               My Reports
             </a>
 
-
             <a
               class="nav-link {% if request.endpoint == 'submit_report' %}active{% endif %}"
               href="{{ url_for('submit_report') }}"
@@ -117,7 +84,6 @@
             </a>
 
           {% endif %}
-
 
           {% if role == 'main_admin' %}
 
@@ -128,22 +94,12 @@
               Admin
             </a>
 
-
-            <a
-              class="nav-link {% if request.endpoint == 'security_dashboard' %}active{% endif %}"
-              href="{{ url_for('security_dashboard') }}"
-            >
-              Security
-            </a>
-
           {% endif %}
-
 
           <a
             class="account-chip"
             href="{{ url_for('change_password') }}"
           >
-
             <span class="account-dot">
               {{ current_user[0]|upper }}
             </span>
@@ -151,9 +107,7 @@
             <span>
               {{ current_user }}
             </span>
-
           </a>
-
 
           <a
             class="nav-logout"
@@ -162,9 +116,7 @@
             Logout
           </a>
 
-
         {% else %}
-
 
           <a
             class="nav-link {% if request.endpoint == 'login' %}active{% endif %}"
@@ -173,15 +125,12 @@
             Login
           </a>
 
-
           <a
             class="nav-cta"
             href="{{ url_for('register') }}"
           >
-            Create account
-            <span>→</span>
+            Create account <span>→</span>
           </a>
-
 
         {% endif %}
 
@@ -205,13 +154,11 @@
             <div class="flash {{ category }}">
 
               <span class="flash-icon">
-
                 {% if category == 'success' %}
                   ✓
                 {% else %}
                   !
                 {% endif %}
-
               </span>
 
               <span>
@@ -228,9 +175,7 @@
 
     {% endwith %}
 
-
-    {% block content %}
-    {% endblock %}
+    {% block content %}{% endblock %}
 
   </main>
 
@@ -238,21 +183,12 @@
   <footer class="footer">
 
     <div>
-
-      <strong>
-        SchoolVoice
-      </strong>
-
-      <span>
-        •
-      </span>
-
+      <strong>SchoolVoice</strong>
+      <span>•</span>
       <span>
         A safer way to make your school heard your voice.
       </span>
-
     </div>
-
 
     <span>
       Voice for student through which students
@@ -262,7 +198,5 @@
 
   </footer>
 
-
 </body>
-
 </html>
