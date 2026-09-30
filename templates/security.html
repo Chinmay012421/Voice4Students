@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+
+{% block title %}
+Security Dashboard — SchoolVoice
+{% endblock %}
+
+{% block content %}
+
+<div class="page-title reveal">
+
+  <div>
+
+    <div class="eyebrow">
+      <span></span> MAIN ADMIN • SECURITY
+    </div>
+
+    <h1>
+      Security Dashboard
+    </h1>
+
+    <p>
+      Monitor important account and administrative activity.
+    </p>
+
+  </div>
+
+
+  <div class="step-badge">
+
+    <b>
+      SEC
+    </b>
+
+    <span>
+      Protected
+    </span>
+
+  </div>
+
+</div>
+
+
+<!-- ========================================================
+     SECURITY STATS
+     ======================================================== -->
+
+<div class="stats-grid reveal">
+
+
+  <div class="stat-card">
+
+    <div class="stat-icon">
+      ◉
+    </div>
+
+    <div>
+
+      <strong>
+        {{ stats.total }}
+      </strong>
+
+      <span>
+        Total events
+      </span>
+
+    </div>
+
+  </div>
+
+
+  <div class="stat-card">
+
+    <div class="stat-icon">
+      ✓
+    </div>
+
+    <div>
+
+      <strong>
+        {{ stats.login_success }}
+      </strong>
+
+      <span>
+        Successful logins
+      </span>
+
+    </div>
+
+  </div>
+
+
+  <div class="stat-card">
+
+    <div class="stat-icon">
+      !
+    </div>
+
+    <div>
+
+      <strong>
+        {{ stats.login_failed }}
+      </strong>
+
+      <span>
+        Failed logins
+      </span>
+
+    </div>
+
+  </div>
+
+
+  <div class="stat-card">
+
+    <div class="stat-icon">
+      ⚙
+    </div>
+
+    <div>
+
+      <strong>
+        {{ stats.admin_actions }}
+      </strong>
+
+      <span>
+        Admin actions
+      </span>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ========================================================
+     SECURITY LOG
+     ======================================================== -->
+
+<section class="panel-card reveal">
+
+  <div class="panel-heading">
+
+    <div>
+
+      <div class="eyebrow">
+        ACTIVITY LOG
+      </div>
+
+      <h2>
+        Recent security events
+      </h2>
+
+    </div>
+
+
+    <span class="connection-pill">
+      Main Admin only
+    </span>
+
+  </div>
+
+
+  {% if logs %}
+
+  <div style="overflow-x:auto;">
+
+    <table
+      style="
+        width:100%;
+        border-collapse:collapse;
+      "
+    >
+
+      <thead>
+
+        <tr>
+
+          <th style="text-align:left;padding:14px;">
+            Time
+          </th>
+
+          <th style="text-align:left;padding:14px;">
+            User
+          </th>
+
+          <th style="text-align:left;padding:14px;">
+            Role
+          </th>
+
+          <th style="text-align:left;padding:14px;">
+            Action
+          </th>
+
+          <th style="text-align:left;padding:14px;">
+            Details
+          </th>
+
+          <th style="text-align:left;padding:14px;">
+            IP
+          </th>
+
+        </tr>
+
+      </thead>
+
+
+      <tbody>
+
+        {% for log in logs %}
+
+        <tr
+          style="
+            border-top:1px solid rgba(20,55,85,.08);
+          "
+        >
+
+          <td
+            style="
+              padding:14px;
+              white-space:nowrap;
+            "
+          >
+            {{ log[7] }}
+          </td>
+
+
+          <td style="padding:14px;">
+
+            {{ log[2] or 'Unknown' }}
+
+          </td>
+
+
+          <td style="padding:14px;">
+
+            {{ log[3] or 'Unknown' }}
+
+          </td>
+
+
+          <td style="padding:14px;">
+
+            <strong>
+              {{ log[4]|replace('_',' ')|title }}
+            </strong>
+
+          </td>
+
+
+          <td style="padding:14px;">
+
+            {{ log[5] or '—' }}
+
+          </td>
+
+
+          <td style="padding:14px;">
+
+            {{ log[6] or '—' }}
+
+          </td>
+
+        </tr>
+
+        {% endfor %}
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+  {% else %}
+
+  <div class="chat-empty">
+
+    No security events have been recorded yet.
+
+  </div>
+
+  {% endif %}
+
+</section>
+
+{% endblock %}
