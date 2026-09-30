@@ -93,6 +93,12 @@
             >
               Admin
             </a>
+            <a
+              class="nav-link {% if request.endpoint == 'analytics' %}active{% endif %}"
+              href="{{ url_for('analytics') }}"
+            >
+              Analytics
+            </a>
 
           {% endif %}
 
