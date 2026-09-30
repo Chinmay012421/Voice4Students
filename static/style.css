@@ -4148,3 +4148,58 @@ body.page-leaving .page-shell {
         animation: none !important;
     }
 }
+
+
+
+/* =========================================================
+   ANONYMOUS REPORTING
+   ========================================================= */
+
+.anonymous-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    padding: 14px 16px;
+    border: 1px solid #dce8f0;
+    border-radius: 13px;
+    background: #f8fbfd;
+    cursor: pointer;
+}
+
+.anonymous-option input {
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    accent-color: var(--blue);
+}
+
+.anonymous-option span {
+    display: block;
+}
+
+.anonymous-option strong {
+    display: block;
+    color: var(--navy);
+    font-size: 13px;
+}
+
+.anonymous-option small {
+    display: block;
+    margin-top: 3px;
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+.anonymous-badge {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 6px;
+    padding: 3px 7px;
+    border-radius: 999px;
+    background: var(--sky);
+    color: var(--blue);
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: .06em;
+}
