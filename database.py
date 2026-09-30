@@ -934,3 +934,147 @@ def get_security_stats():
             stats["admin_actions"] += 1
 
     return stats
+
+
+
+# ============================================================
+# ADMIN ANALYTICS
+# ============================================================
+
+def get_admin_analytics(user_id=None, assigned_to=None):
+    """
+    Generate analytics from the reports already stored in Supabase.
+
+    Main Admin:
+        get_admin_analytics()
+
+    Admin:
+        get_admin_analytics(assigned_to=admin_user_id)
+
+    No new database table is required.
+    """
+
+    if user_id is not None:
+        reports = get_user_reports(user_id)
+
+    elif assigned_to is not None:
+        reports = get_assigned_reports(assigned_to)
+
+    else:
+        reports = get_all_reports()
+
+    statuses = {
+        "Pending": 0,
+        "Reviewed": 0,
+        "In Progress": 0,
+        "Resolved": 0,
+        "Unreasonable": 0,
+    }
+
+    categories = {}
+
+    monthly = {}
+
+    assigned = 0
+    unassigned = 0
+
+    for report in reports:
+
+        # ----------------------------------------------------
+        # STATUS
+        # ----------------------------------------------------
+
+        status = report[6]
+
+        if status in statuses:
+            statuses[status] += 1
+
+        # ----------------------------------------------------
+        # CATEGORY
+        # ----------------------------------------------------
+
+        category = report[3] or "Other"
+
+        if category not in categories:
+            categories[category] = 0
+
+        categories[category] += 1
+
+        # ----------------------------------------------------
+        # ASSIGNMENT
+        # ----------------------------------------------------
+
+        if len(report) > 9 and report[9]:
+            assigned += 1
+        else:
+            unassigned += 1
+
+        # ----------------------------------------------------
+        # MONTH
+        # ----------------------------------------------------
+
+        report_date = report[7]
+
+        if report_date:
+
+            try:
+                date_text = str(report_date)
+
+                month_key = date_text[:7]
+
+                if month_key:
+                    monthly[month_key] = (
+                        monthly.get(month_key, 0) + 1
+                    )
+
+            except Exception:
+                pass
+
+    total = len(reports)
+
+    resolved = statuses["Resolved"]
+
+    if total:
+        resolution_rate = round(
+            (resolved / total) * 100,
+            1
+        )
+    else:
+        resolution_rate = 0
+
+    # --------------------------------------------------------
+    # SORT CATEGORY DATA
+    # --------------------------------------------------------
+
+    category_data = sorted(
+        categories.items(),
+        key=lambda item: item[1],
+        reverse=True
+    )
+
+    # --------------------------------------------------------
+    # SORT MONTH DATA
+    # --------------------------------------------------------
+
+    monthly_data = sorted(
+        monthly.items(),
+        key=lambda item: item[0]
+    )
+
+    return {
+        "total": total,
+
+        "pending": statuses["Pending"],
+        "reviewed": statuses["Reviewed"],
+        "in_progress": statuses["In Progress"],
+        "resolved": statuses["Resolved"],
+        "unreasonable": statuses["Unreasonable"],
+
+        "resolution_rate": resolution_rate,
+
+        "assigned": assigned,
+        "unassigned": unassigned,
+
+        "categories": category_data,
+        "monthly": monthly_data,
+    }
