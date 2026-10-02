@@ -6,7 +6,10 @@
 
 <div class="auth-layout reveal">
 
-    <!-- LEFT SIDE -->
+    <!-- =====================================================
+         LEFT SIDE
+         ===================================================== -->
+
     <div class="auth-info">
 
         <div class="eyebrow">
@@ -19,90 +22,108 @@
         </h1>
 
         <p>
-            Sign in to view reports, updates, and conversations connected
-            to your account.
+            Sign in to view reports, updates, and conversations
+            connected to your account.
         </p>
 
-        <!-- VIDEO-STYLE ANIMATION -->
-        <div class="login-animation">
 
-            <div class="animation-light"></div>
+        <!-- =================================================
+             LOGIN ACTION ANIMATION
 
-            <!-- PURPLE CHARACTER -->
-            <div class="char purple-character">
-                <div class="face purple-face">
-                    <span class="eye left"></span>
-                    <span class="eye right"></span>
-                    <span class="mouth"></span>
-                </div>
-            </div>
+             Hidden when page loads.
+             Appears only after Login is clicked.
+             ================================================= -->
 
-            <!-- BLACK CHARACTER -->
-            <div class="char black-character">
-                <div class="face black-face">
-                    <span class="eye left"></span>
-                    <span class="eye right"></span>
-                </div>
-            </div>
+        <div
+            id="loginAnimation"
+            class="login-animation"
+            aria-hidden="true"
+        >
 
-            <!-- ORANGE CHARACTER -->
-            <div class="char orange-character">
-                <div class="face orange-face">
-                    <span class="eye left"></span>
-                    <span class="eye right"></span>
-                    <span class="mouth"></span>
-                </div>
-            </div>
-
-            <!-- YELLOW CHARACTER -->
-            <div class="char yellow-character">
-                <div class="face yellow-face">
-                    <span class="eye left"></span>
-                    <span class="eye right"></span>
-                    <span class="mouth"></span>
-                </div>
-            </div>
+            <img
+                id="loginAnimationImage"
+                src=""
+                alt=""
+            >
 
         </div>
 
     </div>
 
 
-    <!-- RIGHT SIDE -->
+    <!-- =====================================================
+         RIGHT SIDE
+         ===================================================== -->
+
     <div class="auth-card">
 
         <div class="auth-card-top">
-            <span class="auth-mark">S</span>
+
+            <span class="auth-mark">
+                S
+            </span>
 
             <div>
-                <strong>SchoolFix</strong>
-                <small>Student Voice Portal</small>
+
+                <strong>
+                    SchoolFix
+                </strong>
+
+                <small>
+                    Student Voice Portal
+                </small>
+
             </div>
+
         </div>
+
 
         <div class="eyebrow">
             ACCOUNT LOGIN
         </div>
 
-        <h2>Welcome back</h2>
+
+        <h2>
+            Welcome back
+        </h2>
+
 
         <p class="muted">
             Enter your account details below.
         </p>
 
-        <form method="post" class="clean-form">
 
-            <label>Username</label>
+        <!-- =================================================
+             LOGIN FORM
+             ================================================= -->
+
+        <form
+            method="post"
+            class="clean-form"
+            id="loginForm"
+        >
+
+            <!-- USERNAME -->
+
+            <label for="username">
+                Username
+            </label>
 
             <input
+                id="username"
                 name="username"
+                type="text"
                 autocomplete="username"
                 required
                 placeholder="Your username"
             >
 
 
-            <label>Password</label>
+            <!-- PASSWORD -->
+
+            <label for="password">
+                Password
+            </label>
 
             <div class="password-wrap">
 
@@ -118,7 +139,8 @@
                 <button
                     type="button"
                     class="eye"
-                    onclick="togglePassword('password', this)"
+                    id="passwordToggle"
+                    onclick="togglePassword()"
                 >
                     Show
                 </button>
@@ -126,22 +148,37 @@
             </div>
 
 
+            <!-- LOGIN BUTTON -->
+
             <button
+                id="loginButton"
                 class="btn btn-primary full"
                 type="submit"
             >
-                Login
-                <span>→</span>
+
+                <span id="loginButtonText">
+                    Login
+                </span>
+
+                <span id="loginArrow">
+                    →
+                </span>
+
             </button>
 
         </form>
 
 
+        <!-- REGISTER -->
+
         <p class="auth-foot muted">
+
             New here?
+
             <a href="{{ url_for('register') }}">
                 Create an account
             </a>
+
         </p>
 
     </div>
@@ -152,731 +189,158 @@
 <style>
 
 /* =========================================================
-   LOGIN ANIMATION
-   Based directly on the uploaded reference video
+   LOGIN ACTION ANIMATION
    ========================================================= */
 
 .login-animation {
-    position: relative;
-    width: 100%;
-    height: 315px;
-    margin-top: 30px;
-    overflow: hidden;
 
-    background:
-        linear-gradient(
-            90deg,
-            #eeeeee 0%,
-            #eeeeee 69%,
-            #e7e7e7 69%,
-            #e7e7e7 70%,
-            #f7f7f7 70%,
-            #f7f7f7 100%
-        );
+    display: none;
+
+    position: relative;
+
+    width: 350px;
+    height: 400px;
+
+    margin-top: 28px;
+
+    overflow: hidden;
 
     border-radius: 4px;
 
-    isolation: isolate;
+    background: #eeeeee;
+
+    box-shadow:
+        0 18px 45px rgba(15, 47, 87, 0.10);
+
 }
 
 
-/* subtle background lighting */
+/*
+   When Login is clicked this class is added.
+*/
 
-.animation-light {
-    position: absolute;
-    width: 270px;
-    height: 270px;
+.login-animation.play {
 
-    left: 5%;
-    bottom: -170px;
+    display: block;
 
-    border-radius: 50%;
-
-    background: rgba(255,255,255,.28);
-
-    filter: blur(10px);
-
-    animation: lightMove 7s ease-in-out infinite;
 }
 
 
-/* =========================================================
-   COMMON CHARACTER
-   ========================================================= */
+/*
+   Actual animation image.
+*/
 
-.char {
-    position: absolute;
+.login-animation img {
 
-    transform-origin: center bottom;
+    display: block;
 
-    will-change: transform;
+    width: 100%;
+    height: 100%;
 
-    z-index: 3;
+    object-fit: cover;
+
 }
 
 
 /* =========================================================
-   PURPLE CHARACTER
+   LOGIN BUTTON WHILE ANIMATION IS PLAYING
    ========================================================= */
 
-.purple-character {
+#loginButton:disabled {
 
-    width: 73px;
-    height: 185px;
+    cursor: wait;
 
-    left: 18%;
-    bottom: 25px;
+    opacity: .85;
 
-    background: #7024ff;
-
-    clip-path: polygon(
-        12% 0%,
-        100% 5%,
-        91% 100%,
-        0% 92%,
-        8% 48%
-    );
-
-    animation: purpleMove 7s cubic-bezier(.45,.05,.55,.95) infinite;
 }
 
 
-/* =========================================================
-   BLACK CHARACTER
-   ========================================================= */
-
-.black-character {
-
-    width: 51px;
-    height: 137px;
-
-    left: 37%;
-    bottom: 25px;
-
-    background: #171717;
-
-    border-radius: 4px 4px 1px 1px;
-
-    animation: blackMove 7s cubic-bezier(.45,.05,.55,.95) infinite;
-}
-
-
-/* =========================================================
-   ORANGE CHARACTER
-   ========================================================= */
-
-.orange-character {
-
-    width: 145px;
-    height: 88px;
-
-    left: 4%;
-    bottom: 0;
-
-    background: #ff7415;
-
-    border-radius:
-        145px 145px 0 0;
-
-    animation: orangeMove 7s ease-in-out infinite;
-}
-
-
-/* =========================================================
-   YELLOW CHARACTER
-   ========================================================= */
-
-.yellow-character {
-
-    width: 61px;
-    height: 117px;
-
-    left: 48%;
-    bottom: 0;
-
-    background: #ffd600;
-
-    border-radius:
-        35px 35px 0 0;
-
-    animation: yellowMove 7s cubic-bezier(.45,.05,.55,.95) infinite;
-}
-
-
-/* =========================================================
-   FACES
-   ========================================================= */
-
-.face {
-    position: absolute;
+#loginButton.playing {
 
     pointer-events: none;
-}
 
-
-/* eyes */
-
-.face .eye {
-
-    position: absolute;
-
-    width: 5px;
-    height: 7px;
-
-    border-radius: 50%;
-
-    background: #171717;
-
-    transition: transform .2s;
-}
-
-
-/* purple face */
-
-.purple-face {
-
-    left: 22px;
-    top: 42px;
-
-    width: 32px;
-    height: 25px;
-}
-
-.purple-face .eye.left {
-    left: 0;
-    top: 0;
-}
-
-.purple-face .eye.right {
-    left: 17px;
-    top: 1px;
-}
-
-.purple-face .mouth {
-
-    position: absolute;
-
-    left: 7px;
-    top: 14px;
-
-    width: 12px;
-    height: 5px;
-
-    border-bottom:
-        2px solid #171717;
-
-    border-radius: 0 0 12px 12px;
-}
-
-
-/* black face */
-
-.black-face {
-
-    left: 13px;
-    top: 44px;
-
-    width: 28px;
-    height: 25px;
-}
-
-.black-face .eye {
-
-    width: 5px;
-    height: 5px;
-
-    background: white;
-
-    border: 1px solid #111;
-}
-
-.black-face .eye.left {
-    left: 0;
-    top: 0;
-}
-
-.black-face .eye.right {
-    left: 15px;
-    top: 0;
-}
-
-
-/* orange face */
-
-.orange-face {
-
-    left: 58px;
-    top: 39px;
-
-    width: 38px;
-    height: 30px;
-}
-
-.orange-face .eye.left {
-    left: 0;
-    top: 0;
-}
-
-.orange-face .eye.right {
-    left: 20px;
-    top: 1px;
-}
-
-.orange-face .mouth {
-
-    position: absolute;
-
-    left: 8px;
-    top: 15px;
-
-    width: 14px;
-    height: 6px;
-
-    border-bottom:
-        2px solid #171717;
-
-    border-radius: 0 0 12px 12px;
-}
-
-
-/* yellow face */
-
-.yellow-face {
-
-    left: 17px;
-    top: 42px;
-
-    width: 32px;
-    height: 30px;
-}
-
-.yellow-face .eye.left {
-    left: 0;
-    top: 0;
-}
-
-.yellow-face .eye.right {
-    left: 17px;
-    top: 1px;
-}
-
-.yellow-face .mouth {
-
-    position: absolute;
-
-    left: 6px;
-    top: 16px;
-
-    width: 20px;
-    height: 2px;
-
-    background: #171717;
-
-    border-radius: 5px;
 }
 
 
 /* =========================================================
-   PURPLE ANIMATION
+   DESKTOP
    ========================================================= */
 
-@keyframes purpleMove {
-
-    0% {
-        left: 18%;
-        bottom: 25px;
-        transform:
-            rotate(9deg)
-            scale(1);
-    }
-
-    10% {
-        left: 19%;
-        bottom: 25px;
-        transform:
-            rotate(0deg)
-            scale(1);
-    }
-
-    22% {
-        left: 19%;
-        bottom: 25px;
-        transform:
-            rotate(0deg)
-            scale(1);
-    }
-
-    31% {
-        left: 24%;
-        bottom: 13px;
-        transform:
-            rotate(90deg)
-            scale(.94);
-    }
-
-    39% {
-        left: 13%;
-        bottom: 20px;
-        transform:
-            rotate(0deg)
-            scale(.72);
-    }
-
-    47% {
-        left: 19%;
-        bottom: 25px;
-        transform:
-            rotate(0deg)
-            scale(1);
-    }
-
-    65% {
-        left: 21%;
-        bottom: 25px;
-        transform:
-            rotate(7deg)
-            scale(1);
-    }
-
-    78% {
-        left: 23%;
-        bottom: 25px;
-        transform:
-            rotate(9deg)
-            scale(1);
-    }
-
-    91% {
-        left: 18%;
-        bottom: 25px;
-        transform:
-            rotate(0deg)
-            scale(1);
-    }
-
-    100% {
-        left: 18%;
-        bottom: 25px;
-        transform:
-            rotate(9deg)
-            scale(1);
-    }
-}
-
-
-/* =========================================================
-   BLACK ANIMATION
-   ========================================================= */
-
-@keyframes blackMove {
-
-    0% {
-        left: 37%;
-        bottom: 25px;
-        transform:
-            rotate(0deg)
-            scale(1);
-    }
-
-    23% {
-        left: 37%;
-        bottom: 25px;
-        transform:
-            rotate(0deg)
-            scale(1);
-    }
-
-    30% {
-        left: 26%;
-        bottom: 115px;
-        transform:
-            rotate(11deg)
-            scale(.85);
-    }
-
-    38% {
-        left: 37%;
-        bottom: 25px;
-        transform:
-            rotate(0deg)
-            scale(1);
-    }
-
-    50% {
-        left: 37%;
-        bottom: 25px;
-        transform:
-            rotate(0deg)
-            scale(1);
-    }
-
-    69% {
-        left: 37%;
-        bottom: 25px;
-        transform:
-            rotate(0deg)
-            scale(1);
-    }
-
-    78% {
-        left: 39%;
-        bottom: 25px;
-        transform:
-            rotate(4deg)
-            scale(1);
-    }
-
-    90% {
-        left: 37%;
-        bottom: 25px;
-        transform:
-            rotate(0deg)
-            scale(1);
-    }
-
-    100% {
-        left: 37%;
-        bottom: 25px;
-        transform:
-            rotate(0deg)
-            scale(1);
-    }
-}
-
-
-/* =========================================================
-   ORANGE ANIMATION
-   ========================================================= */
-
-@keyframes orangeMove {
-
-    0% {
-        left: 4%;
-        transform:
-            translateY(0)
-            scale(1);
-    }
-
-    15% {
-        left: 4%;
-        transform:
-            translateY(0)
-            scale(1);
-    }
-
-    31% {
-        left: 5%;
-        transform:
-            translateY(5px)
-            scale(.92);
-    }
-
-    40% {
-        left: 4%;
-        transform:
-            translateY(0)
-            scale(1);
-    }
-
-    57% {
-        left: 4%;
-        transform:
-            translateY(0)
-            scale(1);
-    }
-
-    75% {
-        left: 4%;
-        transform:
-            translateY(0)
-            scale(1);
-    }
-
-    100% {
-        left: 4%;
-        transform:
-            translateY(0)
-            scale(1);
-    }
-}
-
-
-/* =========================================================
-   YELLOW ANIMATION
-   ========================================================= */
-
-@keyframes yellowMove {
-
-    0% {
-        left: 48%;
-        transform:
-            rotate(0deg)
-            scale(1);
-    }
-
-    24% {
-        left: 48%;
-        transform:
-            rotate(0deg)
-            scale(1);
-    }
-
-    31% {
-        left: 49%;
-        transform:
-            rotate(14deg)
-            scale(.92);
-    }
-
-    40% {
-        left: 48%;
-        transform:
-            rotate(0deg)
-            scale(1);
-    }
-
-    56% {
-        left: 48%;
-        transform:
-            rotate(0deg)
-            scale(1);
-    }
-
-    72% {
-        left: 48%;
-        transform:
-            rotate(8deg)
-            scale(1);
-    }
-
-    83% {
-        left: 48%;
-        transform:
-            rotate(0deg)
-            scale(1);
-    }
-
-    100% {
-        left: 48%;
-        transform:
-            rotate(0deg)
-            scale(1);
-    }
-}
-
-
-/* =========================================================
-   BACKGROUND LIGHT
-   ========================================================= */
-
-@keyframes lightMove {
-
-    0%,
-    100% {
-        transform:
-            translateX(0)
-            scale(1);
-    }
-
-    50% {
-        transform:
-            translateX(35px)
-            scale(1.15);
-    }
-}
-
-
-/* =========================================================
-   SMALL SCREEN
-   ========================================================= */
-
-@media (max-width: 900px) {
+@media (min-width: 1000px) {
 
     .login-animation {
-        height: 290px;
+
+        width: 350px;
+        height: 400px;
+
     }
 
-    .purple-character {
-        width: 65px;
-        height: 165px;
-    }
-
-    .black-character {
-        width: 46px;
-        height: 122px;
-    }
-
-    .orange-character {
-        width: 125px;
-        height: 78px;
-    }
-
-    .yellow-character {
-        width: 55px;
-        height: 105px;
-    }
 }
 
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 999px) {
+
+    .login-animation {
+
+        width: 320px;
+        height: 366px;
+
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
 
 @media (max-width: 700px) {
 
     .login-animation {
-        height: 240px;
+
+        width: 280px;
+        height: 320px;
+
+        margin-left: auto;
+        margin-right: auto;
+
         margin-top: 24px;
+
     }
 
-    .purple-character {
-        width: 53px;
-        height: 135px;
-        left: 17%;
-    }
-
-    .black-character {
-        width: 39px;
-        height: 100px;
-    }
-
-    .orange-character {
-        width: 105px;
-        height: 65px;
-    }
-
-    .yellow-character {
-        width: 46px;
-        height: 88px;
-    }
-
-    .purple-face {
-        transform: scale(.8);
-        transform-origin: top left;
-    }
-
-    .black-face {
-        transform: scale(.8);
-        transform-origin: top left;
-    }
-
-    .orange-face {
-        transform: scale(.75);
-        transform-origin: top left;
-    }
-
-    .yellow-face {
-        transform: scale(.75);
-        transform-origin: top left;
-    }
 }
 
 
 /* =========================================================
-   REDUCED MOTION
+   VERY SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 420px) {
+
+    .login-animation {
+
+        width: 250px;
+        height: 285px;
+
+    }
+
+}
+
+
+/* =========================================================
+   ACCESSIBILITY
    ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
 
-    .char,
-    .animation-light {
-        animation: none !important;
+    .login-animation img {
+
+        animation: none;
+
     }
 
 }
@@ -886,18 +350,147 @@
 
 <script>
 
-function togglePassword(id, button) {
+/* =========================================================
+   ELEMENTS
+   ========================================================= */
 
-    const input = document.getElementById(id);
+const loginForm =
+    document.getElementById("loginForm");
 
-    if (input.type === "password") {
+const loginButton =
+    document.getElementById("loginButton");
 
-        input.type = "text";
+const loginButtonText =
+    document.getElementById("loginButtonText");
+
+const loginArrow =
+    document.getElementById("loginArrow");
+
+const loginAnimation =
+    document.getElementById("loginAnimation");
+
+const loginAnimationImage =
+    document.getElementById("loginAnimationImage");
+
+
+/* =========================================================
+   ANIMATION LENGTH
+   =========================================================
+
+   The reference animation is approximately 7 seconds.
+
+   After the animation finishes, the REAL form is submitted.
+   ========================================================= */
+
+const ANIMATION_TIME = 7000;
+
+
+/* =========================================================
+   LOGIN
+   ========================================================= */
+
+loginForm.addEventListener("submit", function(event) {
+
+    /*
+     * Stop the normal form submission temporarily.
+     */
+    event.preventDefault();
+
+
+    /*
+     * Don't allow multiple clicks.
+     */
+    if (
+        loginButton.dataset.animating === "true"
+    ) {
+
+        return;
+
+    }
+
+
+    /*
+     * Mark animation as running.
+     */
+    loginButton.dataset.animating = "true";
+
+    loginButton.disabled = true;
+
+    loginButton.classList.add("playing");
+
+
+    /*
+     * Change button text.
+     */
+    loginButtonText.textContent =
+        "Signing in";
+
+    loginArrow.textContent =
+        "✓";
+
+
+    /*
+     * Show animation.
+     */
+    loginAnimation.classList.add("play");
+
+
+    /*
+     * IMPORTANT:
+     *
+     * Add a timestamp to the GIF URL.
+     *
+     * This forces the browser to load the animation
+     * from the beginning instead of using an old
+     * cached frame.
+     */
+    loginAnimationImage.src =
+        "{{ url_for('static', filename='login-animation.gif') }}"
+        + "?animation="
+        + Date.now();
+
+
+    /*
+     * Wait until the animation has performed.
+     */
+    setTimeout(function() {
+
+        /*
+         * Submit the ORIGINAL Flask form.
+         *
+         * This means your existing Flask login route
+         * continues working normally.
+         */
+        loginForm.submit();
+
+    }, ANIMATION_TIME);
+
+});
+
+
+/* =========================================================
+   PASSWORD SHOW / HIDE
+   ========================================================= */
+
+function togglePassword() {
+
+    const password =
+        document.getElementById("password");
+
+    const button =
+        document.getElementById("passwordToggle");
+
+
+    if (password.type === "password") {
+
+        password.type = "text";
+
         button.textContent = "Hide";
 
     } else {
 
-        input.type = "password";
+        password.type = "password";
+
         button.textContent = "Show";
 
     }
