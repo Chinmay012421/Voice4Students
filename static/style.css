@@ -4148,58 +4148,1005 @@ body.page-leaving .page-shell {
         animation: none !important;
     }
 }
-
-
-
 /* =========================================================
-   ANONYMOUS REPORTING
+   SCHOOLFIX — ENHANCED UI ANIMATIONS
+   Complete CSS enhancement layer.
+   Keeps the existing colors, layout, background and components.
    ========================================================= */
 
-.anonymous-option {
-    display: flex;
-    align-items: flex-start;
-    gap: 11px;
-    padding: 14px 16px;
-    border: 1px solid #dce8f0;
-    border-radius: 13px;
-    background: #f8fbfd;
-    cursor: pointer;
+/* Smoother motion everywhere */
+:root {
+    --motion-fast: 0.18s;
+    --motion-normal: 0.28s;
+    --motion-slow: 0.55s;
+    --motion-ease: cubic-bezier(.2,.75,.25,1);
 }
 
-.anonymous-option input {
-    width: 18px;
-    height: 18px;
-    margin-top: 2px;
-    accent-color: var(--blue);
+html {
+    scroll-behavior: smooth;
 }
 
-.anonymous-option span {
-    display: block;
+/* ---------------------------------------------------------
+   PAGE ENTRANCE
+   --------------------------------------------------------- */
+
+.page-shell {
+    animation:
+        schoolfixPageEnter
+        .65s
+        var(--motion-ease)
+        both;
 }
 
-.anonymous-option strong {
-    display: block;
-    color: var(--navy);
-    font-size: 13px;
+@keyframes schoolfixPageEnter {
+    0% {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.anonymous-option small {
-    display: block;
-    margin-top: 3px;
-    color: var(--muted);
-    font-size: 10px;
-    line-height: 1.5;
+/* ---------------------------------------------------------
+   NAVIGATION
+   --------------------------------------------------------- */
+
+.nav {
+    animation:
+        navDrop
+        .55s
+        var(--motion-ease)
+        both;
 }
 
-.anonymous-badge {
-    display: inline-flex;
-    align-items: center;
-    margin-left: 6px;
-    padding: 3px 7px;
+@keyframes navDrop {
+    0% {
+        opacity: 0;
+        transform: translateY(-18px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.brand {
+    transition:
+        transform var(--motion-normal) var(--motion-ease);
+}
+
+.brand:hover {
+    transform: translateY(-2px);
+}
+
+.brand-mark {
+    transition:
+        transform var(--motion-normal) var(--motion-ease),
+        box-shadow var(--motion-normal) ease;
+}
+
+.brand:hover .brand-mark {
+    transform:
+        rotate(-4deg)
+        scale(1.05);
+    box-shadow:
+        0 13px 28px
+        rgba(13,43,77,.25);
+}
+
+.nav-link,
+.nav-logout {
+    position: relative;
+    transition:
+        background var(--motion-fast) ease,
+        color var(--motion-fast) ease,
+        transform var(--motion-fast) var(--motion-ease);
+}
+
+.nav-link:hover,
+.nav-logout:hover {
+    transform: translateY(-1px);
+}
+
+.nav-link::after {
+    content: "";
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 4px;
+    height: 2px;
     border-radius: 999px;
-    background: var(--sky);
-    color: var(--blue);
-    font-size: 8px;
-    font-weight: 900;
-    letter-spacing: .06em;
+    background: var(--blue);
+    transform: scaleX(0);
+    transform-origin: center;
+    transition:
+        transform var(--motion-normal) var(--motion-ease);
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+    transform: scaleX(1);
+}
+
+.nav-cta {
+    transition:
+        transform var(--motion-normal) var(--motion-ease),
+        box-shadow var(--motion-normal) ease,
+        background var(--motion-normal) ease;
+}
+
+.nav-cta:hover {
+    transform: translateY(-3px);
+    box-shadow:
+        0 14px 28px
+        rgba(13,43,77,.22);
+}
+
+.account-chip {
+    transition:
+        transform var(--motion-normal) var(--motion-ease),
+        box-shadow var(--motion-normal) ease;
+}
+
+.account-chip:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 8px 22px
+        rgba(20,55,85,.10);
+}
+
+/* ---------------------------------------------------------
+   HERO
+   --------------------------------------------------------- */
+
+.hero-copy {
+    animation:
+        heroCopyEnter
+        .75s
+        .08s
+        var(--motion-ease)
+        both;
+}
+
+@keyframes heroCopyEnter {
+    0% {
+        opacity: 0;
+        transform: translateX(-24px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.hero-copy h1 {
+    animation:
+        heroTitleEnter
+        .8s
+        .14s
+        var(--motion-ease)
+        both;
+}
+
+@keyframes heroTitleEnter {
+    0% {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.hero-lead {
+    animation:
+        heroLeadEnter
+        .7s
+        .24s
+        var(--motion-ease)
+        both;
+}
+
+@keyframes heroLeadEnter {
+    0% {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.hero-actions {
+    animation:
+        heroActionsEnter
+        .7s
+        .32s
+        var(--motion-ease)
+        both;
+}
+
+@keyframes heroActionsEnter {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.hero-trust {
+    animation:
+        heroTrustEnter
+        .7s
+        .4s
+        var(--motion-ease)
+        both;
+}
+
+@keyframes heroTrustEnter {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.hero-visual {
+    animation:
+        heroVisualEnter
+        .8s
+        .12s
+        var(--motion-ease)
+        both;
+}
+
+@keyframes heroVisualEnter {
+    0% {
+        opacity: 0;
+        transform:
+            translateX(24px)
+            scale(.97);
+    }
+    100% {
+        opacity: 1;
+        transform:
+            translateX(0)
+            scale(1);
+    }
+}
+
+/* ---------------------------------------------------------
+   VIDEO CARD
+   --------------------------------------------------------- */
+
+.video-card {
+    transition:
+        transform .35s var(--motion-ease),
+        box-shadow .35s ease;
+}
+
+.video-card:hover {
+    transform:
+        translateY(-8px)
+        scale(1.008);
+    box-shadow:
+        0 34px 82px
+        rgba(20,55,85,.22);
+}
+
+/* ---------------------------------------------------------
+   FEATURE CARDS
+   --------------------------------------------------------- */
+
+.feature-card {
+    animation:
+        cardEnter
+        .6s
+        var(--motion-ease)
+        both;
+}
+
+.feature-card:nth-child(1) {
+    animation-delay: .08s;
+}
+
+.feature-card:nth-child(2) {
+    animation-delay: .16s;
+}
+
+.feature-card:nth-child(3) {
+    animation-delay: .24s;
+}
+
+@keyframes cardEnter {
+    0% {
+        opacity: 0;
+        transform:
+            translateY(18px)
+            scale(.98);
+    }
+    100% {
+        opacity: 1;
+        transform:
+            translateY(0)
+            scale(1);
+    }
+}
+
+.feature-card {
+    transition:
+        transform .3s var(--motion-ease),
+        box-shadow .3s ease,
+        border-color .3s ease;
+}
+
+.feature-card:hover {
+    transform:
+        translateY(-8px)
+        scale(1.01);
+}
+
+.feature-card::before {
+    content: "";
+    position: absolute;
+    top: -100%;
+    left: -35%;
+    width: 38%;
+    height: 300%;
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,.65),
+            transparent
+        );
+    transform: rotate(18deg);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.feature-card:hover::before {
+    opacity: 1;
+    animation:
+        cardShine
+        .8s
+        ease
+        both;
+}
+
+@keyframes cardShine {
+    from {
+        left: -35%;
+    }
+    to {
+        left: 125%;
+    }
+}
+
+/* ---------------------------------------------------------
+   BUTTONS
+   --------------------------------------------------------- */
+
+.btn {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    transition:
+        transform var(--motion-normal) var(--motion-ease),
+        box-shadow var(--motion-normal) ease,
+        background var(--motion-normal) ease;
+}
+
+.btn::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 80%;
+    height: 100%;
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,.28),
+            transparent
+        );
+    transform: skewX(-18deg);
+    transition: left .55s var(--motion-ease);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.btn:hover::after {
+    left: 130%;
+}
+
+.btn:active {
+    transform: translateY(0) scale(.97);
+}
+
+/* ---------------------------------------------------------
+   DASHBOARD STAT CARDS
+   --------------------------------------------------------- */
+
+.stat-card {
+    animation:
+        statCardEnter
+        .55s
+        var(--motion-ease)
+        both;
+}
+
+.stat-card:nth-child(1) {
+    animation-delay: .05s;
+}
+
+.stat-card:nth-child(2) {
+    animation-delay: .12s;
+}
+
+.stat-card:nth-child(3) {
+    animation-delay: .19s;
+}
+
+.stat-card:nth-child(4) {
+    animation-delay: .26s;
+}
+
+@keyframes statCardEnter {
+    0% {
+        opacity: 0;
+        transform:
+            translateY(14px)
+            scale(.97);
+    }
+    100% {
+        opacity: 1;
+        transform:
+            translateY(0)
+            scale(1);
+    }
+}
+
+.stat-card:hover {
+    transform:
+        translateY(-6px)
+        scale(1.01);
+}
+
+.stat-card strong {
+    animation:
+        statNumberPop
+        .6s
+        .2s
+        var(--motion-ease)
+        both;
+}
+
+@keyframes statNumberPop {
+    0% {
+        opacity: 0;
+        transform: scale(.8);
+    }
+    70% {
+        transform: scale(1.05);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ---------------------------------------------------------
+   REPORT ITEMS
+   --------------------------------------------------------- */
+
+.report-item {
+    transition:
+        background var(--motion-fast) ease,
+        transform var(--motion-normal) var(--motion-ease),
+        padding var(--motion-normal) var(--motion-ease);
+}
+
+.report-item:hover {
+    transform: translateX(5px);
+}
+
+.report-icon,
+.user-avatar {
+    transition:
+        transform var(--motion-normal) var(--motion-ease),
+        box-shadow var(--motion-normal) ease;
+}
+
+.report-item:hover .report-icon,
+.report-item:hover .user-avatar {
+    transform:
+        rotate(-3deg)
+        scale(1.06);
+    box-shadow:
+        0 7px 18px
+        rgba(29,111,184,.14);
+}
+
+.report-arrow {
+    transition:
+        transform var(--motion-normal) var(--motion-ease);
+}
+
+.report-item:hover .report-arrow {
+    transform: translateX(4px);
+}
+
+/* ---------------------------------------------------------
+   SIDE CARDS / QUICK ACTIONS
+   --------------------------------------------------------- */
+
+.side-card {
+    animation:
+        sideCardEnter
+        .65s
+        .18s
+        var(--motion-ease)
+        both;
+}
+
+@keyframes sideCardEnter {
+    0% {
+        opacity: 0;
+        transform:
+            translateX(18px);
+    }
+    100% {
+        opacity: 1;
+        transform:
+            translateX(0);
+    }
+}
+
+.quick-card,
+.admin-action {
+    transition:
+        transform .28s var(--motion-ease),
+        box-shadow .28s ease,
+        border-color .28s ease;
+}
+
+.quick-card:hover,
+.admin-action:hover {
+    transform:
+        translateY(-5px)
+        translateX(2px);
+}
+
+/* ---------------------------------------------------------
+   AUTH CARDS
+   --------------------------------------------------------- */
+
+.auth-info {
+    animation:
+        authInfoEnter
+        .7s
+        var(--motion-ease)
+        both;
+}
+
+.auth-card {
+    animation:
+        authCardEnter
+        .7s
+        .1s
+        var(--motion-ease)
+        both;
+}
+
+@keyframes authInfoEnter {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes authCardEnter {
+    from {
+        opacity: 0;
+        transform:
+            translateY(18px)
+            scale(.98);
+    }
+    to {
+        opacity: 1;
+        transform:
+            translateY(0)
+            scale(1);
+    }
+}
+
+.auth-mark {
+    transition:
+        transform .3s var(--motion-ease),
+        box-shadow .3s ease;
+}
+
+.auth-card:hover .auth-mark {
+    transform:
+        rotate(-4deg)
+        scale(1.06);
+    box-shadow:
+        0 10px 25px
+        rgba(13,43,77,.18);
+}
+
+/* ---------------------------------------------------------
+   FORM FIELDS
+   --------------------------------------------------------- */
+
+input,
+select,
+textarea {
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease,
+        background .2s ease,
+        transform .2s var(--motion-ease);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    transform: translateY(-1px);
+}
+
+/* ---------------------------------------------------------
+   UPLOAD BOX
+   --------------------------------------------------------- */
+
+.upload-box {
+    transition:
+        border-color .25s ease,
+        background .25s ease,
+        transform .25s var(--motion-ease),
+        box-shadow .25s ease;
+}
+
+.upload-box:hover {
+    transform: translateY(-2px);
+    border-color: #8bb7d8;
+    background: #f7fbfe;
+    box-shadow:
+        0 9px 24px
+        rgba(20,55,85,.07);
+}
+
+.upload-box::before {
+    transition:
+        transform .25s var(--motion-ease);
+}
+
+.upload-box:hover::before {
+    transform:
+        translateY(-2px)
+        rotate(-4deg)
+        scale(1.05);
+}
+
+/* ---------------------------------------------------------
+   REPORT DETAIL
+   --------------------------------------------------------- */
+
+.detail-main,
+.conversation-card {
+    animation:
+        detailEnter
+        .6s
+        var(--motion-ease)
+        both;
+}
+
+.conversation-card {
+    animation-delay: .08s;
+}
+
+@keyframes detailEnter {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.meta-grid > div,
+.content-block,
+.admin-note {
+    transition:
+        transform .25s var(--motion-ease),
+        box-shadow .25s ease;
+}
+
+.meta-grid > div:hover,
+.content-block:hover,
+.admin-note:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 8px 22px
+        rgba(20,55,85,.06);
+}
+
+/* ---------------------------------------------------------
+   PHOTOS
+   --------------------------------------------------------- */
+
+.photo-grid a {
+    transition:
+        transform .3s var(--motion-ease),
+        box-shadow .3s ease;
+}
+
+.photo-grid a:hover {
+    transform:
+        translateY(-4px)
+        scale(1.015);
+    box-shadow:
+        0 12px 28px
+        rgba(20,55,85,.13);
+}
+
+/* ---------------------------------------------------------
+   CHAT BUBBLES
+   --------------------------------------------------------- */
+
+.bubble {
+    animation:
+        bubbleEnter
+        .4s
+        var(--motion-ease)
+        both;
+}
+
+@keyframes bubbleEnter {
+    from {
+        opacity: 0;
+        transform:
+            translateY(8px)
+            scale(.98);
+    }
+    to {
+        opacity: 1;
+        transform:
+            translateY(0)
+            scale(1);
+    }
+}
+
+/* ---------------------------------------------------------
+   FLASH MESSAGES
+   --------------------------------------------------------- */
+
+.flash {
+    animation:
+        flashEnter
+        .45s
+        var(--motion-ease)
+        both;
+}
+
+@keyframes flashEnter {
+    from {
+        opacity: 0;
+        transform:
+            translateY(-12px)
+            scale(.98);
+    }
+    to {
+        opacity: 1;
+        transform:
+            translateY(0)
+            scale(1);
+    }
+}
+
+.flash-icon {
+    animation:
+        flashIconPop
+        .45s
+        .12s
+        var(--motion-ease)
+        both;
+}
+
+@keyframes flashIconPop {
+    0% {
+        transform: scale(.5) rotate(-15deg);
+    }
+    70% {
+        transform: scale(1.12) rotate(4deg);
+    }
+    100% {
+        transform: scale(1) rotate(0);
+    }
+}
+
+/* ---------------------------------------------------------
+   ADMIN / TABLE ROWS
+   --------------------------------------------------------- */
+
+.table-wrap tbody tr {
+    transition:
+        background .2s ease,
+        transform .2s var(--motion-ease);
+}
+
+.table-wrap tbody tr:hover {
+    background: #f8fbfd;
+    transform: translateX(3px);
+}
+
+.mini-btn {
+    transition:
+        transform .2s var(--motion-ease),
+        background .2s ease,
+        box-shadow .2s ease;
+}
+
+.mini-btn:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 5px 14px
+        rgba(20,55,85,.08);
+}
+
+/* ---------------------------------------------------------
+   ADMIN APPLICATIONS
+   --------------------------------------------------------- */
+
+.application-card {
+    animation:
+        applicationEnter
+        .5s
+        var(--motion-ease)
+        both;
+}
+
+.application-card:nth-child(2) {
+    animation-delay: .06s;
+}
+
+.application-card:nth-child(3) {
+    animation-delay: .12s;
+}
+
+.application-card:nth-child(4) {
+    animation-delay: .18s;
+}
+
+@keyframes applicationEnter {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.application-avatar {
+    transition:
+        transform .25s var(--motion-ease);
+}
+
+.application-card:hover .application-avatar {
+    transform:
+        rotate(-4deg)
+        scale(1.06);
+}
+
+/* ---------------------------------------------------------
+   STATUS PILLS
+   --------------------------------------------------------- */
+
+.status,
+.role-pill,
+.count-badge,
+.step-badge,
+.connection-pill {
+    transition:
+        transform .2s var(--motion-ease),
+        box-shadow .2s ease;
+}
+
+.status:hover,
+.role-pill:hover,
+.count-badge:hover,
+.step-badge:hover,
+.connection-pill:hover {
+    transform: translateY(-1px);
+}
+
+/* ---------------------------------------------------------
+   FOOTER
+   --------------------------------------------------------- */
+
+.footer {
+    animation:
+        footerEnter
+        .7s
+        .15s
+        var(--motion-ease)
+        both;
+}
+
+@keyframes footerEnter {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* ---------------------------------------------------------
+   ACCESSIBILITY / REDUCED MOTION
+   --------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+
+    html {
+        scroll-behavior: auto !important;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+
+    .video-card,
+    .feature-card:hover,
+    .stat-card:hover,
+    .report-item:hover,
+    .quick-card:hover,
+    .admin-action:hover {
+        transform: none !important;
+    }
+}
+
+/* ---------------------------------------------------------
+   MOBILE PERFORMANCE
+   --------------------------------------------------------- */
+
+@media (max-width: 680px) {
+
+    .video-card:hover,
+    .feature-card:hover,
+    .stat-card:hover {
+        transform: none;
+    }
+
+    .feature-card:hover::before {
+        animation: none;
+        opacity: 0;
+    }
+
+    .hero-copy,
+    .hero-visual {
+        animation-duration: .55s;
+    }
 }
