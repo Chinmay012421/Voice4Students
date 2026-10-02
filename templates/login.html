@@ -28,23 +28,98 @@
 
 
         <!-- =================================================
-             LOGIN ACTION ANIMATION
-
-             Hidden when page loads.
-             Appears only after Login is clicked.
+             SCHOOLFIX STUDENT
              ================================================= -->
 
         <div
-            id="loginAnimation"
-            class="login-animation"
-            aria-hidden="true"
+            class="student-stage
+            {% if get_flashed_messages(category_filter=['error']) %}
+                login-failed
+            {% endif %}"
         >
 
-            <img
-                id="loginAnimationImage"
-                src=""
-                alt=""
-            >
+            <!-- speech bubble -->
+            <div class="no-bubble">
+                NO!
+            </div>
+
+
+            <!-- little motion lines -->
+            <div class="shake-line line-left"></div>
+            <div class="shake-line line-right"></div>
+
+
+            <!-- STUDENT -->
+            <div class="student">
+
+                <!-- head -->
+                <div class="student-head">
+
+                    <div class="hair hair-one"></div>
+                    <div class="hair hair-two"></div>
+                    <div class="hair hair-three"></div>
+
+                    <div class="student-eye eye-left"></div>
+                    <div class="student-eye eye-right"></div>
+
+                    <div class="student-mouth"></div>
+
+                </div>
+
+
+                <!-- neck -->
+                <div class="student-neck"></div>
+
+
+                <!-- body / shirt -->
+                <div class="student-body">
+
+                    <div class="shirt-collar"></div>
+
+                    <div class="shirt-pocket">
+                        S
+                    </div>
+
+                </div>
+
+
+                <!-- left arm -->
+                <div class="student-arm arm-left"></div>
+
+
+                <!-- right arm holding book -->
+                <div class="student-arm arm-right"></div>
+
+
+                <!-- book -->
+                <div class="student-book">
+
+                    <div class="book-cover"></div>
+
+                    <div class="book-page page-one"></div>
+                    <div class="book-page page-two"></div>
+
+                    <div class="book-line book-line-one"></div>
+                    <div class="book-line book-line-two"></div>
+                    <div class="book-line book-line-three"></div>
+
+                </div>
+
+
+                <!-- legs -->
+                <div class="student-leg leg-left"></div>
+                <div class="student-leg leg-right"></div>
+
+
+                <!-- shoes -->
+                <div class="student-shoe shoe-left"></div>
+                <div class="student-shoe shoe-right"></div>
+
+            </div>
+
+
+            <!-- ground shadow -->
+            <div class="student-shadow"></div>
 
         </div>
 
@@ -52,7 +127,7 @@
 
 
     <!-- =====================================================
-         RIGHT SIDE
+         RIGHT SIDE — LOGIN CARD
          ===================================================== -->
 
     <div class="auth-card">
@@ -94,6 +169,33 @@
 
 
         <!-- =================================================
+             EXISTING FLASK FLASH MESSAGES
+             ================================================= -->
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+
+            {% if messages %}
+
+                <div class="login-messages">
+
+                    {% for category, message in messages %}
+
+                        <div
+                            class="login-message {{ category }}"
+                        >
+                            {{ message }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        <!-- =================================================
              LOGIN FORM
              ================================================= -->
 
@@ -102,8 +204,6 @@
             class="clean-form"
             id="loginForm"
         >
-
-            <!-- USERNAME -->
 
             <label for="username">
                 Username
@@ -116,10 +216,9 @@
                 autocomplete="username"
                 required
                 placeholder="Your username"
+                value="{{ request.form.get('username', '') }}"
             >
 
-
-            <!-- PASSWORD -->
 
             <label for="password">
                 Password
@@ -139,7 +238,6 @@
                 <button
                     type="button"
                     class="eye"
-                    id="passwordToggle"
                     onclick="togglePassword()"
                 >
                     Show
@@ -148,28 +246,16 @@
             </div>
 
 
-            <!-- LOGIN BUTTON -->
-
             <button
-                id="loginButton"
                 class="btn btn-primary full"
                 type="submit"
             >
-
-                <span id="loginButtonText">
-                    Login
-                </span>
-
-                <span id="loginArrow">
-                    →
-                </span>
-
+                Login
+                <span>→</span>
             </button>
 
         </form>
 
-
-        <!-- REGISTER -->
 
         <p class="auth-foot muted">
 
@@ -189,89 +275,833 @@
 <style>
 
 /* =========================================================
-   LOGIN ACTION ANIMATION
+   STUDENT STAGE
    ========================================================= */
 
-.login-animation {
-
-    display: none;
+.student-stage {
 
     position: relative;
 
-    width: 350px;
-    height: 400px;
+    width: 100%;
+
+    max-width: 390px;
+
+    height: 330px;
 
     margin-top: 28px;
 
     overflow: hidden;
 
-    border-radius: 4px;
+    border-radius: 24px;
 
-    background: #eeeeee;
+    background:
+        linear-gradient(
+            180deg,
+            #f4f8fc 0%,
+            #eef4f8 72%,
+            #e5edf2 100%
+        );
+
+    border: 1px solid rgba(15, 47, 87, .08);
 
     box-shadow:
-        0 18px 45px rgba(15, 47, 87, 0.10);
+        0 18px 45px rgba(15, 47, 87, .08);
 
 }
 
 
-/*
-   When Login is clicked this class is added.
-*/
+/* subtle background circle */
 
-.login-animation.play {
+.student-stage::before {
 
-    display: block;
+    content: "";
+
+    position: absolute;
+
+    width: 230px;
+    height: 230px;
+
+    right: -70px;
+    top: -80px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(67, 139, 197, .09);
 
 }
 
 
-/*
-   Actual animation image.
-*/
+/* second background shape */
 
-.login-animation img {
+.student-stage::after {
 
-    display: block;
+    content: "";
 
-    width: 100%;
-    height: 100%;
+    position: absolute;
 
-    object-fit: cover;
+    width: 150px;
+    height: 150px;
+
+    left: -70px;
+    bottom: -90px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(67, 139, 197, .07);
 
 }
 
 
 /* =========================================================
-   LOGIN BUTTON WHILE ANIMATION IS PLAYING
+   GROUND
    ========================================================= */
 
-#loginButton:disabled {
+.student-shadow {
 
-    cursor: wait;
+    position: absolute;
 
-    opacity: .85;
+    left: 50%;
 
-}
+    bottom: 27px;
 
+    width: 150px;
+    height: 16px;
 
-#loginButton.playing {
+    transform:
+        translateX(-50%);
 
-    pointer-events: none;
+    border-radius: 50%;
+
+    background:
+        rgba(15, 47, 87, .13);
+
+    filter: blur(3px);
+
+    z-index: 1;
 
 }
 
 
 /* =========================================================
-   DESKTOP
+   STUDENT
    ========================================================= */
 
-@media (min-width: 1000px) {
+.student {
 
-    .login-animation {
+    position: absolute;
 
-        width: 350px;
-        height: 400px;
+    left: 50%;
+
+    bottom: 30px;
+
+    width: 150px;
+    height: 260px;
+
+    transform:
+        translateX(-50%);
+
+    z-index: 5;
+
+}
+
+
+/* =========================================================
+   HEAD
+   ========================================================= */
+
+.student-head {
+
+    position: absolute;
+
+    left: 38px;
+    top: 6px;
+
+    width: 76px;
+    height: 83px;
+
+    background: #f4bd91;
+
+    border-radius:
+        46% 46% 48% 48%;
+
+    border:
+        2px solid rgba(15, 47, 87, .12);
+
+    z-index: 5;
+
+    transform-origin:
+        50% 80%;
+
+}
+
+
+/* =========================================================
+   HAIR
+   ========================================================= */
+
+.student-head::before {
+
+    content: "";
+
+    position: absolute;
+
+    left: -2px;
+    top: -7px;
+
+    width: 80px;
+    height: 46px;
+
+    background: #24334a;
+
+    border-radius:
+        48px 48px 20px 20px;
+
+}
+
+
+.hair {
+
+    position: absolute;
+
+    width: 18px;
+    height: 27px;
+
+    background: #24334a;
+
+    border-radius:
+        50%;
+
+    z-index: 2;
+
+}
+
+
+.hair-one {
+
+    left: 4px;
+    top: 14px;
+
+    transform: rotate(-25deg);
+
+}
+
+
+.hair-two {
+
+    left: 27px;
+    top: 3px;
+
+}
+
+
+.hair-three {
+
+    right: 2px;
+    top: 13px;
+
+    transform: rotate(25deg);
+
+}
+
+
+/* =========================================================
+   EYES
+   ========================================================= */
+
+.student-eye {
+
+    position: absolute;
+
+    top: 48px;
+
+    width: 7px;
+    height: 9px;
+
+    background: #172235;
+
+    border-radius: 50%;
+
+    z-index: 8;
+
+}
+
+
+.eye-left {
+    left: 23px;
+}
+
+
+.eye-right {
+    right: 23px;
+}
+
+
+/* =========================================================
+   MOUTH
+   ========================================================= */
+
+.student-mouth {
+
+    position: absolute;
+
+    left: 31px;
+    top: 65px;
+
+    width: 15px;
+    height: 6px;
+
+    border-bottom:
+        2px solid #172235;
+
+    border-radius:
+        0 0 15px 15px;
+
+    z-index: 8;
+
+}
+
+
+/* =========================================================
+   NECK
+   ========================================================= */
+
+.student-neck {
+
+    position: absolute;
+
+    left: 66px;
+    top: 82px;
+
+    width: 25px;
+    height: 25px;
+
+    background: #eeb58b;
+
+    z-index: 2;
+
+}
+
+
+/* =========================================================
+   BODY
+   ========================================================= */
+
+.student-body {
+
+    position: absolute;
+
+    left: 29px;
+    top: 98px;
+
+    width: 96px;
+    height: 116px;
+
+    background: #2878b9;
+
+    border-radius:
+        28px 28px 10px 10px;
+
+    z-index: 3;
+
+    border:
+        2px solid rgba(15, 47, 87, .08);
+
+}
+
+
+/* shirt lower section */
+
+.student-body::after {
+
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    right: 0;
+
+    bottom: 0;
+
+    height: 20px;
+
+    background: #236aa4;
+
+    border-radius:
+        0 0 9px 9px;
+
+}
+
+
+/* =========================================================
+   COLLAR
+   ========================================================= */
+
+.shirt-collar {
+
+    position: absolute;
+
+    left: 32px;
+    top: 0;
+
+    width: 32px;
+    height: 30px;
+
+    background: #f4f8fc;
+
+    clip-path:
+        polygon(
+            0 0,
+            50% 65%,
+            100% 0,
+            75% 100%,
+            25% 100%
+        );
+
+}
+
+
+/* =========================================================
+   SCHOOLFIX POCKET
+   ========================================================= */
+
+.shirt-pocket {
+
+    position: absolute;
+
+    right: 9px;
+    top: 48px;
+
+    width: 23px;
+    height: 25px;
+
+    border:
+        2px solid rgba(255,255,255,.65);
+
+    border-radius: 4px;
+
+    color: white;
+
+    font-size: 10px;
+    font-weight: 900;
+
+    display: grid;
+    place-items: center;
+
+    z-index: 4;
+
+}
+
+
+/* =========================================================
+   ARMS
+   ========================================================= */
+
+.student-arm {
+
+    position: absolute;
+
+    width: 23px;
+    height: 82px;
+
+    background: #2878b9;
+
+    border-radius: 15px;
+
+    z-index: 2;
+
+}
+
+
+.arm-left {
+
+    left: 18px;
+    top: 109px;
+
+    transform:
+        rotate(17deg);
+
+}
+
+
+.arm-right {
+
+    right: 12px;
+    top: 108px;
+
+    transform:
+        rotate(-27deg);
+
+}
+
+
+/* hands */
+
+.arm-left::after,
+.arm-right::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 22px;
+    height: 22px;
+
+    background: #f4bd91;
+
+    border-radius: 50%;
+
+    bottom: -8px;
+    left: 1px;
+
+}
+
+
+/* =========================================================
+   BOOK
+   ========================================================= */
+
+.student-book {
+
+    position: absolute;
+
+    left: 67px;
+    top: 139px;
+
+    width: 91px;
+    height: 66px;
+
+    transform:
+        rotate(-8deg);
+
+    z-index: 8;
+
+}
+
+
+/* blue book cover */
+
+.book-cover {
+
+    position: absolute;
+
+    inset: 0;
+
+    background: #f5f7fa;
+
+    border:
+        3px solid #183b62;
+
+    border-radius: 4px;
+
+    box-shadow:
+        5px 6px 0 #183b62;
+
+}
+
+
+/* book center */
+
+.book-page {
+
+    position: absolute;
+
+    top: 6px;
+    bottom: 6px;
+
+    width: 38px;
+
+    background: #fff;
+
+    z-index: 2;
+
+}
+
+
+.page-one {
+
+    left: 6px;
+
+    border-radius:
+        3px 0 0 3px;
+
+    border-right:
+        1px solid #cbd5df;
+
+}
+
+
+.page-two {
+
+    right: 6px;
+
+    border-radius:
+        0 3px 3px 0;
+
+    border-left:
+        1px solid #cbd5df;
+
+}
+
+
+/* =========================================================
+   BOOK LINES
+   ========================================================= */
+
+.book-line {
+
+    position: absolute;
+
+    height: 2px;
+
+    background: #b8c5d1;
+
+    z-index: 4;
+
+}
+
+
+.book-line-one {
+
+    left: 12px;
+    top: 20px;
+
+    width: 25px;
+
+}
+
+
+.book-line-two {
+
+    left: 51px;
+    top: 20px;
+
+    width: 25px;
+
+}
+
+
+.book-line-three {
+
+    left: 12px;
+    top: 34px;
+
+    width: 64px;
+
+}
+
+
+/* =========================================================
+   LEGS
+   ========================================================= */
+
+.student-leg {
+
+    position: absolute;
+
+    top: 204px;
+
+    width: 25px;
+    height: 38px;
+
+    background: #263d5c;
+
+    border-radius:
+        4px 4px 8px 8px;
+
+    z-index: 1;
+
+}
+
+
+.leg-left {
+
+    left: 46px;
+
+}
+
+
+.leg-right {
+
+    right: 46px;
+
+}
+
+
+/* =========================================================
+   SHOES
+   ========================================================= */
+
+.student-shoe {
+
+    position: absolute;
+
+    top: 234px;
+
+    width: 42px;
+    height: 17px;
+
+    background: #172235;
+
+    border-radius:
+        12px 15px 5px 5px;
+
+    z-index: 2;
+
+}
+
+
+.shoe-left {
+
+    left: 30px;
+
+}
+
+
+.shoe-right {
+
+    right: 30px;
+
+}
+
+
+/* =========================================================
+   NO BUBBLE
+   ========================================================= */
+
+.no-bubble {
+
+    position: absolute;
+
+    right: 33px;
+    top: 45px;
+
+    padding:
+        12px 17px;
+
+    background: white;
+
+    color: #173451;
+
+    font-size: 19px;
+
+    font-weight: 900;
+
+    letter-spacing: .5px;
+
+    border-radius:
+        16px;
+
+    box-shadow:
+        0 10px 25px rgba(15,47,87,.14);
+
+    opacity: 0;
+
+    transform:
+        scale(.65)
+        translateY(8px);
+
+    z-index: 20;
+
+}
+
+
+.no-bubble::after {
+
+    content: "";
+
+    position: absolute;
+
+    left: 20px;
+    bottom: -7px;
+
+    width: 15px;
+    height: 15px;
+
+    background: white;
+
+    transform:
+        rotate(45deg);
+
+}
+
+
+/* =========================================================
+   SHAKE LINES
+   ========================================================= */
+
+.shake-line {
+
+    position: absolute;
+
+    width: 22px;
+    height: 3px;
+
+    background: #7d8b99;
+
+    border-radius: 10px;
+
+    opacity: 0;
+
+    z-index: 10;
+
+}
+
+
+.line-left {
+
+    left: 82px;
+    top: 112px;
+
+    transform:
+        rotate(-25deg);
+
+}
+
+
+.line-right {
+
+    left: 277px;
+    top: 112px;
+
+    transform:
+        rotate(25deg);
+
+}
+
+
+/* =========================================================
+   NORMAL FLOAT
+   ========================================================= */
+
+.student {
+
+    animation:
+        studentBreathing
+        3.5s
+        ease-in-out
+        infinite;
+
+}
+
+
+@keyframes studentBreathing {
+
+    0%,
+    100% {
+
+        transform:
+            translateX(-50%)
+            translateY(0);
+
+    }
+
+    50% {
+
+        transform:
+            translateX(-50%)
+            translateY(-3px);
 
     }
 
@@ -279,17 +1109,348 @@
 
 
 /* =========================================================
-   TABLET
+   WRONG LOGIN
+   =========================================================
+
+   This class is added automatically when Flask returns
+   the error flash after a failed login.
    ========================================================= */
 
-@media (max-width: 999px) {
+.login-failed .student {
 
-    .login-animation {
+    animation:
+        studentNo
+        .75s
+        cubic-bezier(.36,.07,.19,.97)
+        both,
+        studentBreathing
+        3.5s
+        ease-in-out
+        1.2s
+        infinite;
 
-        width: 320px;
-        height: 366px;
+}
+
+
+@keyframes studentNo {
+
+    0% {
+
+        transform:
+            translateX(-50%)
+            rotate(0deg);
 
     }
+
+    15% {
+
+        transform:
+            translateX(-50%)
+            rotate(-13deg);
+
+    }
+
+    30% {
+
+        transform:
+            translateX(-50%)
+            rotate(13deg);
+
+    }
+
+    45% {
+
+        transform:
+            translateX(-50%)
+            rotate(-11deg);
+
+    }
+
+    60% {
+
+        transform:
+            translateX(-50%)
+            rotate(10deg);
+
+    }
+
+    75% {
+
+        transform:
+            translateX(-50%)
+            rotate(-6deg);
+
+    }
+
+    90% {
+
+        transform:
+            translateX(-50%)
+            rotate(4deg);
+
+    }
+
+    100% {
+
+        transform:
+            translateX(-50%)
+            rotate(0deg);
+
+    }
+
+}
+
+
+/* =========================================================
+   HEAD SHAKES MORE THAN BODY
+   ========================================================= */
+
+.login-failed .student-head {
+
+    animation:
+        headNo
+        .75s
+        cubic-bezier(.36,.07,.19,.97)
+        both;
+
+}
+
+
+@keyframes headNo {
+
+    0% {
+        transform: rotate(0deg);
+    }
+
+    15% {
+        transform: rotate(-15deg);
+    }
+
+    30% {
+        transform: rotate(15deg);
+    }
+
+    45% {
+        transform: rotate(-13deg);
+    }
+
+    60% {
+        transform: rotate(12deg);
+    }
+
+    75% {
+        transform: rotate(-7deg);
+    }
+
+    90% {
+        transform: rotate(4deg);
+    }
+
+    100% {
+        transform: rotate(0deg);
+    }
+
+}
+
+
+/* =========================================================
+   NO BUBBLE ANIMATION
+   ========================================================= */
+
+.login-failed .no-bubble {
+
+    animation:
+        sayNo
+        2.2s
+        ease-out
+        .15s
+        both;
+
+}
+
+
+@keyframes sayNo {
+
+    0% {
+
+        opacity: 0;
+
+        transform:
+            scale(.65)
+            translateY(8px);
+
+    }
+
+    15% {
+
+        opacity: 1;
+
+        transform:
+            scale(1.08)
+            translateY(0);
+
+    }
+
+    25% {
+
+        transform:
+            scale(1);
+
+    }
+
+    72% {
+
+        opacity: 1;
+
+        transform:
+            scale(1);
+
+    }
+
+    100% {
+
+        opacity: 0;
+
+        transform:
+            scale(.92)
+            translateY(-5px);
+
+    }
+
+}
+
+
+/* =========================================================
+   MOTION LINES
+   ========================================================= */
+
+.login-failed .line-left {
+
+    animation:
+        motionLeft
+        .75s
+        ease-out
+        both;
+
+}
+
+
+.login-failed .line-right {
+
+    animation:
+        motionRight
+        .75s
+        ease-out
+        both;
+
+}
+
+
+@keyframes motionLeft {
+
+    0%,
+    100% {
+
+        opacity: 0;
+
+        transform:
+            translateX(12px)
+            rotate(-25deg);
+
+    }
+
+    35% {
+
+        opacity: .8;
+
+        transform:
+            translateX(0)
+            rotate(-25deg);
+
+    }
+
+}
+
+
+@keyframes motionRight {
+
+    0%,
+    100% {
+
+        opacity: 0;
+
+        transform:
+            translateX(-12px)
+            rotate(25deg);
+
+    }
+
+    35% {
+
+        opacity: .8;
+
+        transform:
+            translateX(0)
+            rotate(25deg);
+
+    }
+
+}
+
+
+/* =========================================================
+   ERROR MESSAGE
+   ========================================================= */
+
+.login-messages {
+
+    margin:
+        0 0 18px;
+
+}
+
+
+.login-message {
+
+    padding:
+        11px 13px;
+
+    border-radius:
+        10px;
+
+    font-size:
+        13px;
+
+    font-weight:
+        600;
+
+}
+
+
+.login-message.error {
+
+    background:
+        #fff0f0;
+
+    color:
+        #b42318;
+
+    border:
+        1px solid #ffd1d1;
+
+}
+
+
+.login-message.success {
+
+    background:
+        #edf9f1;
+
+    color:
+        #18763c;
+
+    border:
+        1px solid #ccebd7;
 
 }
 
@@ -300,31 +1461,65 @@
 
 @media (max-width: 700px) {
 
-    .login-animation {
+    .student-stage {
 
-        width: 280px;
-        height: 320px;
+        max-width: 330px;
+
+        height: 300px;
 
         margin-left: auto;
         margin-right: auto;
 
-        margin-top: 24px;
+    }
+
+    .student {
+
+        transform:
+            translateX(-50%)
+            scale(.88);
+
+        transform-origin:
+            center bottom;
+
+    }
+
+    .student-stage:not(.login-failed) .student {
+
+        animation:
+            mobileBreathing
+            3.5s
+            ease-in-out
+            infinite;
+
+    }
+
+    .no-bubble {
+
+        right: 20px;
 
     }
 
 }
 
 
-/* =========================================================
-   VERY SMALL PHONES
-   ========================================================= */
+@keyframes mobileBreathing {
 
-@media (max-width: 420px) {
+    0%,
+    100% {
 
-    .login-animation {
+        transform:
+            translateX(-50%)
+            scale(.88)
+            translateY(0);
 
-        width: 250px;
-        height: 285px;
+    }
+
+    50% {
+
+        transform:
+            translateX(-50%)
+            scale(.88)
+            translateY(-3px);
 
     }
 
@@ -337,9 +1532,12 @@
 
 @media (prefers-reduced-motion: reduce) {
 
-    .login-animation img {
+    .student,
+    .student-head,
+    .no-bubble,
+    .shake-line {
 
-        animation: none;
+        animation: none !important;
 
     }
 
@@ -351,124 +1549,6 @@
 <script>
 
 /* =========================================================
-   ELEMENTS
-   ========================================================= */
-
-const loginForm =
-    document.getElementById("loginForm");
-
-const loginButton =
-    document.getElementById("loginButton");
-
-const loginButtonText =
-    document.getElementById("loginButtonText");
-
-const loginArrow =
-    document.getElementById("loginArrow");
-
-const loginAnimation =
-    document.getElementById("loginAnimation");
-
-const loginAnimationImage =
-    document.getElementById("loginAnimationImage");
-
-
-/* =========================================================
-   ANIMATION LENGTH
-   =========================================================
-
-   The reference animation is approximately 7 seconds.
-
-   After the animation finishes, the REAL form is submitted.
-   ========================================================= */
-
-const ANIMATION_TIME = 7000;
-
-
-/* =========================================================
-   LOGIN
-   ========================================================= */
-
-loginForm.addEventListener("submit", function(event) {
-
-    /*
-     * Stop the normal form submission temporarily.
-     */
-    event.preventDefault();
-
-
-    /*
-     * Don't allow multiple clicks.
-     */
-    if (
-        loginButton.dataset.animating === "true"
-    ) {
-
-        return;
-
-    }
-
-
-    /*
-     * Mark animation as running.
-     */
-    loginButton.dataset.animating = "true";
-
-    loginButton.disabled = true;
-
-    loginButton.classList.add("playing");
-
-
-    /*
-     * Change button text.
-     */
-    loginButtonText.textContent =
-        "Signing in";
-
-    loginArrow.textContent =
-        "✓";
-
-
-    /*
-     * Show animation.
-     */
-    loginAnimation.classList.add("play");
-
-
-    /*
-     * IMPORTANT:
-     *
-     * Add a timestamp to the GIF URL.
-     *
-     * This forces the browser to load the animation
-     * from the beginning instead of using an old
-     * cached frame.
-     */
-    loginAnimationImage.src =
-        "{{ url_for('static', filename='login-animation.gif') }}"
-        + "?animation="
-        + Date.now();
-
-
-    /*
-     * Wait until the animation has performed.
-     */
-    setTimeout(function() {
-
-        /*
-         * Submit the ORIGINAL Flask form.
-         *
-         * This means your existing Flask login route
-         * continues working normally.
-         */
-        loginForm.submit();
-
-    }, ANIMATION_TIME);
-
-});
-
-
-/* =========================================================
    PASSWORD SHOW / HIDE
    ========================================================= */
 
@@ -478,7 +1558,7 @@ function togglePassword() {
         document.getElementById("password");
 
     const button =
-        document.getElementById("passwordToggle");
+        document.querySelector(".eye");
 
 
     if (password.type === "password") {
@@ -496,6 +1576,23 @@ function togglePassword() {
     }
 
 }
+
+
+/* =========================================================
+   WRONG LOGIN
+   =========================================================
+
+   Flask has already processed the login before this page
+   is rendered.
+
+   If an error flash exists, the "login-failed" class is
+   already present in the HTML, so the animation starts
+   automatically.
+
+   No video.
+   No GIF.
+   No infinite action.
+   ========================================================= */
 
 </script>
 
