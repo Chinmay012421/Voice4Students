@@ -5150,3 +5150,39 @@ textarea:focus {
         animation-duration: .55s;
     }
 }
+
+.login-animation {
+
+    display: none;
+
+    position: relative;
+
+    width: 350px;
+    height: 400px;
+
+    margin-top: 28px;
+
+    overflow: hidden;
+
+    background: #eeeeee;
+
+}
+
+
+.login-animation.play {
+
+    display: block;
+
+}
+
+
+.login-animation img {
+
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+
+}
