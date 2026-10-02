@@ -1,412 +1,909 @@
-
 {% extends "base.html" %}
+
 {% block title %}Login — SchoolVoice{% endblock %}
+
 {% block content %}
 
 <div class="auth-layout reveal">
-  <div class="auth-info">
-    <div class="eyebrow"><span></span> WELCOME BACK</div>
-    <h1>Back to your<br><strong>SchoolFix.</strong></h1>
-    <p>Sign in to view reports, updates, and conversations connected to your account.</p>
 
-    <div class="auth-image">
-      <img src="{{ url_for('static', filename='school-bg.png') }}" alt="School campus">
+    <!-- LEFT SIDE -->
+    <div class="auth-info">
 
-      <div class="sf-cast" id="sfCast">
-        <div class="sf-shape sf-purple">
-          <span class="sf-eyes"></span><span class="sf-mouth"></span>
+        <div class="eyebrow">
+            <span></span> WELCOME BACK
         </div>
-        <div class="sf-shape sf-black">
-          <span class="sf-eyes"></span><span class="sf-mouth"></span>
-        </div>
-        <div class="sf-shape sf-orange">
-          <span class="sf-eyes"></span><span class="sf-mouth"></span>
-        </div>
-        <div class="sf-shape sf-yellow">
-          <span class="sf-eyes"></span><span class="sf-mouth"></span>
-        </div>
-      </div>
 
-      <div class="auth-caption">
-        <strong>One place for your school voice.</strong>
-        <span>Secure account access</span>
-      </div>
+        <h1>
+            Back to your<br>
+            <strong>SchoolFix.</strong>
+        </h1>
+
+        <p>
+            Sign in to view reports, updates, and conversations connected
+            to your account.
+        </p>
+
+        <!-- VIDEO-STYLE ANIMATION -->
+        <div class="login-animation">
+
+            <div class="animation-light"></div>
+
+            <!-- PURPLE CHARACTER -->
+            <div class="char purple-character">
+                <div class="face purple-face">
+                    <span class="eye left"></span>
+                    <span class="eye right"></span>
+                    <span class="mouth"></span>
+                </div>
+            </div>
+
+            <!-- BLACK CHARACTER -->
+            <div class="char black-character">
+                <div class="face black-face">
+                    <span class="eye left"></span>
+                    <span class="eye right"></span>
+                </div>
+            </div>
+
+            <!-- ORANGE CHARACTER -->
+            <div class="char orange-character">
+                <div class="face orange-face">
+                    <span class="eye left"></span>
+                    <span class="eye right"></span>
+                    <span class="mouth"></span>
+                </div>
+            </div>
+
+            <!-- YELLOW CHARACTER -->
+            <div class="char yellow-character">
+                <div class="face yellow-face">
+                    <span class="eye left"></span>
+                    <span class="eye right"></span>
+                    <span class="mouth"></span>
+                </div>
+            </div>
+
+        </div>
+
     </div>
-  </div>
 
-  <div class="auth-card">
-    <div class="auth-card-top">
-      <span class="auth-mark">S</span>
-      <div><strong>SchoolFix</strong><small>Student Voice Portal</small></div>
+
+    <!-- RIGHT SIDE -->
+    <div class="auth-card">
+
+        <div class="auth-card-top">
+            <span class="auth-mark">S</span>
+
+            <div>
+                <strong>SchoolFix</strong>
+                <small>Student Voice Portal</small>
+            </div>
+        </div>
+
+        <div class="eyebrow">
+            ACCOUNT LOGIN
+        </div>
+
+        <h2>Welcome back</h2>
+
+        <p class="muted">
+            Enter your account details below.
+        </p>
+
+        <form method="post" class="clean-form">
+
+            <label>Username</label>
+
+            <input
+                name="username"
+                autocomplete="username"
+                required
+                placeholder="Your username"
+            >
+
+
+            <label>Password</label>
+
+            <div class="password-wrap">
+
+                <input
+                    id="password"
+                    type="password"
+                    name="password"
+                    autocomplete="current-password"
+                    required
+                    placeholder="Your password"
+                >
+
+                <button
+                    type="button"
+                    class="eye"
+                    onclick="togglePassword('password', this)"
+                >
+                    Show
+                </button>
+
+            </div>
+
+
+            <button
+                class="btn btn-primary full"
+                type="submit"
+            >
+                Login
+                <span>→</span>
+            </button>
+
+        </form>
+
+
+        <p class="auth-foot muted">
+            New here?
+            <a href="{{ url_for('register') }}">
+                Create an account
+            </a>
+        </p>
+
     </div>
 
-    <div class="eyebrow">ACCOUNT LOGIN</div>
-    <h2>Welcome back</h2>
-    <p class="muted">Enter your account details below.</p>
-
-    <form method="post" class="clean-form" id="loginForm">
-      <label>Username</label>
-      <input id="loginUsername" name="username" autocomplete="username" required placeholder="Your username">
-
-      <label>Password</label>
-      <div class="password-wrap">
-        <input id="password" type="password" name="password" autocomplete="current-password" required placeholder="Your password">
-        <button type="button" class="eye" onclick="togglePassword('password',this)">Show</button>
-      </div>
-
-      <button class="btn btn-primary full" type="submit" id="loginButton">
-        Login <span>→</span>
-      </button>
-    </form>
-
-    <p class="auth-foot muted">New here? <a href="{{ url_for('register') }}">Create an account</a></p>
-  </div>
 </div>
 
+
 <style>
-.auth-image {
-  position: relative;
-  overflow: hidden;
-  border-radius: 22px;
-  height: 210px;
-  isolation: isolate;
-  background: #dce7ef;
+
+/* =========================================================
+   LOGIN ANIMATION
+   Based directly on the uploaded reference video
+   ========================================================= */
+
+.login-animation {
+    position: relative;
+    width: 100%;
+    height: 315px;
+    margin-top: 30px;
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            90deg,
+            #eeeeee 0%,
+            #eeeeee 69%,
+            #e7e7e7 69%,
+            #e7e7e7 70%,
+            #f7f7f7 70%,
+            #f7f7f7 100%
+        );
+
+    border-radius: 4px;
+
+    isolation: isolate;
 }
 
-.auth-image > img {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  inset: 0;
-  object-fit: cover;
-  display: block;
-  animation: sfImageIn .8s ease both;
+
+/* subtle background lighting */
+
+.animation-light {
+    position: absolute;
+    width: 270px;
+    height: 270px;
+
+    left: 5%;
+    bottom: -170px;
+
+    border-radius: 50%;
+
+    background: rgba(255,255,255,.28);
+
+    filter: blur(10px);
+
+    animation: lightMove 7s ease-in-out infinite;
 }
 
-.sf-cast {
-  position: absolute;
-  z-index: 4;
-  left: 8px;
-  bottom: 0;
-  width: 245px;
-  height: 165px;
-  pointer-events: none;
+
+/* =========================================================
+   COMMON CHARACTER
+   ========================================================= */
+
+.char {
+    position: absolute;
+
+    transform-origin: center bottom;
+
+    will-change: transform;
+
+    z-index: 3;
 }
 
-.sf-shape {
-  position: absolute;
-  bottom: 0;
-  transform-origin: bottom center;
-  filter: drop-shadow(0 5px 5px rgba(0,0,0,.13));
-  transition: filter .3s;
+
+/* =========================================================
+   PURPLE CHARACTER
+   ========================================================= */
+
+.purple-character {
+
+    width: 73px;
+    height: 185px;
+
+    left: 18%;
+    bottom: 25px;
+
+    background: #7024ff;
+
+    clip-path: polygon(
+        12% 0%,
+        100% 5%,
+        91% 100%,
+        0% 92%,
+        8% 48%
+    );
+
+    animation: purpleMove 7s cubic-bezier(.45,.05,.55,.95) infinite;
 }
 
-.sf-eyes {
-  position: absolute;
-  display: block;
-  width: 30px;
-  height: 13px;
-  background:
-    radial-gradient(circle at 20% 50%, #171717 0 3px, transparent 3.6px),
-    radial-gradient(circle at 80% 50%, #171717 0 3px, transparent 3.6px);
-  animation: sfBlink 4s infinite;
+
+/* =========================================================
+   BLACK CHARACTER
+   ========================================================= */
+
+.black-character {
+
+    width: 51px;
+    height: 137px;
+
+    left: 37%;
+    bottom: 25px;
+
+    background: #171717;
+
+    border-radius: 4px 4px 1px 1px;
+
+    animation: blackMove 7s cubic-bezier(.45,.05,.55,.95) infinite;
 }
 
-.sf-mouth {
-  position: absolute;
-  display: block;
+
+/* =========================================================
+   ORANGE CHARACTER
+   ========================================================= */
+
+.orange-character {
+
+    width: 145px;
+    height: 88px;
+
+    left: 4%;
+    bottom: 0;
+
+    background: #ff7415;
+
+    border-radius:
+        145px 145px 0 0;
+
+    animation: orangeMove 7s ease-in-out infinite;
 }
 
-/* Purple character */
-.sf-purple {
-  z-index: 1;
-  left: 57px;
-  bottom: 4px;
-  width: 91px;
-  height: 145px;
-  background: #681cff;
-  clip-path: polygon(25% 0, 100% 12%, 91% 57%, 100% 100%, 0 100%, 8% 42%);
-  animation: sfPurpleMove 3.4s ease-in-out infinite;
+
+/* =========================================================
+   YELLOW CHARACTER
+   ========================================================= */
+
+.yellow-character {
+
+    width: 61px;
+    height: 117px;
+
+    left: 48%;
+    bottom: 0;
+
+    background: #ffd600;
+
+    border-radius:
+        35px 35px 0 0;
+
+    animation: yellowMove 7s cubic-bezier(.45,.05,.55,.95) infinite;
 }
 
-.sf-purple .sf-eyes {
-  top: 27px;
-  left: 32px;
+
+/* =========================================================
+   FACES
+   ========================================================= */
+
+.face {
+    position: absolute;
+
+    pointer-events: none;
 }
 
-.sf-purple .sf-mouth {
-  top: 48px;
-  left: 40px;
-  width: 13px;
-  height: 7px;
-  border-top: 3px solid #171717;
-  border-radius: 50%;
+
+/* eyes */
+
+.face .eye {
+
+    position: absolute;
+
+    width: 5px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #171717;
+
+    transition: transform .2s;
 }
 
-/* Black character */
-.sf-black {
-  z-index: 2;
-  left: 127px;
-  bottom: 0;
-  width: 57px;
-  height: 119px;
-  background: #101014;
-  border-radius: 3px 3px 0 0;
-  animation: sfBlackMove 3s ease-in-out infinite;
+
+/* purple face */
+
+.purple-face {
+
+    left: 22px;
+    top: 42px;
+
+    width: 32px;
+    height: 25px;
 }
 
-.sf-black .sf-eyes {
-  top: 13px;
-  left: 13px;
-  background:
-    radial-gradient(circle at 20% 50%, white 0 4px, transparent 4.7px),
-    radial-gradient(circle at 80% 50%, white 0 4px, transparent 4.7px);
+.purple-face .eye.left {
+    left: 0;
+    top: 0;
 }
 
-.sf-black .sf-mouth {
-  top: 36px;
-  left: 23px;
-  width: 12px;
-  height: 5px;
-  border-bottom: 2px solid white;
-  border-radius: 50%;
+.purple-face .eye.right {
+    left: 17px;
+    top: 1px;
 }
 
-/* Orange character */
-.sf-orange {
-  z-index: 3;
-  left: 0;
-  bottom: 0;
-  width: 169px;
-  height: 91px;
-  background: #ff791b;
-  border-radius: 100% 100% 0 0;
-  animation: sfOrangeMove 3.8s ease-in-out infinite;
+.purple-face .mouth {
+
+    position: absolute;
+
+    left: 7px;
+    top: 14px;
+
+    width: 12px;
+    height: 5px;
+
+    border-bottom:
+        2px solid #171717;
+
+    border-radius: 0 0 12px 12px;
 }
 
-.sf-orange .sf-eyes {
-  top: 31px;
-  left: 72px;
+
+/* black face */
+
+.black-face {
+
+    left: 13px;
+    top: 44px;
+
+    width: 28px;
+    height: 25px;
 }
 
-.sf-orange .sf-mouth {
-  top: 51px;
-  left: 84px;
-  width: 13px;
-  height: 7px;
-  border-top: 3px solid #171717;
-  border-radius: 50%;
+.black-face .eye {
+
+    width: 5px;
+    height: 5px;
+
+    background: white;
+
+    border: 1px solid #111;
 }
 
-/* Yellow character */
-.sf-yellow {
-  z-index: 4;
-  right: 0;
-  bottom: 0;
-  width: 72px;
-  height: 106px;
-  background: #ffdc13;
-  border-radius: 40px 40px 0 0;
-  animation: sfYellowMove 3.2s ease-in-out infinite;
+.black-face .eye.left {
+    left: 0;
+    top: 0;
 }
 
-.sf-yellow .sf-eyes {
-  top: 31px;
-  left: 19px;
-  width: 25px;
+.black-face .eye.right {
+    left: 15px;
+    top: 0;
 }
 
-.sf-yellow .sf-mouth {
-  top: 51px;
-  left: 29px;
-  width: 20px;
-  height: 4px;
-  background: #171717;
-  border-radius: 4px;
+
+/* orange face */
+
+.orange-face {
+
+    left: 58px;
+    top: 39px;
+
+    width: 38px;
+    height: 30px;
 }
 
-/* Caption */
-.auth-caption {
-  position: absolute;
-  z-index: 6;
-  right: 10px;
-  bottom: 12px;
-  width: 55%;
-  padding: 10px 12px;
-  border-radius: 13px;
-  background: rgba(255,255,255,.88);
-  backdrop-filter: blur(7px);
-  box-shadow: 0 8px 22px rgba(15,47,87,.12);
+.orange-face .eye.left {
+    left: 0;
+    top: 0;
 }
 
-.auth-caption strong,
-.auth-caption span {
-  display: block;
+.orange-face .eye.right {
+    left: 20px;
+    top: 1px;
 }
 
-.auth-caption strong {
-  color: #0f2f57;
-  font-size: 12px;
+.orange-face .mouth {
+
+    position: absolute;
+
+    left: 8px;
+    top: 15px;
+
+    width: 14px;
+    height: 6px;
+
+    border-bottom:
+        2px solid #171717;
+
+    border-radius: 0 0 12px 12px;
 }
 
-.auth-caption span {
-  color: #526579;
-  font-size: 10px;
-  margin-top: 3px;
+
+/* yellow face */
+
+.yellow-face {
+
+    left: 17px;
+    top: 42px;
+
+    width: 32px;
+    height: 30px;
 }
 
-/* Normal idle animations */
-@keyframes sfImageIn {
-  from { opacity: 0; transform: scale(1.04); }
-  to { opacity: 1; transform: scale(1); }
+.yellow-face .eye.left {
+    left: 0;
+    top: 0;
 }
 
-@keyframes sfPurpleMove {
-  0%,100% { transform: rotate(-3deg); }
-  50% { transform: rotate(4deg); }
+.yellow-face .eye.right {
+    left: 17px;
+    top: 1px;
 }
 
-@keyframes sfBlackMove {
-  0%,100% { transform: rotate(-4deg) translateY(0); }
-  50% { transform: rotate(2deg) translateY(-5px); }
+.yellow-face .mouth {
+
+    position: absolute;
+
+    left: 6px;
+    top: 16px;
+
+    width: 20px;
+    height: 2px;
+
+    background: #171717;
+
+    border-radius: 5px;
 }
 
-@keyframes sfOrangeMove {
-  0%,100% { transform: scaleY(1); }
-  50% { transform: scaleY(1.06) rotate(-2deg); }
+
+/* =========================================================
+   PURPLE ANIMATION
+   ========================================================= */
+
+@keyframes purpleMove {
+
+    0% {
+        left: 18%;
+        bottom: 25px;
+        transform:
+            rotate(9deg)
+            scale(1);
+    }
+
+    10% {
+        left: 19%;
+        bottom: 25px;
+        transform:
+            rotate(0deg)
+            scale(1);
+    }
+
+    22% {
+        left: 19%;
+        bottom: 25px;
+        transform:
+            rotate(0deg)
+            scale(1);
+    }
+
+    31% {
+        left: 24%;
+        bottom: 13px;
+        transform:
+            rotate(90deg)
+            scale(.94);
+    }
+
+    39% {
+        left: 13%;
+        bottom: 20px;
+        transform:
+            rotate(0deg)
+            scale(.72);
+    }
+
+    47% {
+        left: 19%;
+        bottom: 25px;
+        transform:
+            rotate(0deg)
+            scale(1);
+    }
+
+    65% {
+        left: 21%;
+        bottom: 25px;
+        transform:
+            rotate(7deg)
+            scale(1);
+    }
+
+    78% {
+        left: 23%;
+        bottom: 25px;
+        transform:
+            rotate(9deg)
+            scale(1);
+    }
+
+    91% {
+        left: 18%;
+        bottom: 25px;
+        transform:
+            rotate(0deg)
+            scale(1);
+    }
+
+    100% {
+        left: 18%;
+        bottom: 25px;
+        transform:
+            rotate(9deg)
+            scale(1);
+    }
 }
 
-@keyframes sfYellowMove {
-  0%,100% { transform: rotate(0); }
-  50% { transform: rotate(-5deg); }
+
+/* =========================================================
+   BLACK ANIMATION
+   ========================================================= */
+
+@keyframes blackMove {
+
+    0% {
+        left: 37%;
+        bottom: 25px;
+        transform:
+            rotate(0deg)
+            scale(1);
+    }
+
+    23% {
+        left: 37%;
+        bottom: 25px;
+        transform:
+            rotate(0deg)
+            scale(1);
+    }
+
+    30% {
+        left: 26%;
+        bottom: 115px;
+        transform:
+            rotate(11deg)
+            scale(.85);
+    }
+
+    38% {
+        left: 37%;
+        bottom: 25px;
+        transform:
+            rotate(0deg)
+            scale(1);
+    }
+
+    50% {
+        left: 37%;
+        bottom: 25px;
+        transform:
+            rotate(0deg)
+            scale(1);
+    }
+
+    69% {
+        left: 37%;
+        bottom: 25px;
+        transform:
+            rotate(0deg)
+            scale(1);
+    }
+
+    78% {
+        left: 39%;
+        bottom: 25px;
+        transform:
+            rotate(4deg)
+            scale(1);
+    }
+
+    90% {
+        left: 37%;
+        bottom: 25px;
+        transform:
+            rotate(0deg)
+            scale(1);
+    }
+
+    100% {
+        left: 37%;
+        bottom: 25px;
+        transform:
+            rotate(0deg)
+            scale(1);
+    }
 }
 
-@keyframes sfBlink {
-  0%,44%,48%,100% { transform: scaleY(1); }
-  46% { transform: scaleY(.12); }
+
+/* =========================================================
+   ORANGE ANIMATION
+   ========================================================= */
+
+@keyframes orangeMove {
+
+    0% {
+        left: 4%;
+        transform:
+            translateY(0)
+            scale(1);
+    }
+
+    15% {
+        left: 4%;
+        transform:
+            translateY(0)
+            scale(1);
+    }
+
+    31% {
+        left: 5%;
+        transform:
+            translateY(5px)
+            scale(.92);
+    }
+
+    40% {
+        left: 4%;
+        transform:
+            translateY(0)
+            scale(1);
+    }
+
+    57% {
+        left: 4%;
+        transform:
+            translateY(0)
+            scale(1);
+    }
+
+    75% {
+        left: 4%;
+        transform:
+            translateY(0)
+            scale(1);
+    }
+
+    100% {
+        left: 4%;
+        transform:
+            translateY(0)
+            scale(1);
+    }
 }
 
-/* REACTION: user focuses or types */
-.sf-cast.is-active .sf-purple {
-  animation: sfReactPurple .65s ease-in-out infinite;
+
+/* =========================================================
+   YELLOW ANIMATION
+   ========================================================= */
+
+@keyframes yellowMove {
+
+    0% {
+        left: 48%;
+        transform:
+            rotate(0deg)
+            scale(1);
+    }
+
+    24% {
+        left: 48%;
+        transform:
+            rotate(0deg)
+            scale(1);
+    }
+
+    31% {
+        left: 49%;
+        transform:
+            rotate(14deg)
+            scale(.92);
+    }
+
+    40% {
+        left: 48%;
+        transform:
+            rotate(0deg)
+            scale(1);
+    }
+
+    56% {
+        left: 48%;
+        transform:
+            rotate(0deg)
+            scale(1);
+    }
+
+    72% {
+        left: 48%;
+        transform:
+            rotate(8deg)
+            scale(1);
+    }
+
+    83% {
+        left: 48%;
+        transform:
+            rotate(0deg)
+            scale(1);
+    }
+
+    100% {
+        left: 48%;
+        transform:
+            rotate(0deg)
+            scale(1);
+    }
 }
 
-.sf-cast.is-active .sf-black {
-  animation: sfReactBlack .55s ease-in-out infinite;
+
+/* =========================================================
+   BACKGROUND LIGHT
+   ========================================================= */
+
+@keyframes lightMove {
+
+    0%,
+    100% {
+        transform:
+            translateX(0)
+            scale(1);
+    }
+
+    50% {
+        transform:
+            translateX(35px)
+            scale(1.15);
+    }
 }
 
-.sf-cast.is-active .sf-orange {
-  animation: sfReactOrange .7s ease-in-out infinite;
+
+/* =========================================================
+   SMALL SCREEN
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .login-animation {
+        height: 290px;
+    }
+
+    .purple-character {
+        width: 65px;
+        height: 165px;
+    }
+
+    .black-character {
+        width: 46px;
+        height: 122px;
+    }
+
+    .orange-character {
+        width: 125px;
+        height: 78px;
+    }
+
+    .yellow-character {
+        width: 55px;
+        height: 105px;
+    }
 }
 
-.sf-cast.is-active .sf-yellow {
-  animation: sfReactYellow .6s ease-in-out infinite;
+
+@media (max-width: 700px) {
+
+    .login-animation {
+        height: 240px;
+        margin-top: 24px;
+    }
+
+    .purple-character {
+        width: 53px;
+        height: 135px;
+        left: 17%;
+    }
+
+    .black-character {
+        width: 39px;
+        height: 100px;
+    }
+
+    .orange-character {
+        width: 105px;
+        height: 65px;
+    }
+
+    .yellow-character {
+        width: 46px;
+        height: 88px;
+    }
+
+    .purple-face {
+        transform: scale(.8);
+        transform-origin: top left;
+    }
+
+    .black-face {
+        transform: scale(.8);
+        transform-origin: top left;
+    }
+
+    .orange-face {
+        transform: scale(.75);
+        transform-origin: top left;
+    }
+
+    .yellow-face {
+        transform: scale(.75);
+        transform-origin: top left;
+    }
 }
 
-.sf-cast.is-active .sf-mouth {
-  animation: sfReactMouth .45s ease-in-out infinite alternate;
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .char,
+    .animation-light {
+        animation: none !important;
+    }
+
 }
 
-@keyframes sfReactPurple {
-  0%,100% { transform: rotate(-7deg) translateY(0); }
-  50% { transform: rotate(8deg) translateY(-10px); }
-}
-
-@keyframes sfReactBlack {
-  0%,100% { transform: rotate(-5deg) translateY(0); }
-  50% { transform: rotate(7deg) translateY(-9px); }
-}
-
-@keyframes sfReactOrange {
-  0%,100% { transform: scaleY(1) rotate(0); }
-  50% { transform: scaleY(1.15) rotate(-4deg); }
-}
-
-@keyframes sfReactYellow {
-  0%,100% { transform: rotate(5deg) translateY(0); }
-  50% { transform: rotate(-8deg) translateY(-9px); }
-}
-
-@keyframes sfReactMouth {
-  from { transform: scale(.7); }
-  to { transform: scale(1.5); }
-}
-
-/* REACTION: Login button pressed */
-.sf-cast.is-submitting .sf-shape {
-  animation: sfLoginReaction .35s ease-in-out 3;
-}
-
-@keyframes sfLoginReaction {
-  0%,100% { transform: translateY(0) rotate(0); }
-  50% { transform: translateY(-13px) rotate(7deg); }
-}
-
-@media(max-width:700px) {
-  .sf-cast {
-    transform: scale(.82);
-    transform-origin: bottom left;
-  }
-
-  .auth-caption {
-    width: 52%;
-    right: 7px;
-    bottom: 8px;
-    padding: 8px;
-  }
-
-  .auth-caption strong { font-size: 10px; }
-  .auth-caption span { font-size: 9px; }
-}
-
-@media(prefers-reduced-motion:reduce) {
-  .sf-shape,
-  .sf-eyes,
-  .sf-mouth,
-  .auth-image > img {
-    animation: none !important;
-  }
-}
 </style>
 
+
 <script>
-function togglePassword(id,b) {
-  const x = document.getElementById(id);
-  x.type = x.type === 'password' ? 'text' : 'password';
-  b.textContent = x.type === 'password' ? 'Show' : 'Hide';
+
+function togglePassword(id, button) {
+
+    const input = document.getElementById(id);
+
+    if (input.type === "password") {
+
+        input.type = "text";
+        button.textContent = "Hide";
+
+    } else {
+
+        input.type = "password";
+        button.textContent = "Show";
+
+    }
+
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  const cast = document.getElementById('sfCast');
-  const form = document.getElementById('loginForm');
-
-  if (!cast || !form) return;
-
-  // Characters react when the user enters the login form.
-  form.addEventListener('focusin', function() {
-    cast.classList.add('is-active');
-    cast.classList.remove('is-submitting');
-  });
-
-  // Keep the reaction while typing.
-  form.addEventListener('input', function() {
-    cast.classList.add('is-active');
-  });
-
-  // Return to normal when the user leaves the form.
-  form.addEventListener('focusout', function() {
-    setTimeout(function() {
-      if (!form.contains(document.activeElement)) {
-        cast.classList.remove('is-active');
-      }
-    }, 100);
-  });
-
-  // React when Login is pressed, then allow normal form submission.
-  form.addEventListener('submit', function() {
-    cast.classList.add('is-submitting');
-  });
-});
 </script>
 
 {% endblock %}
