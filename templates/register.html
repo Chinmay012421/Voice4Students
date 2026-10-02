@@ -18,22 +18,6 @@
     <div class="auth-visual-wrap">
       <div class="auth-image">
         <img src="{{ url_for('static', filename='school-bg.png') }}" alt="School campus">
-
-        <div class="sf-cast" aria-label="Four animated colourful characters">
-          <div class="sf-shape sf-purple">
-            <span class="sf-eyes"></span><span class="sf-mouth"></span>
-          </div>
-          <div class="sf-shape sf-black">
-            <span class="sf-eyes"></span><span class="sf-mouth"></span>
-          </div>
-          <div class="sf-shape sf-orange">
-            <span class="sf-eyes"></span><span class="sf-mouth"></span>
-          </div>
-          <div class="sf-shape sf-yellow">
-            <span class="sf-eyes"></span><span class="sf-mouth"></span>
-          </div>
-        </div>
-
         <div class="auth-caption">
           <strong>One place for your school voice.</strong>
           <span>Safe and organised student feedback</span>
@@ -45,10 +29,7 @@
   <div class="auth-card">
     <div class="auth-card-top">
       <span class="auth-mark">S</span>
-      <div>
-        <strong>SchoolFix</strong>
-        <small>Student Voice Portal</small>
-      </div>
+      <div><strong>SchoolFix</strong><small>Student Voice Portal</small></div>
     </div>
 
     <div class="eyebrow">CREATE ACCOUNT</div>
@@ -90,7 +71,7 @@
   background: #dce7ef;
 }
 
-.auth-image > img {
+.auth-image img {
   width: 100%;
   height: 100%;
   position: absolute;
@@ -100,164 +81,17 @@
   animation: sfImageIn .8s ease both;
 }
 
-/* Characters directly over the school image */
-.sf-cast {
-  position: absolute;
-  z-index: 4;
-  left: 8px;
-  bottom: 0;
-  width: 245px;
-  height: 165px;
-  pointer-events: none;
-}
-
-.sf-shape {
-  position: absolute;
-  bottom: 0;
-  transform-origin: bottom center;
-  filter: drop-shadow(0 5px 5px rgba(0,0,0,.13));
-}
-
-.sf-eyes {
-  position: absolute;
-  display: block;
-  width: 30px;
-  height: 13px;
-  background:
-    radial-gradient(circle at 20% 50%, #171717 0 3px, transparent 3.6px),
-    radial-gradient(circle at 80% 50%, #171717 0 3px, transparent 3.6px);
-  animation: sfBlink 4s infinite;
-}
-
-.sf-mouth {
-  position: absolute;
-  display: block;
-}
-
-/* Purple character */
-.sf-purple {
-  z-index: 1;
-  left: 57px;
-  bottom: 4px;
-  width: 91px;
-  height: 145px;
-  background: #681cff;
-  clip-path: polygon(25% 0, 100% 12%, 91% 57%, 100% 100%, 0 100%, 8% 42%);
-  animation: sfPurpleMove 3.4s ease-in-out infinite;
-}
-
-.sf-purple .sf-eyes {
-  top: 27px;
-  left: 32px;
-  transform: rotate(8deg);
-}
-
-.sf-purple .sf-mouth {
-  top: 48px;
-  left: 40px;
-  width: 13px;
-  height: 7px;
-  border-top: 3px solid #171717;
-  border-radius: 50%;
-  transform: rotate(15deg);
-}
-
-/* Black character */
-.sf-black {
-  z-index: 2;
-  left: 127px;
-  bottom: 0;
-  width: 57px;
-  height: 119px;
-  background: #101014;
-  border-radius: 3px 3px 0 0;
-  transform: rotate(-4deg);
-  animation: sfBlackMove 3s ease-in-out infinite;
-}
-
-.sf-black .sf-eyes {
-  top: 13px;
-  left: 13px;
-  background:
-    radial-gradient(circle at 20% 50%, white 0 4px, transparent 4.7px),
-    radial-gradient(circle at 80% 50%, white 0 4px, transparent 4.7px);
-}
-
-.sf-black .sf-mouth {
-  top: 36px;
-  left: 23px;
-  width: 12px;
-  height: 5px;
-  border-bottom: 2px solid white;
-  border-radius: 50%;
-}
-
-/* Orange character */
-.sf-orange {
-  z-index: 3;
-  left: 0;
-  bottom: 0;
-  width: 169px;
-  height: 91px;
-  background: #ff791b;
-  border-radius: 100% 100% 0 0;
-  animation: sfOrangeMove 3.8s ease-in-out infinite;
-}
-
-.sf-orange .sf-eyes {
-  top: 31px;
-  left: 72px;
-}
-
-.sf-orange .sf-mouth {
-  top: 51px;
-  left: 84px;
-  width: 13px;
-  height: 7px;
-  border-top: 3px solid #171717;
-  border-radius: 50%;
-}
-
-/* Yellow character */
-.sf-yellow {
-  z-index: 4;
-  right: 0;
-  bottom: 0;
-  width: 72px;
-  height: 106px;
-  background: #ffdc13;
-  border-radius: 40px 40px 0 0;
-  animation: sfYellowMove 3.2s ease-in-out infinite;
-}
-
-.sf-yellow .sf-eyes {
-  top: 31px;
-  left: 19px;
-  width: 25px;
-}
-
-.sf-yellow .sf-mouth {
-  top: 51px;
-  left: 29px;
-  width: 20px;
-  height: 4px;
-  background: #171717;
-  border-radius: 4px;
-  animation: sfMouthMove 2s ease-in-out infinite;
-}
-
-/* Image caption */
 .auth-caption {
   position: absolute;
-  z-index: 6;
-  right: 10px;
-  bottom: 12px;
-  width: 55%;
-  padding: 10px 12px;
-  border-radius: 13px;
+  z-index: 5;
+  left: 16px;
+  right: 16px;
+  bottom: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
   background: rgba(255,255,255,.88);
-  backdrop-filter: blur(7px);
-  box-shadow: 0 8px 22px rgba(15,47,87,.12);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 28px rgba(15,47,87,.13);
 }
 
 .auth-caption strong,
@@ -267,73 +101,22 @@
 
 .auth-caption strong {
   color: #0f2f57;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .auth-caption span {
   color: #526579;
-  font-size: 10px;
+  font-size: 11px;
   margin-top: 3px;
 }
 
-/* Animations */
 @keyframes sfImageIn {
-  from { opacity: 0; transform: scale(1.04); }
+  from { opacity: 0; transform: scale(1.035); }
   to { opacity: 1; transform: scale(1); }
 }
 
-@keyframes sfPurpleMove {
-  0%,100% { transform: rotate(-3deg) scaleY(1); }
-  50% { transform: rotate(4deg) scaleY(1.04); }
-}
-
-@keyframes sfBlackMove {
-  0%,100% { transform: rotate(-4deg) translateY(0); }
-  50% { transform: rotate(2deg) translateY(-5px); }
-}
-
-@keyframes sfOrangeMove {
-  0%,100% { transform: scaleY(1) rotate(0); }
-  50% { transform: scaleY(1.06) rotate(-2deg); }
-}
-
-@keyframes sfYellowMove {
-  0%,100% { transform: rotate(0) scaleY(1); }
-  50% { transform: rotate(-5deg) scaleY(1.04); }
-}
-
-@keyframes sfBlink {
-  0%,44%,48%,100% { transform: scaleY(1); }
-  46% { transform: scaleY(.12); }
-}
-
-@keyframes sfMouthMove {
-  0%,100% { transform: scaleX(1); }
-  50% { transform: scaleX(.55); }
-}
-
-@media(max-width:700px) {
-  .sf-cast {
-    transform: scale(.82);
-    transform-origin: bottom left;
-  }
-
-  .auth-caption {
-    width: 52%;
-    right: 7px;
-    bottom: 8px;
-    padding: 8px;
-  }
-
-  .auth-caption strong { font-size: 10px; }
-  .auth-caption span { font-size: 9px; }
-}
-
 @media(prefers-reduced-motion:reduce) {
-  .sf-shape,
-  .sf-eyes,
-  .sf-mouth,
-  .auth-image > img {
+  .auth-image img {
     animation: none !important;
   }
 }
