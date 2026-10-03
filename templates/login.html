@@ -4,1596 +4,1348 @@
 
 {% block content %}
 
-<div class="auth-layout reveal">
-
-    <!-- =====================================================
-         LEFT SIDE
-         ===================================================== -->
-
-    <div class="auth-info">
-
-        <div class="eyebrow">
-            <span></span> WELCOME BACK
-        </div>
-
-        <h1>
-            Back to your<br>
-            <strong>SchoolFix.</strong>
-        </h1>
-
-        <p>
-            Sign in to view reports, updates, and conversations
-            connected to your account.
-        </p>
-
-
-        <!-- =================================================
-             SCHOOLFIX STUDENT
-             ================================================= -->
-
-        <div
-            class="student-stage
-            {% if get_flashed_messages(category_filter=['error']) %}
-                login-failed
-            {% endif %}"
-        >
-
-            <!-- speech bubble -->
-            <div class="no-bubble">
-                NO!
-            </div>
-
-
-            <!-- little motion lines -->
-            <div class="shake-line line-left"></div>
-            <div class="shake-line line-right"></div>
-
-
-            <!-- STUDENT -->
-            <div class="student">
-
-                <!-- head -->
-                <div class="student-head">
-
-                    <div class="hair hair-one"></div>
-                    <div class="hair hair-two"></div>
-                    <div class="hair hair-three"></div>
-
-                    <div class="student-eye eye-left"></div>
-                    <div class="student-eye eye-right"></div>
-
-                    <div class="student-mouth"></div>
-
-                </div>
-
-
-                <!-- neck -->
-                <div class="student-neck"></div>
-
-
-                <!-- body / shirt -->
-                <div class="student-body">
-
-                    <div class="shirt-collar"></div>
-
-                    <div class="shirt-pocket">
-                        S
-                    </div>
-
-                </div>
-
-
-                <!-- left arm -->
-                <div class="student-arm arm-left"></div>
-
-
-                <!-- right arm holding book -->
-                <div class="student-arm arm-right"></div>
-
-
-                <!-- book -->
-                <div class="student-book">
-
-                    <div class="book-cover"></div>
-
-                    <div class="book-page page-one"></div>
-                    <div class="book-page page-two"></div>
-
-                    <div class="book-line book-line-one"></div>
-                    <div class="book-line book-line-two"></div>
-                    <div class="book-line book-line-three"></div>
-
-                </div>
-
-
-                <!-- legs -->
-                <div class="student-leg leg-left"></div>
-                <div class="student-leg leg-right"></div>
-
-
-                <!-- shoes -->
-                <div class="student-shoe shoe-left"></div>
-                <div class="student-shoe shoe-right"></div>
-
-            </div>
-
-
-            <!-- ground shadow -->
-            <div class="student-shadow"></div>
-
-        </div>
-
-    </div>
-
-
-    <!-- =====================================================
-         RIGHT SIDE — LOGIN CARD
-         ===================================================== -->
-
-    <div class="auth-card">
-
-        <div class="auth-card-top">
-
-            <span class="auth-mark">
-                S
-            </span>
-
-            <div>
-
-                <strong>
-                    SchoolFix
-                </strong>
-
-                <small>
-                    Student Voice Portal
-                </small>
-
-            </div>
-
-        </div>
-
-
-        <div class="eyebrow">
-            ACCOUNT LOGIN
-        </div>
-
-
-        <h2>
-            Welcome back
-        </h2>
-
-
-        <p class="muted">
-            Enter your account details below.
-        </p>
-
-
-        <!-- =================================================
-             EXISTING FLASK FLASH MESSAGES
-             ================================================= -->
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-
-            {% if messages %}
-
-                <div class="login-messages">
-
-                    {% for category, message in messages %}
-
-                        <div
-                            class="login-message {{ category }}"
-                        >
-                            {{ message }}
-                        </div>
-
-                    {% endfor %}
-
-                </div>
-
-            {% endif %}
-
-        {% endwith %}
-
-
-        <!-- =================================================
-             LOGIN FORM
-             ================================================= -->
-
-        <form
-            method="post"
-            class="clean-form"
-            id="loginForm"
-        >
-
-            <label for="username">
-                Username
-            </label>
-
-            <input
-                id="username"
-                name="username"
-                type="text"
-                autocomplete="username"
-                required
-                placeholder="Your username"
-                value="{{ request.form.get('username', '') }}"
-            >
-
-
-            <label for="password">
-                Password
-            </label>
-
-            <div class="password-wrap">
-
-                <input
-                    id="password"
-                    type="password"
-                    name="password"
-                    autocomplete="current-password"
-                    required
-                    placeholder="Your password"
-                >
-
-                <button
-                    type="button"
-                    class="eye"
-                    onclick="togglePassword()"
-                >
-                    Show
-                </button>
-
-            </div>
-
-
-            <button
-                class="btn btn-primary full"
-                type="submit"
-            >
-                Login
-                <span>→</span>
-            </button>
-
-        </form>
-
-
-        <p class="auth-foot muted">
-
-            New here?
-
-            <a href="{{ url_for('register') }}">
-                Create an account
-            </a>
-
-        </p>
-
-    </div>
-
-</div>
-
-
 <style>
+/* =========================================================
+   LOGIN PAGE
+   ========================================================= */
+
+.login-page {
+    width: 100%;
+    min-height: calc(100vh - 170px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 45px 20px 65px;
+}
+
+.auth-layout {
+    width: min(1120px, 100%);
+    display: grid;
+    grid-template-columns: 1fr 440px;
+    gap: 70px;
+    align-items: center;
+}
 
 /* =========================================================
-   STUDENT STAGE
+   LEFT SIDE
+   ========================================================= */
+
+.auth-info {
+    position: relative;
+    padding: 20px 0;
+}
+
+.auth-info .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(29, 111, 184, 0.09);
+    color: #1d6fb8;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+}
+
+.auth-info .eyebrow span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #1d8a68;
+    box-shadow: 0 0 0 5px rgba(29, 138, 104, 0.12);
+}
+
+.auth-info h1 {
+    margin: 0;
+    max-width: 570px;
+    font-size: clamp(38px, 5vw, 64px);
+    line-height: 1.02;
+    letter-spacing: -0.045em;
+    color: #0d2b4d;
+}
+
+.auth-info h1 span {
+    color: #1d6fb8;
+}
+
+.auth-info p {
+    max-width: 560px;
+    margin: 22px 0 0;
+    color: #6b7f93;
+    font-size: 16px;
+    line-height: 1.75;
+}
+
+/* =========================================================
+   STUDENT ANIMATION AREA
    ========================================================= */
 
 .student-stage {
-
     position: relative;
-
-    width: 100%;
-
-    max-width: 390px;
-
-    height: 330px;
-
-    margin-top: 28px;
-
-    overflow: hidden;
-
-    border-radius: 24px;
-
-    background:
-        linear-gradient(
-            180deg,
-            #f4f8fc 0%,
-            #eef4f8 72%,
-            #e5edf2 100%
-        );
-
-    border: 1px solid rgba(15, 47, 87, .08);
-
-    box-shadow:
-        0 18px 45px rgba(15, 47, 87, .08);
-
+    width: 360px;
+    height: 390px;
+    margin: 35px auto 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    transform-origin: center bottom;
 }
 
+/* ---------------------------------------------------------
+   Whole scene shake on failed login
+   --------------------------------------------------------- */
 
-/* subtle background circle */
-
-.student-stage::before {
-
-    content: "";
-
-    position: absolute;
-
-    width: 230px;
-    height: 230px;
-
-    right: -70px;
-    top: -80px;
-
-    border-radius: 50%;
-
-    background:
-        rgba(67, 139, 197, .09);
-
+.student-stage.login-failed {
+    animation: wholeSceneShake 0.85s cubic-bezier(.36,.07,.19,.97) both;
 }
 
-
-/* second background shape */
-
-.student-stage::after {
-
-    content: "";
-
-    position: absolute;
-
-    width: 150px;
-    height: 150px;
-
-    left: -70px;
-    bottom: -90px;
-
-    border-radius: 50%;
-
-    background:
-        rgba(67, 139, 197, .07);
-
-}
-
-
-/* =========================================================
-   GROUND
-   ========================================================= */
+/* ---------------------------------------------------------
+   Ground shadow
+   --------------------------------------------------------- */
 
 .student-shadow {
-
     position: absolute;
-
+    bottom: 8px;
     left: 50%;
-
-    bottom: 27px;
-
-    width: 150px;
-    height: 16px;
-
-    transform:
-        translateX(-50%);
-
+    width: 190px;
+    height: 25px;
+    transform: translateX(-50%);
     border-radius: 50%;
-
-    background:
-        rgba(15, 47, 87, .13);
-
+    background: rgba(13, 43, 77, 0.13);
     filter: blur(3px);
-
-    z-index: 1;
-
 }
 
-
-/* =========================================================
-   STUDENT
-   ========================================================= */
+/* ---------------------------------------------------------
+   Student
+   --------------------------------------------------------- */
 
 .student {
-
     position: absolute;
-
     left: 50%;
-
-    bottom: 30px;
-
-    width: 150px;
-    height: 260px;
-
-    transform:
-        translateX(-50%);
-
-    z-index: 5;
-
+    bottom: 27px;
+    width: 175px;
+    height: 330px;
+    transform: translateX(-50%);
+    transform-origin: 50% 100%;
+    animation: studentBreathing 3s ease-in-out infinite;
 }
-
 
 /* =========================================================
    HEAD
    ========================================================= */
 
 .student-head {
-
     position: absolute;
-
-    left: 38px;
-    top: 6px;
-
-    width: 76px;
-    height: 83px;
-
-    background: #f4bd91;
-
-    border-radius:
-        46% 46% 48% 48%;
-
-    border:
-        2px solid rgba(15, 47, 87, .12);
-
+    top: 16px;
+    left: 50%;
+    width: 108px;
+    height: 122px;
+    transform: translateX(-50%);
+    border-radius: 48% 48% 45% 45%;
+    background: #ffd0aa;
+    border: 3px solid #e9aa7c;
     z-index: 5;
-
-    transform-origin:
-        50% 80%;
-
 }
 
+/* Hair */
 
-/* =========================================================
-   HAIR
-   ========================================================= */
+.student-hair {
+    position: absolute;
+    top: -13px;
+    left: -5px;
+    width: 116px;
+    height: 66px;
+    background: #172f48;
+    border-radius: 60% 55% 38% 35%;
+    z-index: 7;
+}
 
-.student-head::before {
-
+.student-hair::before,
+.student-hair::after {
     content: "";
-
     position: absolute;
-
-    left: -2px;
-    top: -7px;
-
-    width: 80px;
-    height: 46px;
-
-    background: #24334a;
-
-    border-radius:
-        48px 48px 20px 20px;
-
+    background: #172f48;
+    border-radius: 50%;
 }
 
+.student-hair::before {
+    width: 38px;
+    height: 42px;
+    left: -8px;
+    top: 22px;
+}
 
-.hair {
+.student-hair::after {
+    width: 35px;
+    height: 40px;
+    right: -7px;
+    top: 23px;
+}
 
+/* Ears */
+
+.student-ear-left,
+.student-ear-right {
     position: absolute;
-
-    width: 18px;
-    height: 27px;
-
-    background: #24334a;
-
-    border-radius:
-        50%;
-
+    top: 58px;
+    width: 17px;
+    height: 29px;
+    background: #ffd0aa;
+    border: 3px solid #e9aa7c;
+    border-radius: 50%;
     z-index: 2;
-
 }
 
-
-.hair-one {
-
-    left: 4px;
-    top: 14px;
-
-    transform: rotate(-25deg);
-
+.student-ear-left {
+    left: -13px;
 }
 
-
-.hair-two {
-
-    left: 27px;
-    top: 3px;
-
+.student-ear-right {
+    right: -13px;
 }
-
-
-.hair-three {
-
-    right: 2px;
-    top: 13px;
-
-    transform: rotate(25deg);
-
-}
-
 
 /* =========================================================
-   EYES
+   FACE
    ========================================================= */
 
 .student-eye {
-
     position: absolute;
-
-    top: 48px;
-
-    width: 7px;
-    height: 9px;
-
-    background: #172235;
-
+    top: 62px;
+    width: 11px;
+    height: 15px;
     border-radius: 50%;
-
+    background: #172f48;
     z-index: 8;
-
+    transition: transform .2s ease;
 }
 
+.student-eye.left {
+    left: 29px;
+}
 
-.eye-left {
+.student-eye.right {
+    right: 29px;
+}
+
+/* Eyebrows */
+
+.student-brow {
+    position: absolute;
+    top: 51px;
+    width: 22px;
+    height: 5px;
+    border-radius: 8px;
+    background: #172f48;
+    z-index: 8;
+}
+
+.student-brow.left {
     left: 23px;
+    transform: rotate(-5deg);
 }
 
-
-.eye-right {
+.student-brow.right {
     right: 23px;
+    transform: rotate(5deg);
 }
 
+/* Nose */
 
-/* =========================================================
-   MOUTH
-   ========================================================= */
+.student-nose {
+    position: absolute;
+    top: 73px;
+    left: 50%;
+    width: 8px;
+    height: 13px;
+    border-right: 3px solid #d68d62;
+    border-bottom: 3px solid #d68d62;
+    transform: translateX(-50%) rotate(15deg);
+    border-radius: 0 0 6px 0;
+    z-index: 8;
+}
+
+/* Mouth */
 
 .student-mouth {
-
     position: absolute;
-
-    left: 31px;
-    top: 65px;
-
-    width: 15px;
-    height: 6px;
-
-    border-bottom:
-        2px solid #172235;
-
-    border-radius:
-        0 0 15px 15px;
-
+    top: 94px;
+    left: 50%;
+    width: 30px;
+    height: 13px;
+    transform: translateX(-50%);
+    border-bottom: 4px solid #a74e58;
+    border-radius: 0 0 50% 50%;
     z-index: 8;
-
 }
-
-
-/* =========================================================
-   NECK
-   ========================================================= */
-
-.student-neck {
-
-    position: absolute;
-
-    left: 66px;
-    top: 82px;
-
-    width: 25px;
-    height: 25px;
-
-    background: #eeb58b;
-
-    z-index: 2;
-
-}
-
 
 /* =========================================================
    BODY
    ========================================================= */
 
 .student-body {
-
     position: absolute;
-
-    left: 29px;
-    top: 98px;
-
-    width: 96px;
-    height: 116px;
-
-    background: #2878b9;
-
-    border-radius:
-        28px 28px 10px 10px;
-
+    top: 132px;
+    left: 50%;
+    width: 118px;
+    height: 143px;
+    transform: translateX(-50%);
+    background: #1d6fb8;
+    border-radius: 35px 35px 20px 20px;
     z-index: 3;
-
-    border:
-        2px solid rgba(15, 47, 87, .08);
-
 }
 
-
-/* shirt lower section */
-
-.student-body::after {
-
-    content: "";
-
+.student-shirt-collar {
     position: absolute;
-
-    left: 0;
-    right: 0;
-
-    bottom: 0;
-
-    height: 20px;
-
-    background: #236aa4;
-
-    border-radius:
-        0 0 9px 9px;
-
+    top: -2px;
+    left: 50%;
+    width: 42px;
+    height: 27px;
+    transform: translateX(-50%);
+    background: #eaf4fb;
+    clip-path: polygon(0 0, 50% 75%, 100% 0, 100% 25%, 50% 100%, 0 25%);
 }
 
-
-/* =========================================================
-   COLLAR
-   ========================================================= */
-
-.shirt-collar {
-
+.student-shirt-line {
     position: absolute;
-
-    left: 32px;
-    top: 0;
-
-    width: 32px;
-    height: 30px;
-
-    background: #f4f8fc;
-
-    clip-path:
-        polygon(
-            0 0,
-            50% 65%,
-            100% 0,
-            75% 100%,
-            25% 100%
-        );
-
+    top: 43px;
+    left: 18px;
+    width: 82px;
+    height: 3px;
+    border-radius: 10px;
+    background: rgba(255,255,255,.18);
 }
-
-
-/* =========================================================
-   SCHOOLFIX POCKET
-   ========================================================= */
-
-.shirt-pocket {
-
-    position: absolute;
-
-    right: 9px;
-    top: 48px;
-
-    width: 23px;
-    height: 25px;
-
-    border:
-        2px solid rgba(255,255,255,.65);
-
-    border-radius: 4px;
-
-    color: white;
-
-    font-size: 10px;
-    font-weight: 900;
-
-    display: grid;
-    place-items: center;
-
-    z-index: 4;
-
-}
-
 
 /* =========================================================
    ARMS
    ========================================================= */
 
 .student-arm {
-
     position: absolute;
-
-    width: 23px;
-    height: 82px;
-
-    background: #2878b9;
-
-    border-radius: 15px;
-
+    top: 139px;
+    width: 34px;
+    height: 116px;
+    background: #1d6fb8;
+    border-radius: 20px;
     z-index: 2;
-
+    transform-origin: top center;
 }
 
-
-.arm-left {
-
-    left: 18px;
-    top: 109px;
-
-    transform:
-        rotate(17deg);
-
+.student-arm.left {
+    left: 17px;
+    transform: rotate(12deg);
 }
 
-
-.arm-right {
-
-    right: 12px;
-    top: 108px;
-
-    transform:
-        rotate(-27deg);
-
+.student-arm.right {
+    right: 17px;
+    transform: rotate(-13deg);
 }
 
+/* Hands */
 
-/* hands */
-
-.arm-left::after,
-.arm-right::after {
-
-    content: "";
-
+.student-hand {
     position: absolute;
-
-    width: 22px;
-    height: 22px;
-
-    background: #f4bd91;
-
+    width: 29px;
+    height: 29px;
+    background: #ffd0aa;
+    border: 2px solid #e9aa7c;
     border-radius: 50%;
-
-    bottom: -8px;
-    left: 1px;
-
+    z-index: 4;
 }
 
+.student-hand.left {
+    left: 18px;
+    top: 239px;
+}
+
+.student-hand.right {
+    right: 18px;
+    top: 239px;
+}
 
 /* =========================================================
    BOOK
    ========================================================= */
 
 .student-book {
-
     position: absolute;
-
-    left: 67px;
-    top: 139px;
-
-    width: 91px;
-    height: 66px;
-
-    transform:
-        rotate(-8deg);
-
+    top: 183px;
+    left: 50%;
+    width: 116px;
+    height: 83px;
+    transform: translateX(-50%) rotate(-4deg);
+    background: #ffffff;
+    border: 4px solid #17324d;
+    border-radius: 7px 10px 10px 7px;
     z-index: 8;
-
+    box-shadow: 7px 9px 0 rgba(13,43,77,.10);
 }
 
-
-/* blue book cover */
-
-.book-cover {
-
+.student-book::before {
+    content: "";
     position: absolute;
-
-    inset: 0;
-
-    background: #f5f7fa;
-
-    border:
-        3px solid #183b62;
-
-    border-radius: 4px;
-
-    box-shadow:
-        5px 6px 0 #183b62;
-
+    top: 0;
+    left: 50%;
+    width: 3px;
+    height: 100%;
+    transform: translateX(-50%);
+    background: #dce6ee;
 }
 
-
-/* book center */
-
-.book-page {
-
+.student-book::after {
+    content: "School";
     position: absolute;
-
-    top: 6px;
-    bottom: 6px;
-
-    width: 38px;
-
-    background: #fff;
-
-    z-index: 2;
-
+    top: 18px;
+    left: 16px;
+    color: #1d6fb8;
+    font-size: 12px;
+    font-weight: 800;
 }
-
-
-.page-one {
-
-    left: 6px;
-
-    border-radius:
-        3px 0 0 3px;
-
-    border-right:
-        1px solid #cbd5df;
-
-}
-
-
-.page-two {
-
-    right: 6px;
-
-    border-radius:
-        0 3px 3px 0;
-
-    border-left:
-        1px solid #cbd5df;
-
-}
-
-
-/* =========================================================
-   BOOK LINES
-   ========================================================= */
-
-.book-line {
-
-    position: absolute;
-
-    height: 2px;
-
-    background: #b8c5d1;
-
-    z-index: 4;
-
-}
-
-
-.book-line-one {
-
-    left: 12px;
-    top: 20px;
-
-    width: 25px;
-
-}
-
-
-.book-line-two {
-
-    left: 51px;
-    top: 20px;
-
-    width: 25px;
-
-}
-
-
-.book-line-three {
-
-    left: 12px;
-    top: 34px;
-
-    width: 64px;
-
-}
-
 
 /* =========================================================
    LEGS
    ========================================================= */
 
 .student-leg {
-
     position: absolute;
-
-    top: 204px;
-
-    width: 25px;
-    height: 38px;
-
-    background: #263d5c;
-
-    border-radius:
-        4px 4px 8px 8px;
-
+    top: 265px;
+    width: 39px;
+    height: 63px;
+    background: #17324d;
+    border-radius: 12px;
     z-index: 1;
-
 }
 
-
-.leg-left {
-
-    left: 46px;
-
+.student-leg.left {
+    left: 45px;
+    transform: rotate(2deg);
 }
 
-
-.leg-right {
-
-    right: 46px;
-
+.student-leg.right {
+    right: 45px;
+    transform: rotate(-2deg);
 }
 
-
-/* =========================================================
-   SHOES
-   ========================================================= */
+/* Shoes */
 
 .student-shoe {
-
     position: absolute;
-
-    top: 234px;
-
-    width: 42px;
-    height: 17px;
-
-    background: #172235;
-
-    border-radius:
-        12px 15px 5px 5px;
-
+    bottom: -5px;
+    width: 58px;
+    height: 22px;
+    background: #ffffff;
+    border: 3px solid #17324d;
+    border-radius: 20px 25px 8px 8px;
     z-index: 2;
-
 }
 
-
-.shoe-left {
-
-    left: 30px;
-
+.student-shoe.left {
+    left: 28px;
 }
 
-
-.shoe-right {
-
-    right: 30px;
-
+.student-shoe.right {
+    right: 28px;
 }
-
 
 /* =========================================================
    NO BUBBLE
    ========================================================= */
 
 .no-bubble {
-
     position: absolute;
-
-    right: 33px;
-    top: 45px;
-
-    padding:
-        12px 17px;
-
-    background: white;
-
-    color: #173451;
-
-    font-size: 19px;
-
+    top: 18px;
+    right: 8px;
+    padding: 11px 18px;
+    background: #ffffff;
+    color: #c94f5c;
+    border: 3px solid #c94f5c;
+    border-radius: 18px;
+    font-size: 18px;
     font-weight: 900;
-
-    letter-spacing: .5px;
-
-    border-radius:
-        16px;
-
-    box-shadow:
-        0 10px 25px rgba(15,47,87,.14);
-
+    letter-spacing: .03em;
+    box-shadow: 0 10px 25px rgba(201,79,92,.15);
     opacity: 0;
-
-    transform:
-        scale(.65)
-        translateY(8px);
-
+    transform: scale(.5) rotate(-8deg);
+    transform-origin: bottom left;
     z-index: 20;
-
 }
-
 
 .no-bubble::after {
-
     content: "";
-
     position: absolute;
-
+    bottom: -12px;
     left: 20px;
-    bottom: -7px;
-
-    width: 15px;
-    height: 15px;
-
+    width: 18px;
+    height: 18px;
     background: white;
-
-    transform:
-        rotate(45deg);
-
+    border-right: 3px solid #c94f5c;
+    border-bottom: 3px solid #c94f5c;
+    transform: rotate(45deg);
 }
 
-
-/* =========================================================
-   SHAKE LINES
-   ========================================================= */
-
-.shake-line {
-
-    position: absolute;
-
-    width: 22px;
-    height: 3px;
-
-    background: #7d8b99;
-
-    border-radius: 10px;
-
-    opacity: 0;
-
-    z-index: 10;
-
+.student-stage.login-failed .no-bubble {
+    animation: sayNo .85s ease-out both;
 }
-
-
-.line-left {
-
-    left: 82px;
-    top: 112px;
-
-    transform:
-        rotate(-25deg);
-
-}
-
-
-.line-right {
-
-    left: 277px;
-    top: 112px;
-
-    transform:
-        rotate(25deg);
-
-}
-
-
-/* =========================================================
-   NORMAL FLOAT
-   ========================================================= */
-
-.student {
-
-    animation:
-        studentBreathing
-        3.5s
-        ease-in-out
-        infinite;
-
-}
-
-
-@keyframes studentBreathing {
-
-    0%,
-    100% {
-
-        transform:
-            translateX(-50%)
-            translateY(0);
-
-    }
-
-    50% {
-
-        transform:
-            translateX(-50%)
-            translateY(-3px);
-
-    }
-
-}
-
-
-/* =========================================================
-   WRONG LOGIN
-   =========================================================
-
-   This class is added automatically when Flask returns
-   the error flash after a failed login.
-   ========================================================= */
-
-.login-failed .student {
-
-    animation:
-        studentNo
-        .75s
-        cubic-bezier(.36,.07,.19,.97)
-        both,
-        studentBreathing
-        3.5s
-        ease-in-out
-        1.2s
-        infinite;
-
-}
-
-
-@keyframes studentNo {
-
-    0% {
-
-        transform:
-            translateX(-50%)
-            rotate(0deg);
-
-    }
-
-    15% {
-
-        transform:
-            translateX(-50%)
-            rotate(-13deg);
-
-    }
-
-    30% {
-
-        transform:
-            translateX(-50%)
-            rotate(13deg);
-
-    }
-
-    45% {
-
-        transform:
-            translateX(-50%)
-            rotate(-11deg);
-
-    }
-
-    60% {
-
-        transform:
-            translateX(-50%)
-            rotate(10deg);
-
-    }
-
-    75% {
-
-        transform:
-            translateX(-50%)
-            rotate(-6deg);
-
-    }
-
-    90% {
-
-        transform:
-            translateX(-50%)
-            rotate(4deg);
-
-    }
-
-    100% {
-
-        transform:
-            translateX(-50%)
-            rotate(0deg);
-
-    }
-
-}
-
-
-/* =========================================================
-   HEAD SHAKES MORE THAN BODY
-   ========================================================= */
-
-.login-failed .student-head {
-
-    animation:
-        headNo
-        .75s
-        cubic-bezier(.36,.07,.19,.97)
-        both;
-
-}
-
-
-@keyframes headNo {
-
-    0% {
-        transform: rotate(0deg);
-    }
-
-    15% {
-        transform: rotate(-15deg);
-    }
-
-    30% {
-        transform: rotate(15deg);
-    }
-
-    45% {
-        transform: rotate(-13deg);
-    }
-
-    60% {
-        transform: rotate(12deg);
-    }
-
-    75% {
-        transform: rotate(-7deg);
-    }
-
-    90% {
-        transform: rotate(4deg);
-    }
-
-    100% {
-        transform: rotate(0deg);
-    }
-
-}
-
-
-/* =========================================================
-   NO BUBBLE ANIMATION
-   ========================================================= */
-
-.login-failed .no-bubble {
-
-    animation:
-        sayNo
-        2.2s
-        ease-out
-        .15s
-        both;
-
-}
-
-
-@keyframes sayNo {
-
-    0% {
-
-        opacity: 0;
-
-        transform:
-            scale(.65)
-            translateY(8px);
-
-    }
-
-    15% {
-
-        opacity: 1;
-
-        transform:
-            scale(1.08)
-            translateY(0);
-
-    }
-
-    25% {
-
-        transform:
-            scale(1);
-
-    }
-
-    72% {
-
-        opacity: 1;
-
-        transform:
-            scale(1);
-
-    }
-
-    100% {
-
-        opacity: 0;
-
-        transform:
-            scale(.92)
-            translateY(-5px);
-
-    }
-
-}
-
 
 /* =========================================================
    MOTION LINES
    ========================================================= */
 
-.login-failed .line-left {
-
-    animation:
-        motionLeft
-        .75s
-        ease-out
-        both;
-
+.shake-line {
+    position: absolute;
+    width: 30px;
+    height: 5px;
+    border-radius: 10px;
+    background: #1d6fb8;
+    opacity: 0;
+    z-index: 15;
 }
 
-
-.login-failed .line-right {
-
-    animation:
-        motionRight
-        .75s
-        ease-out
-        both;
-
+.shake-line.one {
+    top: 154px;
+    left: 15px;
+    transform: rotate(-18deg);
 }
 
-
-@keyframes motionLeft {
-
-    0%,
-    100% {
-
-        opacity: 0;
-
-        transform:
-            translateX(12px)
-            rotate(-25deg);
-
-    }
-
-    35% {
-
-        opacity: .8;
-
-        transform:
-            translateX(0)
-            rotate(-25deg);
-
-    }
-
+.shake-line.two {
+    top: 192px;
+    left: 0;
+    transform: rotate(12deg);
 }
 
-
-@keyframes motionRight {
-
-    0%,
-    100% {
-
-        opacity: 0;
-
-        transform:
-            translateX(-12px)
-            rotate(25deg);
-
-    }
-
-    35% {
-
-        opacity: .8;
-
-        transform:
-            translateX(0)
-            rotate(25deg);
-
-    }
-
+.shake-line.three {
+    top: 235px;
+    right: 8px;
+    transform: rotate(-12deg);
 }
 
+.shake-line.four {
+    top: 278px;
+    right: 20px;
+    transform: rotate(18deg);
+}
+
+.student-stage.login-failed .shake-line.one {
+    animation: motionLeft .85s ease-out both;
+}
+
+.student-stage.login-failed .shake-line.two {
+    animation: motionLeft .85s ease-out .05s both;
+}
+
+.student-stage.login-failed .shake-line.three {
+    animation: motionRight .85s ease-out .08s both;
+}
+
+.student-stage.login-failed .shake-line.four {
+    animation: motionRight .85s ease-out .12s both;
+}
 
 /* =========================================================
-   ERROR MESSAGE
+   LOGIN CARD
    ========================================================= */
 
-.login-messages {
-
-    margin:
-        0 0 18px;
-
+.auth-card {
+    position: relative;
+    width: 100%;
+    background: rgba(255,255,255,.96);
+    border: 1px solid rgba(220,230,238,.95);
+    border-radius: 26px;
+    padding: 34px;
+    box-shadow: 0 28px 80px rgba(20,55,85,.15);
+    backdrop-filter: blur(12px);
 }
 
-
-.login-message {
-
-    padding:
-        11px 13px;
-
-    border-radius:
-        10px;
-
-    font-size:
-        13px;
-
-    font-weight:
-        600;
-
+.auth-card-header {
+    margin-bottom: 26px;
 }
 
-
-.login-message.error {
-
-    background:
-        #fff0f0;
-
-    color:
-        #b42318;
-
-    border:
-        1px solid #ffd1d1;
-
+.auth-card-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
 }
 
-
-.login-message.success {
-
-    background:
-        #edf9f1;
-
-    color:
-        #18763c;
-
-    border:
-        1px solid #ccebd7;
-
+.auth-card-mark {
+    width: 45px;
+    height: 45px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    background: #0d2b4d;
+    color: white;
+    font-size: 22px;
+    font-weight: 900;
+    box-shadow: 0 8px 18px rgba(13,43,77,.18);
 }
 
+.auth-card-brand strong {
+    display: block;
+    color: #0d2b4d;
+    font-size: 18px;
+    line-height: 1.1;
+}
+
+.auth-card-brand span {
+    display: block;
+    margin-top: 2px;
+    color: #6b7f93;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .1em;
+}
+
+.auth-card h2 {
+    margin: 0;
+    color: #0d2b4d;
+    font-size: 30px;
+    line-height: 1.15;
+}
+
+.auth-card-subtitle {
+    margin: 9px 0 0;
+    color: #6b7f93;
+    font-size: 14px;
+}
 
 /* =========================================================
-   MOBILE
+   FLASH MESSAGE
    ========================================================= */
 
-@media (max-width: 700px) {
-
-    .student-stage {
-
-        max-width: 330px;
-
-        height: 300px;
-
-        margin-left: auto;
-        margin-right: auto;
-
-    }
-
-    .student {
-
-        transform:
-            translateX(-50%)
-            scale(.88);
-
-        transform-origin:
-            center bottom;
-
-    }
-
-    .student-stage:not(.login-failed) .student {
-
-        animation:
-            mobileBreathing
-            3.5s
-            ease-in-out
-            infinite;
-
-    }
-
-    .no-bubble {
-
-        right: 20px;
-
-    }
-
+.login-flash {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #fff0f1;
+    border: 1px solid #f0c7cb;
+    color: #a83d49;
+    font-size: 13px;
+    font-weight: 700;
 }
 
+.login-flash-icon {
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #c94f5c;
+    color: white;
+    font-size: 13px;
+    font-weight: 900;
+}
 
-@keyframes mobileBreathing {
+/* =========================================================
+   FORM
+   ========================================================= */
 
+.auth-form {
+    display: grid;
+    gap: 18px;
+}
+
+.field-group {
+    display: grid;
+    gap: 8px;
+}
+
+.field-group label {
+    color: #17324d;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.input-wrap {
+    position: relative;
+}
+
+.input-wrap input {
+    width: 100%;
+    height: 52px;
+    padding: 0 48px 0 15px;
+    border: 1px solid #dce6ee;
+    border-radius: 13px;
+    outline: none;
+    background: #f8fafc;
+    color: #17324d;
+    font: inherit;
+    font-size: 14px;
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease,
+        background .2s ease;
+}
+
+.input-wrap input::placeholder {
+    color: #9aaaba;
+}
+
+.input-wrap input:focus {
+    background: #ffffff;
+    border-color: #3d8fd3;
+    box-shadow: 0 0 0 4px rgba(61,143,211,.12);
+}
+
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 9px;
+    transform: translateY(-50%);
+    width: 35px;
+    height: 35px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: #6b7f93;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+.password-toggle:hover {
+    background: #eaf4fb;
+    color: #1d6fb8;
+}
+
+.login-button {
+    width: 100%;
+    height: 54px;
+    margin-top: 3px;
+    border: 0;
+    border-radius: 14px;
+    background: #0d2b4d;
+    color: white;
+    cursor: pointer;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 850;
+    box-shadow: 0 12px 25px rgba(13,43,77,.20);
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease,
+        background .2s ease;
+}
+
+.login-button:hover {
+    transform: translateY(-2px);
+    background: #143e69;
+    box-shadow: 0 16px 30px rgba(13,43,77,.25);
+}
+
+.login-button:active {
+    transform: translateY(0);
+}
+
+/* =========================================================
+   AUTH FOOTER
+   ========================================================= */
+
+.auth-foot {
+    margin-top: 23px;
+    padding-top: 20px;
+    border-top: 1px solid #e7edf2;
+    text-align: center;
+    color: #6b7f93;
+    font-size: 13px;
+}
+
+.auth-foot a {
+    color: #1d6fb8;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.auth-foot a:hover {
+    text-decoration: underline;
+}
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+
+@keyframes studentBreathing {
     0%,
     100% {
-
-        transform:
-            translateX(-50%)
-            scale(.88)
-            translateY(0);
-
+        transform: translateX(-50%) translateY(0);
     }
 
     50% {
-
-        transform:
-            translateX(-50%)
-            scale(.88)
-            translateY(-3px);
-
+        transform: translateX(-50%) translateY(-3px);
     }
-
 }
 
+/* Strong whole-scene shake */
+
+@keyframes wholeSceneShake {
+    0% {
+        transform: translateX(0) rotate(0deg);
+    }
+
+    8% {
+        transform: translateX(-10px) rotate(-1.5deg);
+    }
+
+    16% {
+        transform: translateX(11px) rotate(1.5deg);
+    }
+
+    24% {
+        transform: translateX(-13px) rotate(-2deg);
+    }
+
+    32% {
+        transform: translateX(13px) rotate(2deg);
+    }
+
+    40% {
+        transform: translateX(-11px) rotate(-1.7deg);
+    }
+
+    48% {
+        transform: translateX(10px) rotate(1.5deg);
+    }
+
+    56% {
+        transform: translateX(-8px) rotate(-1deg);
+    }
+
+    64% {
+        transform: translateX(7px) rotate(.8deg);
+    }
+
+    72% {
+        transform: translateX(-5px) rotate(-.6deg);
+    }
+
+    82% {
+        transform: translateX(3px) rotate(.3deg);
+    }
+
+    92% {
+        transform: translateX(-1px) rotate(-.1deg);
+    }
+
+    100% {
+        transform: translateX(0) rotate(0deg);
+    }
+}
+
+/* Student head shaking NO */
+
+@keyframes studentNo {
+    0% {
+        transform: translateX(-50%) rotate(0deg);
+    }
+
+    10% {
+        transform: translateX(-50%) rotate(-9deg);
+    }
+
+    20% {
+        transform: translateX(-50%) rotate(9deg);
+    }
+
+    30% {
+        transform: translateX(-50%) rotate(-11deg);
+    }
+
+    40% {
+        transform: translateX(-50%) rotate(11deg);
+    }
+
+    50% {
+        transform: translateX(-50%) rotate(-8deg);
+    }
+
+    60% {
+        transform: translateX(-50%) rotate(8deg);
+    }
+
+    72% {
+        transform: translateX(-50%) rotate(-4deg);
+    }
+
+    84% {
+        transform: translateX(-50%) rotate(3deg);
+    }
+
+    100% {
+        transform: translateX(-50%) rotate(0deg);
+    }
+}
+
+/* Bubble */
+
+@keyframes sayNo {
+    0% {
+        opacity: 0;
+        transform: scale(.5) rotate(-8deg);
+    }
+
+    15% {
+        opacity: 1;
+        transform: scale(1.12) rotate(4deg);
+    }
+
+    30% {
+        transform: scale(.96) rotate(-2deg);
+    }
+
+    45% {
+        transform: scale(1.04) rotate(1deg);
+    }
+
+    65% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(.9) rotate(0deg);
+    }
+}
+
+/* Motion lines */
+
+@keyframes motionLeft {
+    0% {
+        opacity: 0;
+        transform: translateX(0) rotate(-18deg);
+    }
+
+    25% {
+        opacity: 1;
+        transform: translateX(-12px) rotate(-18deg);
+    }
+
+    65% {
+        opacity: .7;
+        transform: translateX(-25px) rotate(-18deg);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(-40px) rotate(-18deg);
+    }
+}
+
+@keyframes motionRight {
+    0% {
+        opacity: 0;
+        transform: translateX(0) rotate(18deg);
+    }
+
+    25% {
+        opacity: 1;
+        transform: translateX(12px) rotate(18deg);
+    }
+
+    65% {
+        opacity: .7;
+        transform: translateX(25px) rotate(18deg);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(40px) rotate(18deg);
+    }
+}
 
 /* =========================================================
-   ACCESSIBILITY
+   RESPONSIVE
    ========================================================= */
 
-@media (prefers-reduced-motion: reduce) {
-
-    .student,
-    .student-head,
-    .no-bubble,
-    .shake-line {
-
-        animation: none !important;
-
+@media (max-width: 900px) {
+    .auth-layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        max-width: 560px;
     }
 
+    .auth-info {
+        text-align: center;
+    }
+
+    .auth-info h1,
+    .auth-info p {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .auth-info .eyebrow {
+        margin-bottom: 15px;
+    }
+
+    .student-stage {
+        margin-top: 10px;
+        transform: scale(.9);
+    }
+
+    .auth-card {
+        margin-top: -5px;
+    }
 }
 
+@media (max-width: 520px) {
+    .login-page {
+        padding: 25px 14px 45px;
+    }
+
+    .auth-info h1 {
+        font-size: 39px;
+    }
+
+    .auth-info p {
+        font-size: 14px;
+    }
+
+    .student-stage {
+        width: 320px;
+        height: 350px;
+        transform: scale(.82);
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: -10px;
+        margin-bottom: -20px;
+    }
+
+    .auth-card {
+        padding: 24px 20px;
+        border-radius: 21px;
+    }
+
+    .auth-card h2 {
+        font-size: 26px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .student,
+    .student-stage.login-failed,
+    .student-stage.login-failed .no-bubble,
+    .student-stage.login-failed .shake-line {
+        animation: none !important;
+    }
+}
 </style>
 
 
+<div class="login-page">
+
+    <div class="auth-layout">
+
+        <!-- =================================================
+             LEFT SIDE
+             ================================================= -->
+
+        <div class="auth-info reveal">
+
+            <div class="eyebrow">
+                <span></span>
+                Student Voice Portal
+            </div>
+
+            <h1>
+                Your voice can
+                <span>make school better.</span>
+            </h1>
+
+            <p>
+                Sign in to SchoolVoice and share concerns,
+                suggestions, and ideas with your school community
+                in a safe and organized way.
+            </p>
+
+
+            <!-- =============================================
+                 STUDENT ANIMATION
+                 ============================================= -->
+
+            <div
+                class="student-stage
+                {% if get_flashed_messages(category_filter=['error']) %}
+                    login-failed
+                {% endif %}"
+            >
+
+                <!-- NO bubble -->
+                <div class="no-bubble">
+                    NO!
+                </div>
+
+                <!-- Motion lines -->
+                <div class="shake-line one"></div>
+                <div class="shake-line two"></div>
+                <div class="shake-line three"></div>
+                <div class="shake-line four"></div>
+
+
+                <!-- Student -->
+
+                <div class="student">
+
+                    <!-- Head -->
+
+                    <div class="student-head">
+
+                        <div class="student-hair"></div>
+
+                        <div class="student-ear-left"></div>
+                        <div class="student-ear-right"></div>
+
+                        <div class="student-brow left"></div>
+                        <div class="student-brow right"></div>
+
+                        <div class="student-eye left"></div>
+                        <div class="student-eye right"></div>
+
+                        <div class="student-nose"></div>
+                        <div class="student-mouth"></div>
+
+                    </div>
+
+
+                    <!-- Body -->
+
+                    <div class="student-body">
+
+                        <div class="student-shirt-collar"></div>
+
+                        <div class="student-shirt-line"></div>
+
+                    </div>
+
+
+                    <!-- Arms -->
+
+                    <div class="student-arm left"></div>
+                    <div class="student-arm right"></div>
+
+                    <div class="student-hand left"></div>
+                    <div class="student-hand right"></div>
+
+
+                    <!-- Book -->
+
+                    <div class="student-book"></div>
+
+
+                    <!-- Legs -->
+
+                    <div class="student-leg left"></div>
+                    <div class="student-leg right"></div>
+
+                    <div class="student-shoe left"></div>
+                    <div class="student-shoe right"></div>
+
+                </div>
+
+
+                <!-- Ground -->
+
+                <div class="student-shadow"></div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             LOGIN CARD
+             ================================================= -->
+
+        <div class="auth-card reveal">
+
+            <div class="auth-card-header">
+
+                <div class="auth-card-brand">
+
+                    <div class="auth-card-mark">
+                        S
+                    </div>
+
+                    <div>
+                        <strong>SchoolVoice</strong>
+                        <span>STUDENT VOICE PORTAL</span>
+                    </div>
+
+                </div>
+
+                <h2>Welcome back</h2>
+
+                <p class="auth-card-subtitle">
+                    Sign in to continue to your account.
+                </p>
+
+            </div>
+
+
+            <!-- =============================================
+                 ERROR MESSAGE
+                 ============================================= -->
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+
+                {% for category, message in messages %}
+
+                    {% if category == 'error' %}
+
+                        <div class="login-flash">
+
+                            <div class="login-flash-icon">
+                                !
+                            </div>
+
+                            <span>
+                                {{ message }}
+                            </span>
+
+                        </div>
+
+                    {% endif %}
+
+                {% endfor %}
+
+            {% endwith %}
+
+
+            <!-- =============================================
+                 LOGIN FORM
+                 ============================================= -->
+
+            <form
+                class="auth-form"
+                method="POST"
+                action="{{ url_for('login') }}"
+            >
+
+                <!-- Username -->
+
+                <div class="field-group">
+
+                    <label for="username">
+                        Username
+                    </label>
+
+                    <div class="input-wrap">
+
+                        <input
+                            id="username"
+                            name="username"
+                            type="text"
+                            placeholder="Enter your username"
+                            autocomplete="username"
+                            required
+                            autofocus
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- Password -->
+
+                <div class="field-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <div class="input-wrap">
+
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            onclick="togglePassword()"
+                            aria-label="Show or hide password"
+                        >
+                            👁
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Login -->
+
+                <button
+                    type="submit"
+                    class="login-button"
+                >
+                    Sign in
+                    <span style="margin-left:6px;">→</span>
+                </button>
+
+            </form>
+
+
+            <!-- =============================================
+                 FOOTER
+                 ============================================= -->
+
+            <div class="auth-foot">
+
+                Don't have an account?
+                <a href="{{ url_for('register') }}">
+                    Create one
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
 <script>
-
-/* =========================================================
-   PASSWORD SHOW / HIDE
-   ========================================================= */
-
 function togglePassword() {
 
     const password =
         document.getElementById("password");
 
     const button =
-        document.querySelector(".eye");
+        document.querySelector(".password-toggle");
 
+    if (!password) return;
 
     if (password.type === "password") {
 
         password.type = "text";
 
-        button.textContent = "Hide";
+        if (button) {
+            button.textContent = "🙈";
+        }
 
     } else {
 
         password.type = "password";
 
-        button.textContent = "Show";
+        if (button) {
+            button.textContent = "👁";
+        }
 
     }
-
 }
-
-
-/* =========================================================
-   WRONG LOGIN
-   =========================================================
-
-   Flask has already processed the login before this page
-   is rendered.
-
-   If an error flash exists, the "login-failed" class is
-   already present in the HTML, so the animation starts
-   automatically.
-
-   No video.
-   No GIF.
-   No infinite action.
-   ========================================================= */
-
 </script>
 
 {% endblock %}
