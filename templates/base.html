@@ -26,8 +26,104 @@
     href="{{ url_for('static', filename='style.css') }}"
   >
 
-  <!-- Helpful Websites Dropdown -->
+  <!-- Helpful Websites + School Branding -->
   <style>
+
+    /* =========================================================
+       SCHOOL BRAND
+       ========================================================= */
+
+    .school-brand-logo {
+      width: 48px;
+      height: 48px;
+      flex: 0 0 48px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      overflow: hidden;
+      border-radius: 10px;
+
+      background: #ffffff;
+
+      box-shadow:
+        0 5px 16px rgba(15, 47, 87, 0.14);
+
+      transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+    }
+
+    .school-brand-logo img {
+      width: 100%;
+      height: 100%;
+
+      object-fit: contain;
+      display: block;
+    }
+
+    .brand:hover .school-brand-logo {
+      transform: translateY(-2px) scale(1.04);
+
+      box-shadow:
+        0 8px 22px rgba(15, 47, 87, 0.18);
+    }
+
+    .school-brand-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      min-width: 0;
+      line-height: 1.05;
+    }
+
+    .school-brand-copy strong {
+      display: block;
+
+      color: #0f2f57;
+
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+
+      white-space: nowrap;
+    }
+
+    .school-brand-copy em {
+      display: block;
+
+      color: #1976c9;
+
+      font-size: 15px;
+      font-style: normal;
+      font-weight: 700;
+
+      white-space: nowrap;
+    }
+
+    .school-brand-copy small {
+      display: block;
+
+      margin-top: 4px;
+
+      color: #70839a;
+
+      font-size: 8px;
+      line-height: 1;
+      font-weight: 800;
+
+      letter-spacing: 0.09em;
+
+      white-space: nowrap;
+    }
+
+
+    /* =========================================================
+       HELPFUL WEBSITES
+       ========================================================= */
+
     .helpful-sites-wrap {
       position: relative;
       display: inline-flex;
@@ -36,35 +132,50 @@
 
     .helpful-sites-button {
       border: 1px solid rgba(15, 47, 87, 0.14);
+
       background: rgba(255, 255, 255, 0.92);
+
       color: #0f2f57;
+
       border-radius: 12px;
+
       padding: 9px 13px;
+
       font-family: inherit;
       font-size: 14px;
       font-weight: 700;
+
       cursor: pointer;
+
       display: inline-flex;
       align-items: center;
       gap: 7px;
+
       transition:
         transform 0.2s ease,
         box-shadow 0.2s ease,
         background 0.2s ease,
         border-color 0.2s ease;
+
       white-space: nowrap;
     }
 
     .helpful-sites-button:hover {
       transform: translateY(-2px);
+
       background: #ffffff;
+
       border-color: rgba(15, 47, 87, 0.25);
-      box-shadow: 0 8px 22px rgba(15, 47, 87, 0.12);
+
+      box-shadow:
+        0 8px 22px rgba(15, 47, 87, 0.12);
     }
 
     .helpful-sites-button .helpful-arrow {
       font-size: 11px;
-      transition: transform 0.2s ease;
+
+      transition:
+        transform 0.2s ease;
     }
 
     .helpful-sites-wrap.open .helpful-arrow {
@@ -73,20 +184,35 @@
 
     .helpful-sites-menu {
       position: absolute;
+
       top: calc(100% + 10px);
       right: 0;
+
       width: 275px;
+
       padding: 10px;
+
       background: rgba(255, 255, 255, 0.98);
-      border: 1px solid rgba(15, 47, 87, 0.12);
+
+      border:
+        1px solid rgba(15, 47, 87, 0.12);
+
       border-radius: 16px;
-      box-shadow: 0 18px 45px rgba(15, 47, 87, 0.18);
+
+      box-shadow:
+        0 18px 45px rgba(15, 47, 87, 0.18);
+
       z-index: 9999;
 
       opacity: 0;
       visibility: hidden;
-      transform: translateY(-8px) scale(0.98);
+
+      transform:
+        translateY(-8px)
+        scale(0.98);
+
       transform-origin: top right;
+
       transition:
         opacity 0.18s ease,
         transform 0.18s ease,
@@ -96,14 +222,23 @@
     .helpful-sites-wrap.open .helpful-sites-menu {
       opacity: 1;
       visibility: visible;
-      transform: translateY(0) scale(1);
+
+      transform:
+        translateY(0)
+        scale(1);
     }
 
     .helpful-sites-title {
-      padding: 8px 10px 9px;
+      padding:
+        8px
+        10px
+        9px;
+
       color: #6a7b91;
+
       font-size: 11px;
       font-weight: 800;
+
       letter-spacing: 0.08em;
       text-transform: uppercase;
     }
@@ -112,12 +247,18 @@
       display: flex;
       align-items: center;
       gap: 12px;
+
       width: 100%;
       box-sizing: border-box;
+
       padding: 11px 10px;
+
       border-radius: 12px;
+
       text-decoration: none;
+
       color: #102d4d;
+
       transition:
         background 0.18s ease,
         transform 0.18s ease;
@@ -125,49 +266,89 @@
 
     .helpful-site-link:hover {
       background: #f1f6fb;
-      transform: translateX(3px);
+
+      transform:
+        translateX(3px);
     }
 
     .helpful-site-icon {
       width: 38px;
       height: 38px;
+
       flex: 0 0 38px;
+
       display: grid;
       place-items: center;
+
       border-radius: 11px;
+
       background: #eaf3fc;
+
       font-size: 19px;
     }
 
     .helpful-site-info {
       min-width: 0;
+
       display: flex;
       flex-direction: column;
+
       gap: 2px;
     }
 
     .helpful-site-info strong {
       font-size: 14px;
       line-height: 1.2;
+
       color: #0f2f57;
     }
 
     .helpful-site-info span {
       font-size: 11px;
+
       color: #7a8a9d;
+
       white-space: nowrap;
+
       overflow: hidden;
       text-overflow: ellipsis;
+
       max-width: 190px;
     }
 
     .helpful-site-external {
       margin-left: auto;
+
       color: #8191a4;
+
       font-size: 14px;
     }
 
+
+    /* =========================================================
+       MOBILE
+       ========================================================= */
+
     @media (max-width: 900px) {
+
+      .school-brand-logo {
+        width: 44px;
+        height: 44px;
+        flex-basis: 44px;
+      }
+
+      .school-brand-copy strong {
+        font-size: 14px;
+      }
+
+      .school-brand-copy em {
+        font-size: 13px;
+      }
+
+      .school-brand-copy small {
+        font-size: 7px;
+      }
+
       .helpful-sites-button {
         padding: 8px 10px;
         font-size: 13px;
@@ -176,9 +357,30 @@
       .helpful-sites-menu {
         right: -20px;
       }
+
     }
 
+
     @media (max-width: 640px) {
+
+      .school-brand-logo {
+        width: 42px;
+        height: 42px;
+        flex-basis: 42px;
+      }
+
+      .school-brand-copy strong {
+        font-size: 13px;
+      }
+
+      .school-brand-copy em {
+        font-size: 12px;
+      }
+
+      .school-brand-copy small {
+        display: none;
+      }
+
       .helpful-sites-wrap {
         width: 100%;
       }
@@ -190,47 +392,94 @@
 
       .helpful-sites-menu {
         position: absolute;
+
         left: 0;
         right: 0;
+
         width: auto;
       }
+
     }
 
+
     @media (prefers-reduced-motion: reduce) {
+
+      .school-brand-logo,
       .helpful-sites-button,
       .helpful-site-link,
       .helpful-sites-menu,
       .helpful-sites-button .helpful-arrow {
         transition: none;
       }
+
     }
+
   </style>
 </head>
+
 
 <body>
 
   <div class="site-bg" aria-hidden="true"></div>
+
   <div class="top-glow" aria-hidden="true"></div>
+
+
+  <!-- =========================================================
+       NAVIGATION
+       ========================================================= -->
 
   <nav class="nav">
 
     <div class="nav-inner">
 
-      <a class="brand" href="{{ url_for('home') }}">
 
-        <span class="brand-mark">S</span>
+      <!-- SCHOOL BRAND -->
 
-        <span class="brand-copy">
-          <strong>School</strong>
-          <em>Voice</em>
-          <small>STUDENT VOICE PORTAL</small>
+      <a
+        class="brand"
+        href="{{ url_for('home') }}"
+        aria-label="Kendriya Vidyalaya Andrews Ganj"
+      >
+
+        <span class="school-brand-logo">
+
+          <img
+            src="{{ url_for('static', filename='bg_image.png') }}"
+            alt="Kendriya Vidyalaya Andrews Ganj logo"
+          >
+
+        </span>
+
+
+        <span class="school-brand-copy">
+
+          <strong>
+            Kendriya Vidyalaya
+          </strong>
+
+          <em>
+            Andrews Ganj
+          </em>
+
+          <small>
+            STUDENT VOICE PORTAL
+          </small>
+
         </span>
 
       </a>
 
+
+      <!-- NAVIGATION LINKS -->
+
       <div class="nav-links">
 
+
         {% if logged_in %}
+
+
+          <!-- DASHBOARD -->
 
           <a
             class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}"
@@ -238,6 +487,9 @@
           >
             Dashboard
           </a>
+
+
+          <!-- REPORTS -->
 
           {% if role in ['admin','main_admin'] %}
 
@@ -257,6 +509,7 @@
               My Reports
             </a>
 
+
             <a
               class="nav-link {% if request.endpoint == 'submit_report' %}active{% endif %}"
               href="{{ url_for('submit_report') }}"
@@ -265,6 +518,9 @@
             </a>
 
           {% endif %}
+
+
+          <!-- MAIN ADMIN LINKS -->
 
           {% if role == 'main_admin' %}
 
@@ -275,12 +531,14 @@
               Admin
             </a>
 
+
             <a
               class="nav-link {% if request.endpoint == 'analytics' %}active{% endif %}"
               href="{{ url_for('analytics') }}"
             >
               Analytics
             </a>
+
 
             <a
               class="nav-link {% if request.endpoint == 'security_dashboard' %}active{% endif %}"
@@ -291,29 +549,42 @@
 
           {% endif %}
 
-          <!-- OTHER HELPFUL WEBSITES -->
-          <div class="helpful-sites-wrap" id="helpfulSitesWrap">
+
+          <!-- =====================================================
+               OTHER HELPFUL WEBSITES
+               ===================================================== -->
+
+          <div
+            class="helpful-sites-wrap"
+            id="helpfulSitesWrapLoggedIn"
+          >
 
             <button
               type="button"
               class="helpful-sites-button"
-              id="helpfulSitesButton"
               aria-expanded="false"
-              aria-controls="helpfulSitesMenu"
+              aria-controls="helpfulSitesMenuLoggedIn"
             >
+
               Other helpful websites
-              <span class="helpful-arrow">▼</span>
+
+              <span class="helpful-arrow">
+                ▼
+              </span>
+
             </button>
+
 
             <div
               class="helpful-sites-menu"
-              id="helpfulSitesMenu"
+              id="helpfulSitesMenuLoggedIn"
               role="menu"
             >
 
               <div class="helpful-sites-title">
                 Student resources
               </div>
+
 
               <a
                 class="helpful-site-link"
@@ -323,16 +594,28 @@
                 role="menuitem"
               >
 
-                <span class="helpful-site-icon">🌐</span>
-
-                <span class="helpful-site-info">
-                  <strong>NCERT HELPER</strong>
-                  <span>ncerthelper.ai.studio</span>
+                <span class="helpful-site-icon">
+                  🌐
                 </span>
 
-                <span class="helpful-site-external">↗</span>
+                <span class="helpful-site-info">
+
+                  <strong>
+                    NCERT HELPER
+                  </strong>
+
+                  <span>
+                    ncerthelper.ai.studio
+                  </span>
+
+                </span>
+
+                <span class="helpful-site-external">
+                  ↗
+                </span>
 
               </a>
+
 
               <a
                 class="helpful-site-link"
@@ -342,14 +625,25 @@
                 role="menuitem"
               >
 
-                <span class="helpful-site-icon">📚</span>
-
-                <span class="helpful-site-info">
-                  <strong>SST PADHO</strong>
-                  <span>sstpadho.netlify.app</span>
+                <span class="helpful-site-icon">
+                  📚
                 </span>
 
-                <span class="helpful-site-external">↗</span>
+                <span class="helpful-site-info">
+
+                  <strong>
+                    SST PADHO
+                  </strong>
+
+                  <span>
+                    sstpadho.netlify.app
+                  </span>
+
+                </span>
+
+                <span class="helpful-site-external">
+                  ↗
+                </span>
 
               </a>
 
@@ -358,10 +652,13 @@
           </div>
 
 
+          <!-- ACCOUNT -->
+
           <a
             class="account-chip"
             href="{{ url_for('change_password') }}"
           >
+
             <span class="account-dot">
               {{ current_user[0]|upper }}
             </span>
@@ -369,7 +666,11 @@
             <span>
               {{ current_user }}
             </span>
+
           </a>
+
+
+          <!-- LOGOUT -->
 
           <a
             class="nav-logout"
@@ -378,7 +679,11 @@
             Logout
           </a>
 
+
         {% else %}
+
+
+          <!-- LOGIN -->
 
           <a
             class="nav-link {% if request.endpoint == 'login' %}active{% endif %}"
@@ -387,29 +692,42 @@
             Login
           </a>
 
-          <!-- OTHER HELPFUL WEBSITES FOR LOGGED-OUT USERS -->
-          <div class="helpful-sites-wrap" id="helpfulSitesWrap">
+
+          <!-- =====================================================
+               OTHER HELPFUL WEBSITES — LOGGED OUT
+               ===================================================== -->
+
+          <div
+            class="helpful-sites-wrap"
+            id="helpfulSitesWrapLoggedOut"
+          >
 
             <button
               type="button"
               class="helpful-sites-button"
-              id="helpfulSitesButton"
               aria-expanded="false"
-              aria-controls="helpfulSitesMenu"
+              aria-controls="helpfulSitesMenuLoggedOut"
             >
+
               Other helpful websites
-              <span class="helpful-arrow">▼</span>
+
+              <span class="helpful-arrow">
+                ▼
+              </span>
+
             </button>
+
 
             <div
               class="helpful-sites-menu"
-              id="helpfulSitesMenu"
+              id="helpfulSitesMenuLoggedOut"
               role="menu"
             >
 
               <div class="helpful-sites-title">
                 Student resources
               </div>
+
 
               <a
                 class="helpful-site-link"
@@ -419,16 +737,28 @@
                 role="menuitem"
               >
 
-                <span class="helpful-site-icon">🌐</span>
-
-                <span class="helpful-site-info">
-                  <strong>NCERT HELPER</strong>
-                  <span>ncerthelper.ai.studio</span>
+                <span class="helpful-site-icon">
+                  🌐
                 </span>
 
-                <span class="helpful-site-external">↗</span>
+                <span class="helpful-site-info">
+
+                  <strong>
+                    NCERT HELPER
+                  </strong>
+
+                  <span>
+                    ncerthelper.ai.studio
+                  </span>
+
+                </span>
+
+                <span class="helpful-site-external">
+                  ↗
+                </span>
 
               </a>
+
 
               <a
                 class="helpful-site-link"
@@ -438,14 +768,25 @@
                 role="menuitem"
               >
 
-                <span class="helpful-site-icon">📚</span>
-
-                <span class="helpful-site-info">
-                  <strong>SST PADHO</strong>
-                  <span>sstpadho.netlify.app</span>
+                <span class="helpful-site-icon">
+                  📚
                 </span>
 
-                <span class="helpful-site-external">↗</span>
+                <span class="helpful-site-info">
+
+                  <strong>
+                    SST PADHO
+                  </strong>
+
+                  <span>
+                    sstpadho.netlify.app
+                  </span>
+
+                </span>
+
+                <span class="helpful-site-external">
+                  ↗
+                </span>
 
               </a>
 
@@ -454,6 +795,8 @@
           </div>
 
 
+          <!-- CREATE ACCOUNT -->
+
           <a
             class="nav-cta"
             href="{{ url_for('register') }}"
@@ -461,7 +804,9 @@
             Create account <span>→</span>
           </a>
 
+
         {% endif %}
+
 
       </div>
 
@@ -470,25 +815,35 @@
   </nav>
 
 
+  <!-- =========================================================
+       MAIN CONTENT
+       ========================================================= -->
+
   <main class="page-shell">
 
+
     {% with messages = get_flashed_messages(with_categories=true) %}
+
 
       {% if messages %}
 
         <div class="flash-stack">
+
 
           {% for category, message in messages %}
 
             <div class="flash {{ category }}">
 
               <span class="flash-icon">
+
                 {% if category == 'success' %}
                   ✓
                 {% else %}
                   !
                 {% endif %}
+
               </span>
+
 
               <span>
                 {{ message }}
@@ -498,116 +853,229 @@
 
           {% endfor %}
 
+
         </div>
 
       {% endif %}
 
+
     {% endwith %}
 
+
     {% block content %}{% endblock %}
+
 
   </main>
 
 
+  <!-- =========================================================
+       FOOTER
+       ========================================================= -->
+
   <footer class="footer">
 
     <div>
-      <strong>SchoolVoice</strong>
-      <span>•</span>
+
+      <strong>
+        Kendriya Vidyalaya Andrews Ganj
+      </strong>
+
+      <span>
+        •
+      </span>
+
       <span>
         A safer way to make your school heard your voice.
       </span>
+
     </div>
 
+
     <span>
+
       Voice for student through which students
+
       <br>
+
       can learn comfortably
+
     </span>
 
   </footer>
 
 
-  <!-- Helpful Websites Dropdown Script -->
+  <!-- =========================================================
+       HELPFUL WEBSITES DROPDOWN SCRIPT
+       ========================================================= -->
+
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
 
-      const wrappers = document.querySelectorAll(".helpful-sites-wrap");
+    document.addEventListener(
+      "DOMContentLoaded",
+      function () {
 
-      wrappers.forEach(function (wrapper) {
-
-        const button = wrapper.querySelector(".helpful-sites-button");
-
-        if (!button) return;
-
-        button.addEventListener("click", function (event) {
-
-          event.stopPropagation();
-
-          const isOpen = wrapper.classList.contains("open");
-
-          wrappers.forEach(function (otherWrapper) {
-            otherWrapper.classList.remove("open");
-
-            const otherButton =
-              otherWrapper.querySelector(".helpful-sites-button");
-
-            if (otherButton) {
-              otherButton.setAttribute("aria-expanded", "false");
-            }
-          });
-
-          if (!isOpen) {
-            wrapper.classList.add("open");
-            button.setAttribute("aria-expanded", "true");
-          }
-
-        });
-
-      });
+        const wrappers =
+          document.querySelectorAll(
+            ".helpful-sites-wrap"
+          );
 
 
-      document.addEventListener("click", function () {
-
-        wrappers.forEach(function (wrapper) {
-
-          wrapper.classList.remove("open");
-
-          const button =
-            wrapper.querySelector(".helpful-sites-button");
-
-          if (button) {
-            button.setAttribute("aria-expanded", "false");
-          }
-
-        });
-
-      });
-
-
-      document.addEventListener("keydown", function (event) {
-
-        if (event.key === "Escape") {
-
-          wrappers.forEach(function (wrapper) {
-
-            wrapper.classList.remove("open");
+        wrappers.forEach(
+          function (wrapper) {
 
             const button =
-              wrapper.querySelector(".helpful-sites-button");
+              wrapper.querySelector(
+                ".helpful-sites-button"
+              );
 
-            if (button) {
-              button.setAttribute("aria-expanded", "false");
+
+            if (!button) {
+              return;
             }
 
-          });
 
-        }
+            button.addEventListener(
+              "click",
+              function (event) {
 
-      });
+                event.stopPropagation();
 
-    });
+
+                const isOpen =
+                  wrapper.classList.contains(
+                    "open"
+                  );
+
+
+                wrappers.forEach(
+                  function (otherWrapper) {
+
+                    otherWrapper.classList.remove(
+                      "open"
+                    );
+
+
+                    const otherButton =
+                      otherWrapper.querySelector(
+                        ".helpful-sites-button"
+                      );
+
+
+                    if (otherButton) {
+
+                      otherButton.setAttribute(
+                        "aria-expanded",
+                        "false"
+                      );
+
+                    }
+
+                  }
+                );
+
+
+                if (!isOpen) {
+
+                  wrapper.classList.add(
+                    "open"
+                  );
+
+
+                  button.setAttribute(
+                    "aria-expanded",
+                    "true"
+                  );
+
+                }
+
+              }
+            );
+
+          }
+        );
+
+
+        /* Close when clicking outside */
+
+        document.addEventListener(
+          "click",
+          function () {
+
+            wrappers.forEach(
+              function (wrapper) {
+
+                wrapper.classList.remove(
+                  "open"
+                );
+
+
+                const button =
+                  wrapper.querySelector(
+                    ".helpful-sites-button"
+                  );
+
+
+                if (button) {
+
+                  button.setAttribute(
+                    "aria-expanded",
+                    "false"
+                  );
+
+                }
+
+              }
+            );
+
+          }
+        );
+
+
+        /* Close with Escape */
+
+        document.addEventListener(
+          "keydown",
+          function (event) {
+
+            if (event.key === "Escape") {
+
+              wrappers.forEach(
+                function (wrapper) {
+
+                  wrapper.classList.remove(
+                    "open"
+                  );
+
+
+                  const button =
+                    wrapper.querySelector(
+                      ".helpful-sites-button"
+                    );
+
+
+                  if (button) {
+
+                    button.setAttribute(
+                      "aria-expanded",
+                      "false"
+                    );
+
+                  }
+
+                }
+              );
+
+            }
+
+          }
+        );
+
+
+      }
+    );
+
   </script>
+
 
 </body>
 </html>
