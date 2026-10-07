@@ -6660,3 +6660,471 @@ body.page-leaving .page-shell {
         height: 39px;
     }
 }
+
+/* =========================================================
+   HOME PAGE — STUDENT RESOURCES
+   Visible to logged-out visitors
+   ========================================================= */
+
+.home-student-resources {
+    position: relative;
+    margin: 8px 0 65px;
+    padding: 27px;
+    border: 1px solid rgba(210, 225, 236, .95);
+    border-radius: 24px;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,.98),
+            rgba(244,249,253,.96)
+        );
+    box-shadow:
+        0 18px 50px rgba(20,55,85,.08);
+    overflow: hidden;
+}
+
+/* Decorative background glow */
+
+.home-student-resources::before {
+    content: "";
+    position: absolute;
+    width: 260px;
+    height: 260px;
+    top: -150px;
+    right: -80px;
+    border-radius: 50%;
+    background: rgba(29,111,184,.07);
+    pointer-events: none;
+}
+
+.home-student-resources::after {
+    content: "";
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    bottom: -120px;
+    left: -70px;
+    border-radius: 50%;
+    background: rgba(65,157,211,.05);
+    pointer-events: none;
+}
+
+
+/* Heading */
+
+.home-student-resources-heading {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 20px;
+}
+
+.home-student-resources-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    color: var(--blue);
+    font-size: 10px;
+    font-weight: 950;
+    letter-spacing: .14em;
+}
+
+.home-student-resources-eyebrow::before {
+    content: "";
+    width: 18px;
+    height: 3px;
+    border-radius: 999px;
+    background: var(--blue);
+}
+
+.home-student-resources-heading h2 {
+    margin: 6px 0 4px;
+
+    color: var(--navy);
+    font-size: 27px;
+    line-height: 1.1;
+    letter-spacing: -.8px;
+}
+
+.home-student-resources-heading p {
+    margin: 0;
+
+    color: var(--muted);
+    font-size: 12px;
+}
+
+
+/* Cards */
+
+.home-student-resources-grid {
+    position: relative;
+    z-index: 2;
+
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.home-resource-card {
+    position: relative;
+
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+    gap: 13px;
+
+    padding: 15px;
+
+    text-decoration: none;
+
+    background: #fff;
+    border: 1px solid #dce8f0;
+    border-radius: 17px;
+
+    box-shadow:
+        0 9px 25px rgba(20,55,85,.055);
+
+    overflow: hidden;
+
+    transition:
+        transform .22s ease,
+        box-shadow .22s ease,
+        border-color .22s ease;
+}
+
+.home-resource-card::after {
+    content: "";
+
+    position: absolute;
+
+    width: 105px;
+    height: 105px;
+
+    right: -58px;
+    bottom: -58px;
+
+    border-radius: 50%;
+
+    background: rgba(29,111,184,.055);
+
+    transition: transform .3s ease;
+}
+
+.home-resource-card:hover {
+    transform: translateY(-4px);
+
+    border-color: #bdd7e8;
+
+    box-shadow:
+        0 17px 35px rgba(20,55,85,.12);
+}
+
+.home-resource-card:hover::after {
+    transform: scale(1.35);
+}
+
+
+/* Custom logo container */
+
+.home-resource-logo {
+    position: relative;
+    flex: 0 0 45px;
+
+    width: 45px;
+    height: 45px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 13px;
+
+    background: #eef6fc;
+    color: var(--blue);
+
+    overflow: hidden;
+}
+
+
+/* Resource text */
+
+.home-resource-info {
+    min-width: 0;
+    flex: 1;
+}
+
+.home-resource-info strong,
+.home-resource-info span {
+    display: block;
+}
+
+.home-resource-info strong {
+    color: var(--navy);
+
+    font-size: 12px;
+    font-weight: 900;
+
+    white-space: nowrap;
+}
+
+.home-resource-info span {
+    margin-top: 3px;
+
+    color: #8495a4;
+
+    font-size: 9px;
+    font-weight: 650;
+
+    white-space: nowrap;
+}
+
+
+/* Arrow */
+
+.home-resource-arrow {
+    position: relative;
+    z-index: 3;
+
+    flex: 0 0 auto;
+
+    width: 29px;
+    height: 29px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 9px;
+
+    color: var(--blue);
+    background: #f0f7fc;
+
+    font-size: 14px;
+    font-weight: 900;
+
+    transition:
+        transform .22s ease,
+        background .22s ease;
+}
+
+.home-resource-card:hover .home-resource-arrow {
+    transform: translate(2px,-2px);
+
+    background: #e3f1fb;
+}
+
+
+/* =========================================================
+   NCERT HELPER — OPEN BOOK LOGO
+   ========================================================= */
+
+.ncert-resource .home-resource-logo {
+    background: #edf6fc;
+}
+
+.ncert-resource .book-left,
+.ncert-resource .book-right {
+    position: absolute;
+
+    top: 13px;
+
+    width: 15px;
+    height: 20px;
+
+    border: 2px solid var(--blue);
+
+    background: #fff;
+
+    border-radius: 3px 2px 2px 3px;
+}
+
+.ncert-resource .book-left {
+    left: 8px;
+
+    transform:
+        perspective(30px)
+        rotateY(8deg);
+}
+
+.ncert-resource .book-right {
+    right: 8px;
+
+    border-radius: 2px 3px 3px 2px;
+
+    transform:
+        perspective(30px)
+        rotateY(-8deg);
+}
+
+.ncert-resource .book-line {
+    position: absolute;
+
+    width: 2px;
+    height: 22px;
+
+    left: 50%;
+    top: 12px;
+
+    transform: translateX(-50%);
+
+    background: var(--blue);
+
+    border-radius: 3px;
+}
+
+
+/* =========================================================
+   SST PADHO — GLOBE LOGO
+   ========================================================= */
+
+.sst-resource .home-resource-logo {
+    background: #eef8f5;
+    color: #25876f;
+}
+
+.sst-resource .globe-ring {
+    position: absolute;
+
+    width: 27px;
+    height: 27px;
+
+    border: 2px solid #25876f;
+    border-radius: 50%;
+}
+
+.sst-resource .globe-line {
+    position: absolute;
+
+    border-radius: 50%;
+}
+
+.sst-resource .globe-line.horizontal {
+    width: 23px;
+    height: 9px;
+
+    border-top: 1.5px solid #25876f;
+    border-bottom: 1.5px solid #25876f;
+}
+
+.sst-resource .globe-line.vertical {
+    width: 9px;
+    height: 27px;
+
+    border-left: 1.5px solid #25876f;
+    border-right: 1.5px solid #25876f;
+}
+
+
+/* =========================================================
+   FOCUSGRID — FOCUS / GRID LOGO
+   ========================================================= */
+
+.focus-resource .home-resource-logo {
+    background: #f2effc;
+    color: #705db0;
+}
+
+.focus-resource .focus-square {
+    position: absolute;
+
+    width: 9px;
+    height: 9px;
+
+    border: 2px solid #705db0;
+
+    border-radius: 3px;
+}
+
+.focus-resource .focus-square.one {
+    left: 10px;
+    top: 10px;
+}
+
+.focus-resource .focus-square.two {
+    right: 10px;
+    top: 10px;
+}
+
+.focus-resource .focus-square.three {
+    left: 10px;
+    bottom: 10px;
+}
+
+.focus-resource .focus-square.four {
+    right: 10px;
+    bottom: 10px;
+}
+
+.focus-resource .focus-dot {
+    position: absolute;
+
+    width: 7px;
+    height: 7px;
+
+    left: 50%;
+    top: 50%;
+
+    transform: translate(-50%, -50%);
+
+    border-radius: 50%;
+
+    background: #705db0;
+
+    box-shadow:
+        0 0 0 4px rgba(112,93,176,.10);
+}
+
+
+/* =========================================================
+   HOME RESOURCES — RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .home-student-resources-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .home-resource-card {
+        min-height: 68px;
+    }
+
+}
+
+
+@media (max-width: 680px) {
+
+    .home-student-resources {
+        margin-top: 0;
+        margin-bottom: 45px;
+        padding: 21px;
+        border-radius: 20px;
+    }
+
+    .home-student-resources-heading h2 {
+        font-size: 24px;
+    }
+
+    .home-student-resources-grid {
+        gap: 10px;
+    }
+
+}
+
+
+@media (max-width: 430px) {
+
+    .home-student-resources {
+        padding: 17px;
+    }
+
+    .home-resource-card {
+        padding: 12px;
+    }
+
+    .home-resource-logo {
+        flex-basis: 42px;
+        width: 42px;
+        height: 42px;
+    }
+
+}
