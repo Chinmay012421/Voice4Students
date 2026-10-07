@@ -1359,7 +1359,7 @@ p {
         grid;
 
     grid-template-columns:
-        repeat(3,1fr);
+        repeat(4,1fr);
 
     gap:
         16px;
@@ -7127,4 +7127,41 @@ body.page-leaving .page-shell {
         height: 42px;
     }
 
+}
+/* =========================================================
+   SCHOOLFIX — CUSTOM LOGO
+   ========================================================= */
+
+.schoolfix-resource .home-resource-logo {
+    background: #eef6fc;
+    color: var(--blue);
+}
+
+.schoolfix-shield {
+    position: relative;
+
+    width: 25px;
+    height: 29px;
+
+    display: grid;
+    place-items: center;
+
+    color: #fff;
+    background: var(--blue);
+
+    font-size: 13px;
+    font-weight: 950;
+
+    clip-path: polygon(
+        50% 0%,
+        91% 15%,
+        91% 55%,
+        76% 79%,
+        50% 100%,
+        24% 79%,
+        9% 55%,
+        9% 15%
+    );
+
+    box-shadow: 0 5px 12px rgba(29,111,184,.2);
 }
