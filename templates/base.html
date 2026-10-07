@@ -57,18 +57,6 @@
                href="{{ url_for('security_dashboard') }}">Security</a>
           {% endif %}
 
-          {# Helpful websites are hidden from Main Admins. #}
-          {% if role != 'main_admin' %}
-            <details class="helpful-websites">
-              <summary>Other helpful websites ▼</summary>
-              <div class="helpful-websites-dropdown">
-                <a href="https://ncerthelper.ai.studio/" target="_blank" rel="noopener noreferrer">NCERT HELPER</a>
-                <a href="https://sstpadho.netlify.app/" target="_blank" rel="noopener noreferrer">SST PADHO</a>
-                <a href="https://focusgrid-for-students.onrender.com/" target="_blank" rel="noopener noreferrer">FOCUSGRID</a>
-              </div>
-            </details>
-          {% endif %}
-
           <a class="account-chip" href="{{ url_for('change_password') }}">
             <span class="account-dot">{{ current_user[0]|upper }}</span>
             <span>{{ current_user }}</span>
@@ -105,6 +93,48 @@
     {% endwith %}
 
     {% block content %}{% endblock %}
+
+    {# Student resources appear ONLY underneath the Dashboard. #}
+    {% if logged_in and request.endpoint == 'dashboard' and role != 'main_admin' %}
+      <section class="student-resources" aria-label="Other helpful websites">
+        <div class="student-resources-heading">
+          <div>
+            <span class="student-resources-eyebrow">STUDENT RESOURCES</span>
+            <h2>Other helpful websites</h2>
+            <p>Useful study and productivity tools for students.</p>
+          </div>
+        </div>
+
+        <div class="student-resources-grid">
+          <a class="student-resource" href="https://ncerthelper.ai.studio/" target="_blank" rel="noopener noreferrer">
+            <span class="student-resource-icon">N</span>
+            <span>
+              <strong>NCERT HELPER</strong>
+              <small>NCERT study support</small>
+            </span>
+            <span class="student-resource-arrow">↗</span>
+          </a>
+
+          <a class="student-resource" href="https://sstpadho.netlify.app/" target="_blank" rel="noopener noreferrer">
+            <span class="student-resource-icon">S</span>
+            <span>
+              <strong>SST PADHO</strong>
+              <small>Social studies learning</small>
+            </span>
+            <span class="student-resource-arrow">↗</span>
+          </a>
+
+          <a class="student-resource" href="https://focusgrid-for-students.onrender.com/" target="_blank" rel="noopener noreferrer">
+            <span class="student-resource-icon">F</span>
+            <span>
+              <strong>FOCUSGRID</strong>
+              <small>Student focus and productivity</small>
+            </span>
+            <span class="student-resource-arrow">↗</span>
+          </a>
+        </div>
+      </section>
+    {% endif %}
   </main>
 
   <footer class="footer">
