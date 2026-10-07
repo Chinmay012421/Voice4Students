@@ -4,6 +4,10 @@
 
 {% block content %}
 
+<!-- =====================================================
+     HERO
+     ===================================================== -->
+
 <section class="home-hero reveal">
 
   <div class="hero-copy">
@@ -47,6 +51,9 @@
 
     </div>
 
+
+    <!-- TRUST POINTS -->
+
     <div class="hero-trust">
       <span>✓ Private student reports</span>
       <span>✓ Photo evidence</span>
@@ -70,7 +77,7 @@
         loop
         playsinline
         preload="auto"
-        aria-label="SchoolFix demonstration video"
+        aria-label="SchoolVoice demonstration video"
       >
 
         <source
@@ -88,6 +95,177 @@
 
 </section>
 
+
+<!-- =====================================================
+     LOGGED-OUT STUDENT RESOURCES
+     ===================================================== -->
+
+{% if not logged_in %}
+
+<section
+  class="home-student-resources reveal"
+  aria-label="Other helpful websites"
+>
+
+  <div class="home-student-resources-heading">
+
+    <div>
+
+      <span class="home-student-resources-eyebrow">
+        STUDENT RESOURCES
+      </span>
+
+      <h2>
+        Other helpful websites
+      </h2>
+
+      <p>
+        Useful study and productivity tools for students.
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <div class="home-student-resources-grid">
+
+
+    <!-- =================================================
+         NCERT HELPER
+         ================================================= -->
+
+    <a
+      class="home-resource-card ncert-resource"
+      href="https://ncerthelper.ai.studio/"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Open NCERT Helper"
+    >
+
+      <div class="home-resource-logo">
+
+        <span class="book-left"></span>
+        <span class="book-right"></span>
+        <span class="book-line"></span>
+
+      </div>
+
+
+      <div class="home-resource-info">
+
+        <strong>
+          NCERT HELPER
+        </strong>
+
+        <span>
+          NCERT study support
+        </span>
+
+      </div>
+
+
+      <div class="home-resource-arrow">
+        ↗
+      </div>
+
+    </a>
+
+
+    <!-- =================================================
+         SST PADHO
+         ================================================= -->
+
+    <a
+      class="home-resource-card sst-resource"
+      href="https://sstpadho.netlify.app/"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Open SST Padho"
+    >
+
+      <div class="home-resource-logo">
+
+        <span class="globe-ring"></span>
+        <span class="globe-line horizontal"></span>
+        <span class="globe-line vertical"></span>
+
+      </div>
+
+
+      <div class="home-resource-info">
+
+        <strong>
+          SST PADHO
+        </strong>
+
+        <span>
+          Social studies learning
+        </span>
+
+      </div>
+
+
+      <div class="home-resource-arrow">
+        ↗
+      </div>
+
+    </a>
+
+
+    <!-- =================================================
+         FOCUSGRID
+         ================================================= -->
+
+    <a
+      class="home-resource-card focus-resource"
+      href="https://focusgrid-for-students.onrender.com/"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Open FocusGrid"
+    >
+
+      <div class="home-resource-logo">
+
+        <span class="focus-square one"></span>
+        <span class="focus-square two"></span>
+        <span class="focus-square three"></span>
+        <span class="focus-square four"></span>
+        <span class="focus-dot"></span>
+
+      </div>
+
+
+      <div class="home-resource-info">
+
+        <strong>
+          FOCUSGRID
+        </strong>
+
+        <span>
+          Student focus &amp; productivity
+        </span>
+
+      </div>
+
+
+      <div class="home-resource-arrow">
+        ↗
+      </div>
+
+    </a>
+
+
+  </div>
+
+</section>
+
+{% endif %}
+
+
+<!-- =====================================================
+     HOW IT WORKS
+     ===================================================== -->
 
 <section class="section-block">
 
@@ -116,6 +294,9 @@
 
   <div class="feature-grid">
 
+
+    <!-- REPORT -->
+
     <article class="feature-card reveal">
 
       <div class="feature-number">
@@ -137,6 +318,8 @@
 
     </article>
 
+
+    <!-- TRACK -->
 
     <article class="feature-card reveal">
 
@@ -160,6 +343,8 @@
     </article>
 
 
+    <!-- IMPROVE -->
+
     <article class="feature-card reveal">
 
       <div class="feature-number">
@@ -181,10 +366,15 @@
 
     </article>
 
+
   </div>
 
 </section>
 
+
+<!-- =====================================================
+     BOTTOM CTA
+     ===================================================== -->
 
 <section class="home-bottom reveal">
 
@@ -206,5 +396,6 @@
   </p>
 
 </section>
+
 
 {% endblock %}
