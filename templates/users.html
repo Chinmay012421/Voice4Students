@@ -1,6 +1,109 @@
 {% extends "base.html" %}
-{% block title %}Users — SchoolVoice{% endblock %}
+{% block title %}User Management — SchoolVoice{% endblock %}
 {% block content %}
-<div class="page-title reveal"><div><div class="eyebrow"><span></span> MAIN ADMIN</div><h1>User management</h1><p>Change roles, reset passwords, or remove accounts.</p></div></div>
-<div class="panel-card reveal table-card"><div class="table-heading"><div><strong>All users</strong><span>Main Admin accounts remain protected.</span></div><span class="count-badge">{{ users|length }} users</span></div><div class="table-wrap"><table><thead><tr><th>User</th><th>Role</th><th>Created</th><th>Actions</th></tr></thead><tbody>{% for u in users %}<tr><td><div class="user-cell"><span class="user-avatar">{{ u[1][0]|upper }}</span><strong>{{ u[1] }}</strong></div></td><td><span class="role-pill {{ u[3] }}">{{ u[3]|replace('_',' ') }}</span></td><td>{{ u[4] }}</td><td>{% if u[3] != 'main_admin' %}<div class="row-actions"><form class="inline" method="post" action="{{ url_for('change_role', user_id=u[0]) }}"><select name="role"><option value="student" {% if u[3]=='student' %}selected{% endif %}>Student</option><option value="admin" {% if u[3]=='admin' %}selected{% endif %}>Admin</option></select><button class="mini-btn" type="submit">Role</button></form><form class="inline" method="post" action="{{ url_for('reset_user_password', user_id=u[0]) }}"><input name="new_password" minlength="6" placeholder="New password" required><button class="mini-btn" type="submit">Reset</button></form><form class="inline" method="post" action="{{ url_for('delete_user', user_id=u[0]) }}" onsubmit="return confirm('Delete this user and all their reports?')"><button class="mini-btn danger" type="submit">Delete</button></form></div>{% else %}<span class="protected">Protected Main Admin</span>{% endif %}</td></tr>{% endfor %}</tbody></table></div></div>
+
+{% set ns = namespace(students=0, admins=0, main_admins=0) %}
+{% for u in users %}
+  {% if u[3] == 'student' %}{% set ns.students = ns.students + 1 %}{% endif %}
+  {% if u[3] == 'admin' %}{% set ns.admins = ns.admins + 1 %}{% endif %}
+  {% if u[3] == 'main_admin' %}{% set ns.main_admins = ns.main_admins + 1 %}{% endif %}
+{% endfor %}
+
+<div class="users-page reveal">
+  <div class="users-hero">
+    <div>
+      <div class="eyebrow"><span></span> MAIN ADMIN</div>
+      <h1>User management</h1>
+      <p>Manage student accounts, administrator roles, passwords, and account access from one place.</p>
+    </div>
+    <div class="users-hero-badge">
+      <span class="users-hero-icon">U</span>
+      <div>
+        <strong>{{ users|length }}</strong>
+        <small>Total accounts</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="user-stats-grid">
+    <div class="user-stat-card student-stat">
+      <span class="user-stat-icon">S</span>
+      <div><strong>{{ ns.students }}</strong><small>Students</small></div>
+    </div>
+    <div class="user-stat-card admin-stat">
+      <span class="user-stat-icon">A</span>
+      <div><strong>{{ ns.admins }}</strong><small>Admins</small></div>
+    </div>
+    <div class="user-stat-card main-admin-stat">
+      <span class="user-stat-icon">M</span>
+      <div><strong>{{ ns.main_admins }}</strong><small>Main Admins</small></div>
+    </div>
+  </div>
+
+  <div class="user-management-panel">
+    <div class="user-management-heading">
+      <div>
+        <span class="user-section-label">ACCOUNT DIRECTORY</span>
+        <h2>All users</h2>
+        <p>Use the controls on each account to update its role, password, or access.</p>
+      </div>
+      <span class="user-count-badge">{{ users|length }} accounts</span>
+    </div>
+
+    <div class="users-list">
+      {% for u in users %}
+      <div class="user-management-card {% if u[3] == 'main_admin' %}is-main-admin{% endif %}">
+        <div class="managed-user-identity">
+          <span class="managed-user-avatar">{{ u[1][0]|upper }}</span>
+          <div class="managed-user-name">
+            <strong>{{ u[1] }}</strong>
+            <span>Joined {{ u[4] }}</span>
+          </div>
+        </div>
+
+        <div class="managed-user-role">
+          <span class="role-pill {{ u[3] }}">{{ u[3]|replace('_',' ') }}</span>
+          {% if u[3] == 'main_admin' %}
+            <span class="protected-badge"><span>✓</span> Protected account</span>
+          {% endif %}
+        </div>
+
+        {% if u[3] != 'main_admin' %}
+        <div class="managed-user-actions">
+          <form class="management-action role-action" method="post" action="{{ url_for('change_role', user_id=u[0]) }}">
+            <label>Role</label>
+            <div class="action-row">
+              <select name="role">
+                <option value="student" {% if u[3]=='student' %}selected{% endif %}>Student</option>
+                <option value="admin" {% if u[3]=='admin' %}selected{% endif %}>Admin</option>
+              </select>
+              <button class="management-btn" type="submit">Update role</button>
+            </div>
+          </form>
+
+          <form class="management-action password-action" method="post" action="{{ url_for('reset_user_password', user_id=u[0]) }}">
+            <label>Reset password</label>
+            <div class="action-row">
+              <input name="new_password" minlength="6" placeholder="New password" required>
+              <button class="management-btn" type="submit">Reset</button>
+            </div>
+          </form>
+
+          <form class="management-action delete-action" method="post" action="{{ url_for('delete_user', user_id=u[0]) }}" onsubmit="return confirm('Delete this user and all their reports?')">
+            <label>Danger zone</label>
+            <button class="management-btn danger" type="submit">Delete account</button>
+          </form>
+        </div>
+        {% else %}
+        <div class="main-admin-protection">
+          <span class="protection-icon">✓</span>
+          <div><strong>Main Admin protection</strong><small>This account cannot be changed or deleted from this panel.</small></div>
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
 {% endblock %}
