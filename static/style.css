@@ -1359,7 +1359,7 @@ p {
         grid;
 
     grid-template-columns:
-        repeat(4,1fr);
+        repeat(3,1fr);
 
     gap:
         16px;
@@ -5705,7 +5705,7 @@ body.page-leaving .page-shell {
 
 .student-resources-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 14px;
 }
 
